@@ -1,0 +1,96 @@
+dataset,field_name,description
+Retail Portfolio,customer_id,Unique customer identifier
+Retail Portfolio,age,Customer age in years
+Retail Portfolio,gender,Customer gender (M/F)
+Retail Portfolio,education_level,Highest education level completed
+Retail Portfolio,employment_status,Current employment status
+Retail Portfolio,income,Annual gross income in USD
+Retail Portfolio,employment_tenure,Years with current employer
+Retail Portfolio,years_at_address,Years at current residential address
+Retail Portfolio,homeowner,"Homeownership status (1=owner, 0=renter)"
+Retail Portfolio,credit_score,FICO-like credit score (300-850)
+Retail Portfolio,credit_history_length,Length of credit history in months
+Retail Portfolio,num_accounts,Total number of credit accounts
+Retail Portfolio,credit_limit,Total credit limit across all accounts
+Retail Portfolio,current_debt,Current total outstanding debt
+Retail Portfolio,debt_to_income,Debt-to-income ratio
+Retail Portfolio,utilization_rate,Credit utilization rate (debt/limit)
+Retail Portfolio,payment_history,Percentage of on-time payments
+Retail Portfolio,recent_inquiries,Number of credit inquiries in last 12 months
+Retail Portfolio,months_since_last_delinquency,Months since last delinquency (999=never)
+Retail Portfolio,num_delinquent_accounts,Number of currently delinquent accounts
+Retail Portfolio,savings_balance,Savings account balance
+Retail Portfolio,num_bank_accounts,Number of bank accounts
+Retail Portfolio,checking_balance,Checking account balance
+Retail Portfolio,monthly_transactions,Average monthly transactions
+Retail Portfolio,avg_transaction_amount,Average transaction amount
+Retail Portfolio,default_probability,Model-estimated probability of default
+Retail Portfolio,is_default,"Binary default indicator (1=default, 0=non-default)"
+SME Portfolio,company_id,Unique company identifier
+SME Portfolio,industry,Industry sector
+SME Portfolio,years_in_business,Years since company establishment
+SME Portfolio,num_employees,Number of employees
+SME Portfolio,annual_revenue,Annual revenue in USD
+SME Portfolio,current_ratio,Current assets / Current liabilities
+SME Portfolio,debt_to_equity,Total debt / Total equity
+SME Portfolio,interest_coverage,EBIT / Interest expense
+SME Portfolio,profit_margin,Net profit / Revenue
+SME Portfolio,asset_turnover,Revenue / Total assets
+SME Portfolio,operating_cash_flow,Operating cash flow
+SME Portfolio,working_capital,Current assets - Current liabilities
+SME Portfolio,primary_bank_relationship_years,Years with primary bank
+SME Portfolio,num_banking_products,Number of banking products used
+SME Portfolio,credit_line_amount,Total credit line amount
+SME Portfolio,credit_utilization,Credit utilization rate
+SME Portfolio,outstanding_loans,Outstanding loan balance
+SME Portfolio,days_past_due,Days past due on payments
+SME Portfolio,payment_delays_12m,Number of payment delays in 12 months
+SME Portfolio,geographic_risk,Geographic risk category
+SME Portfolio,market_competition,Market competition level
+SME Portfolio,management_quality,Management quality score (1-10)
+SME Portfolio,sme_credit_score,SME credit score (300-850)
+SME Portfolio,default_probability,Model-estimated probability of default
+SME Portfolio,is_default,Binary default indicator
+Corporate Portfolio,company_id,Unique company identifier
+Corporate Portfolio,industry,Industry sector
+Corporate Portfolio,years_established,Years since establishment
+Corporate Portfolio,num_employees,Number of employees
+Corporate Portfolio,is_public,"Public company indicator (1=public, 0=private)"
+Corporate Portfolio,market_cap,Market capitalization (for public companies)
+Corporate Portfolio,annual_revenue,Annual revenue in USD
+Corporate Portfolio,current_ratio,Current assets / Current liabilities
+Corporate Portfolio,quick_ratio,(Current assets - Inventory) / Current liabilities
+Corporate Portfolio,cash_ratio,Cash / Current liabilities
+Corporate Portfolio,debt_to_equity,Total debt / Total equity
+Corporate Portfolio,debt_to_assets,Total debt / Total assets
+Corporate Portfolio,times_interest_earned,EBIT / Interest expense
+Corporate Portfolio,net_profit_margin,Net profit / Revenue
+Corporate Portfolio,roa,Return on assets
+Corporate Portfolio,roe,Return on equity
+Corporate Portfolio,asset_turnover,Revenue / Total assets
+Corporate Portfolio,inventory_turnover,COGS / Average inventory
+Corporate Portfolio,operating_cash_flow,Operating cash flow
+Corporate Portfolio,free_cash_flow,Free cash flow
+Corporate Portfolio,credit_rating,External credit rating
+Corporate Portfolio,num_banking_relationships,Number of banking relationships
+Corporate Portfolio,primary_bank_relationship_years,Years with primary bank
+Corporate Portfolio,total_credit_facilities,Total credit facilities available
+Corporate Portfolio,committed_facilities,Committed credit facilities
+Corporate Portfolio,utilization_rate,Credit utilization rate
+Corporate Portfolio,outstanding_debt,Outstanding debt balance
+Corporate Portfolio,geographic_diversification,Geographic diversification level
+Corporate Portfolio,regulatory_environment,Regulatory environment risk
+Corporate Portfolio,market_position,Market position strength
+Corporate Portfolio,esg_score,"ESG (Environmental, Social, Governance) score"
+Corporate Portfolio,corporate_credit_score,Corporate credit score (300-850)
+Corporate Portfolio,default_probability,Model-estimated probability of default
+Corporate Portfolio,is_default,Binary default indicator
+Macroeconomic Data,date,Observation date (monthly)
+Macroeconomic Data,gdp_growth,Quarterly annualized GDP growth rate
+Macroeconomic Data,unemployment_rate,Unemployment rate
+Macroeconomic Data,interest_rate,10-year treasury rate
+Macroeconomic Data,inflation_rate,Annual inflation rate
+Macroeconomic Data,stock_index,Stock market index (base=100)
+Macroeconomic Data,housing_index,Housing price index (base=100)
+Macroeconomic Data,credit_spread,Corporate bond spread over treasury
+Macroeconomic Data,vix,Volatility index (fear gauge)

@@ -487,15 +487,15 @@ class PDDataGenerator:
         operating_cash_flow = annual_revenue * net_profit_margin * np.random.uniform(1.1, 1.4, n_companies)
         free_cash_flow = operating_cash_flow * np.random.uniform(0.6, 0.9, n_companies)
         
-        # Credit ratings (using S&P-like scale) - FIXED PROBABILITIES
+        # Credit ratings (using S&P-like scale) - PROBABILITIES SUM TO EXACTLY 1.0
         credit_ratings = np.random.choice([
             'AAA', 'AA+', 'AA', 'AA-', 'A+', 'A', 'A-', 
             'BBB+', 'BBB', 'BBB-', 'BB+', 'BB', 'BB-', 
             'B+', 'B', 'B-', 'CCC+', 'CCC', 'CCC-'
         ], n_companies, p=[
-            0.02, 0.03, 0.05, 0.07, 0.08, 0.10, 0.12,
-            0.15, 0.13, 0.10, 0.08, 0.05, 0.03,
-            0.02, 0.01, 0.006, 0.002, 0.001, 0.001
+            0.02, 0.03, 0.05, 0.07, 0.08, 0.1, 0.12, 
+            0.13, 0.11, 0.08, 0.07, 0.05, 0.03, 
+            0.02, 0.02, 0.003, 0.002, 0.002, 0.013
         ])
         
         # Banking relationships
