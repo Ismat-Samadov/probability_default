@@ -123,7 +123,8 @@ cd advanced-probability-default-model
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-
+# check directory
+tree -I venv
 # Install dependencies
 pip install -r requirements.txt
 ```
