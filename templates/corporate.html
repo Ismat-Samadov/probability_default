@@ -23,6 +23,25 @@
                         </div>
                         
                         <div class="col-md-6">
+                            <label for="industry" class="form-label">Industry Sector *</label>
+                            <select class="form-select" id="industry" name="industry" required>
+                                <option value="">Select industry...</option>
+                                <option value="Technology" selected>Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Financial Services">Financial Services</option>
+                                <option value="Energy">Energy</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Consumer Goods">Consumer Goods</option>
+                                <option value="Telecommunications">Telecommunications</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Real Estate">Real Estate</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Media">Media</option>
+                                <option value="Aerospace">Aerospace</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
                             <label for="annual_revenue" class="form-label">Annual Revenue ($) *</label>
                             <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
                                    min="50000000" max="500000000000" value="1000000000" step="1000000" required>
@@ -158,6 +177,7 @@
                     The model incorporates 40+ risk factors including:
                 </p>
                 <ul class="small mb-0">
+                    <li><strong>Industry Analysis:</strong> Sector-specific risk assessment and benchmarking</li>
                     <li><strong>Financial Strength:</strong> Liquidity, leverage, and profitability ratios</li>
                     <li><strong>Credit Quality:</strong> External ratings and market position assessment</li>
                     <li><strong>Cash Generation:</strong> Operating and free cash flow analysis</li>
@@ -174,6 +194,7 @@
 function resetForm() {
     document.getElementById('corporateForm').reset();
     // Reset to default values
+    document.getElementById('industry').value = 'Technology';
     document.getElementById('annual_revenue').value = '1000000000';
     document.getElementById('num_employees').value = '5000';
     document.getElementById('current_ratio').value = '1.5';
@@ -209,6 +230,40 @@ document.getElementById('debt_to_equity').addEventListener('input', function() {
     }
     
     if (!this.parentElement.querySelector('.ratio-helper')) {
+        this.parentElement.appendChild(helper);
+    }
+});
+
+// Industry-specific guidance
+document.getElementById('industry').addEventListener('change', function() {
+    const industry = this.value;
+    const helper = this.parentElement.querySelector('.industry-helper') || document.createElement('div');
+    helper.className = 'industry-helper mt-1 small text-info';
+    
+    let guidance = '';
+    switch(industry) {
+        case 'Technology':
+            guidance = '<i class="fas fa-lightbulb me-1"></i>Tech companies typically have higher growth but more volatility';
+            break;
+        case 'Healthcare':
+            guidance = '<i class="fas fa-heart me-1"></i>Healthcare sector generally shows stable, defensive characteristics';
+            break;
+        case 'Financial Services':
+            guidance = '<i class="fas fa-university me-1"></i>Financial services require strong regulatory capital ratios';
+            break;
+        case 'Energy':
+            guidance = '<i class="fas fa-oil-can me-1"></i>Energy sector is sensitive to commodity price cycles';
+            break;
+        case 'Utilities':
+            guidance = '<i class="fas fa-bolt me-1"></i>Utilities typically have stable cash flows and lower volatility';
+            break;
+        default:
+            guidance = '<i class="fas fa-industry me-1"></i>Industry-specific factors will be considered in the analysis';
+    }
+    
+    helper.innerHTML = guidance;
+    
+    if (!this.parentElement.querySelector('.industry-helper')) {
         this.parentElement.appendChild(helper);
     }
 });

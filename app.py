@@ -316,6 +316,9 @@ class PDModelPredictor:
             df['market_cap'] = df['annual_revenue'] * 2  # Default P/S ratio
         if 'is_public' not in df.columns:
             df['is_public'] = 1
+        if 'industry' not in df.columns:
+            logger.warning("Industry column missing, using default 'Technology'")
+            df['industry'] = 'Technology'
         
         # Safe financial ratios
         df['cash_generation_ability'] = self.safe_division(
@@ -376,6 +379,30 @@ class PDModelPredictor:
             # Prepare data
             X = self.prepare_model_data(data_engineered, segment)
             logger.info(f"Prepared model data, shape: {X.shape}")
+            logger.info(f"Features available: {list(X.columns)}")
+            
+            # Check if we have all required features
+            if segment in self.preprocessors:
+                # Get expected features from preprocessor
+                try:
+                    expected_features = []
+                    for name, transformer, features in self.preprocessors[segment].transformers_:
+                        if name != 'remainder':
+                            expected_features.extend(features)
+                    
+                    missing_features = set(expected_features) - set(X.columns)
+                    if missing_features:
+                        logger.error(f"Missing features for {segment}: {missing_features}")
+                        # Add missing features with default values
+                        for feature in missing_features:
+                            if feature == 'industry':
+                                X[feature] = 'Technology'
+                            else:
+                                X[feature] = 0
+                        logger.info(f"Added missing features with default values: {missing_features}")
+                        
+                except Exception as e:
+                    logger.warning(f"Could not check expected features: {e}")
             
             # Preprocess
             if segment in self.preprocessors:
@@ -538,6 +565,7 @@ class SMECompany(BaseModel):
 
 class CorporateEntity(BaseModel):
     """Corporate entity data model"""
+    industry: str = Field(..., description="Industry sector")
     annual_revenue: float = Field(..., gt=0, description="Annual revenue")
     num_employees: int = Field(..., ge=1, description="Number of employees")
     current_ratio: float = Field(..., ge=0, le=10, description="Current ratio")
@@ -940,6 +968,7 @@ async def predict_sme_form(
 @app.post("/predict/corporate")
 async def predict_corporate_form(
     request: Request,
+    industry: str = Form(...),
     annual_revenue: float = Form(...),
     num_employees: int = Form(...),
     current_ratio: float = Form(...),
@@ -954,6 +983,7 @@ async def predict_corporate_form(
     """Handle corporate form submission"""
     try:
         entity = CorporateEntity(
+            industry=industry,
             annual_revenue=annual_revenue,
             num_employees=num_employees,
             current_ratio=current_ratio,
