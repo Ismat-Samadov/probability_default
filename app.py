@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Complete PD Model API with Web Interface
-=========================================
-FastAPI application with Jinja2 templating for all model segments
+Fixed PD Model API with Complete Feature Engineering
+==================================================
+FastAPI application with proper feature handling for all trained models
 """
 
 from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File
@@ -31,7 +31,7 @@ models = {}
 preprocessors = {}
 
 class PDModelPredictor:
-    """Production PD model predictor with all segments"""
+    """Production PD model predictor with complete feature engineering"""
     
     def __init__(self, model_dir="models"):
         self.model_dir = Path(model_dir)
@@ -43,6 +43,16 @@ class PDModelPredictor:
         self.BASEL_MIN_PD = 0.0003  # 3 basis points
         self.IFRS9_STAGE1_THRESHOLD = 0.01
         self.IFRS9_STAGE2_THRESHOLD = 0.05
+        
+        # Default macroeconomic values (based on typical conditions)
+        self.DEFAULT_MACRO = {
+            'gdp_growth': 0.025,       # 2.5% GDP growth
+            'unemployment_rate': 0.055, # 5.5% unemployment
+            'interest_rate': 0.035,     # 3.5% interest rate
+            'inflation_rate': 0.02,     # 2% inflation
+            'credit_spread': 0.015,     # 1.5% credit spread
+            'vix': 20.0                 # VIX volatility index
+        }
     
     def load_models(self):
         """Load all trained models"""
@@ -89,6 +99,133 @@ class PDModelPredictor:
                     q99_9 = df[col].quantile(0.999)
                     q00_1 = df[col].quantile(0.001)
                     df[col] = np.clip(df[col], q00_1, q99_9)
+        
+        return df
+    
+    def add_macroeconomic_features(self, df, segment):
+        """Add macroeconomic features and calculated risk factors"""
+        # Add default macroeconomic features
+        for feature, value in self.DEFAULT_MACRO.items():
+            if feature not in df.columns:
+                df[feature] = value
+        
+        # Calculate macro risk factor based on segment
+        if segment == 'retail':
+            # Unemployment affects retail customers more
+            df['macro_risk_factor'] = (
+                df['unemployment_rate'] * 2 + 
+                df['vix'] / 50
+            )
+        elif segment == 'sme':
+            # SMEs sensitive to credit conditions and GDP
+            df['macro_risk_factor'] = (
+                -df['gdp_growth'] * 3 +
+                df['credit_spread'] * 20 +
+                df['vix'] / 40
+            )
+        elif segment == 'corporate':
+            # Corporates affected by interest rates and credit spreads
+            df['macro_risk_factor'] = (
+                df['interest_rate'] * 5 +
+                df['credit_spread'] * 15 +
+                df['vix'] / 60
+            )
+        
+        return df
+    
+    def calculate_credit_scores(self, df, segment):
+        """Calculate credit scores based on segment"""
+        if segment == 'retail':
+            # Simplified FICO-like score calculation
+            score = 300
+            
+            # Payment history proxy (assume good if not specified)
+            payment_history = df.get('payment_history', 0.95)
+            score += payment_history * 315
+            
+            # Credit utilization (30% of score)
+            utilization = df['utilization_rate']
+            utilization_penalty = np.where(utilization < 0.3, 0, (utilization - 0.3) * 200)
+            score += (1 - utilization) * 270 - utilization_penalty
+            
+            # Credit history length (15% of score)
+            credit_history = df.get('credit_history_length', 84)  # Default 7 years
+            score += np.minimum(credit_history / 240, 1) * 135
+            
+            # Credit mix (10% of score)
+            num_accounts = df.get('num_accounts', 5)
+            score += np.minimum(num_accounts / 10, 1) * 90
+            
+            # Recent inquiries (10% of score)
+            recent_inquiries = df.get('recent_inquiries', 1)
+            inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
+            score += 90 - inquiry_penalty
+            
+            # Debt-to-income adjustment
+            dti_penalty = np.where(df['debt_to_income'] > 0.4, (df['debt_to_income'] - 0.4) * 100, 0)
+            score -= dti_penalty
+            
+            df['credit_score'] = np.clip(score, 300, 850)
+            
+        elif segment == 'sme':
+            # SME credit score calculation
+            score = 300
+            
+            # Profitability (25%)
+            score += np.clip(df['profit_margin'] * 1000 + 50, 0, 125)
+            
+            # Liquidity (20%)
+            score += np.clip((df['current_ratio'] - 1) * 40 + 60, 20, 100)
+            
+            # Leverage (20%)
+            score += np.clip(100 - df['debt_to_equity'] * 30, 20, 100)
+            
+            # Interest coverage (15%)
+            score += np.clip(df['interest_coverage'] * 8, 0, 75)
+            
+            # Business tenure (10%)
+            score += np.minimum(df['years_in_business'] * 2.5, 50)
+            
+            # Payment behavior (10%)
+            score += np.clip(50 - df['payment_delays_12m'] * 10, 0, 50)
+            
+            # Credit utilization penalty
+            util_penalty = np.where(df['credit_utilization'] > 0.5, (df['credit_utilization'] - 0.5) * 100, 0)
+            score -= util_penalty
+            
+            df['sme_credit_score'] = np.clip(score, 300, 850)
+            
+        elif segment == 'corporate':
+            # Corporate credit score based on rating
+            rating_scores = {
+                'AAA': 850, 'AA+': 820, 'AA': 800, 'AA-': 780,
+                'A+': 760, 'A': 740, 'A-': 720, 'BBB+': 700,
+                'BBB': 680, 'BBB-': 660, 'BB+': 640, 'BB': 620,
+                'BB-': 600, 'B+': 580, 'B': 560, 'B-': 540,
+                'CCC+': 520, 'CCC': 500, 'CCC-': 480
+            }
+            
+            # Get base score from rating
+            base_scores = [rating_scores.get(rating, 500) for rating in df['credit_rating']]
+            
+            # Financial adjustments
+            coverage_adj = np.clip((df['times_interest_earned'] - 5) * 5, -50, 50)
+            leverage_adj = np.clip((1 - df['debt_to_equity']) * 20, -40, 40)
+            profitability_adj = np.clip(df['roa'] * 200, -30, 30)
+            liquidity_adj = np.clip((df['current_ratio'] - 1.5) * 10, -20, 20)
+            
+            # Market position adjustment
+            position_adj_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
+            position_adj = [position_adj_map.get(pos, 0) for pos in df['market_position']]
+            
+            final_scores = (np.array(base_scores) + coverage_adj + leverage_adj + 
+                           profitability_adj + liquidity_adj + np.array(position_adj))
+            
+            df['corporate_credit_score'] = np.clip(final_scores, 300, 850)
+            
+            # Add industry if missing
+            if 'industry' not in df.columns:
+                df['industry'] = 'Technology'  # Default industry
         
         return df
     
@@ -174,13 +311,19 @@ class PDModelPredictor:
             raise ValueError(f"No models available for segment: {segment}")
         
         try:
+            # Add macroeconomic features
+            data_with_macro = self.add_macroeconomic_features(data.copy(), segment)
+            
+            # Calculate credit scores
+            data_with_scores = self.calculate_credit_scores(data_with_macro, segment)
+            
             # Apply feature engineering
             if segment == 'retail':
-                data_engineered = self.engineer_retail_features(data)
+                data_engineered = self.engineer_retail_features(data_with_scores)
             elif segment == 'sme':
-                data_engineered = self.engineer_sme_features(data)
+                data_engineered = self.engineer_sme_features(data_with_scores)
             elif segment == 'corporate':
-                data_engineered = self.engineer_corporate_features(data)
+                data_engineered = self.engineer_corporate_features(data_with_scores)
             else:
                 raise ValueError(f"Unknown segment: {segment}")
             
@@ -216,6 +359,8 @@ class PDModelPredictor:
             
         except Exception as e:
             logger.error(f"Prediction error for {segment}: {e}")
+            logger.error(f"Data shape: {data.shape}")
+            logger.error(f"Data columns: {list(data.columns)}")
             raise
     
     def predict_with_staging(self, data: pd.DataFrame, segment: str) -> Dict:
