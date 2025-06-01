@@ -1084,6 +1084,291 @@ async def predict_corporate_form(
             "error": str(e)
         })
 
+# CSV Template endpoints
+@app.get("/api/templates/retail.csv")
+async def download_retail_template():
+    """Download CSV template for retail customers"""
+    template_data = """age,income,credit_score,debt_to_income,utilization_rate,employment_status,employment_tenure,years_at_address,num_accounts,monthly_transactions
+35,50000,720,0.35,0.3,Full-time,3.5,2.0,5,45
+42,75000,680,0.45,0.6,Self-employed,8.0,5.0,8,32
+28,40000,760,0.25,0.2,Full-time,2.0,1.5,3,58
+55,85000,720,0.40,0.4,Full-time,15.0,10.0,12,28
+31,60000,700,0.30,0.35,Part-time,1.5,3.0,6,41"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=retail_template.csv"}
+    )
+
+@app.get("/api/templates/sme.csv")
+async def download_sme_template():
+    """Download CSV template for SME companies"""
+    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,years_in_business,profit_margin,interest_coverage,operating_cash_flow,working_capital,credit_utilization,payment_delays_12m,geographic_risk,market_competition,management_quality,days_past_due
+Technology,1500000,25,1.8,0.8,8.0,0.12,6.5,180000,300000,0.35,0,Low,Medium,8.5,0
+Manufacturing,2200000,45,1.5,1.2,12.0,0.08,4.2,220000,450000,0.45,1,Medium,High,7.0,0
+Healthcare,800000,15,2.1,0.6,5.0,0.15,8.1,120000,180000,0.25,0,Low,Low,9.0,0
+Retail Trade,950000,18,1.3,1.5,6.0,0.06,3.8,95000,150000,0.60,2,Medium,High,6.5,30
+Professional Services,1200000,22,1.7,0.9,10.0,0.14,7.2,168000,240000,0.30,0,Low,Medium,8.0,0"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=sme_template.csv"}
+    )
+
+@app.get("/api/templates/corporate.csv")
+async def download_corporate_template():
+    """Download CSV template for corporate entities"""
+    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,times_interest_earned,roa,credit_rating,market_position,operating_cash_flow,free_cash_flow
+Technology,5000000000,15000,1.8,0.7,12.5,0.15,A,Strong,750000000,500000000
+Financial Services,8000000000,25000,1.2,2.1,8.2,0.12,BBB+,Leader,960000000,400000000
+Healthcare,3200000000,8500,2.1,0.9,15.3,0.18,AA-,Strong,480000000,320000000
+Energy,12000000000,35000,1.5,1.4,6.8,0.09,BBB,Average,1440000000,600000000
+Manufacturing,4500000000,18000,1.7,1.1,9.4,0.11,A-,Strong,675000000,450000000"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=corporate_template.csv"}
+    )
+
+# Enhanced batch processing with better error handling
+@app.post("/api/predict/batch", response_model=BatchResponse)
+async def predict_batch_enhanced(file: UploadFile = File(...), segment: str = Form(...)):
+    """Enhanced batch processing with better error handling and validation"""
+    if predictor is None:
+        raise HTTPException(status_code=503, detail="Models not loaded")
+    
+    start_time = datetime.now()
+    
+    try:
+        # Enhanced file validation
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file provided")
+            
+        if not file.filename.lower().endswith('.csv'):
+            raise HTTPException(status_code=400, detail="Only CSV files are supported")
+        
+        if segment not in ['retail', 'sme', 'corporate']:
+            raise HTTPException(status_code=400, detail=f"Invalid segment: {segment}. Must be one of: retail, sme, corporate")
+        
+        # Read file with better error handling
+        try:
+            contents = await file.read()
+            if len(contents) == 0:
+                raise HTTPException(status_code=400, detail="Empty file provided")
+                
+            # Check file size (10MB limit)
+            if len(contents) > 10 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="File too large. Maximum size is 10MB")
+                
+            # Try different encodings
+            content_str = None
+            for encoding in ['utf-8', 'latin-1', 'cp1252']:
+                try:
+                    content_str = contents.decode(encoding)
+                    break
+                except UnicodeDecodeError:
+                    continue
+            
+            if content_str is None:
+                content_str = contents.decode('utf-8', errors='ignore')
+                logger.warning("Used fallback encoding with error ignoring")
+            
+            # Parse CSV
+            df = pd.read_csv(io.StringIO(content_str))
+            
+        except pd.errors.EmptyDataError:
+            raise HTTPException(status_code=400, detail="CSV file contains no data")
+        except pd.errors.ParserError as e:
+            raise HTTPException(status_code=400, detail=f"Failed to parse CSV file: {str(e)}")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to read CSV file: {str(e)}")
+        
+        if len(df) == 0:
+            raise HTTPException(status_code=400, detail="CSV file contains no data rows")
+        
+        if len(df) > 10000:
+            raise HTTPException(status_code=400, detail=f"File too large: {len(df):,} rows. Maximum allowed is 10,000 rows")
+        
+        logger.info(f"Processing batch file: {len(df)} rows for {segment} segment")
+        
+        # Clean column names
+        df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+        
+        # Validate required columns for segment
+        required_columns = {
+            'retail': ['age', 'income', 'debt_to_income', 'utilization_rate'],
+            'sme': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
+            'corporate': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity']
+        }
+        
+        missing_required = []
+        if segment in required_columns:
+            for req_col in required_columns[segment]:
+                # Check if any column contains the required column name
+                found = any(req_col in col or col in req_col for col in df.columns)
+                if not found:
+                    missing_required.append(req_col)
+        
+        if missing_required:
+            logger.warning(f"Missing required columns for {segment}: {missing_required}")
+            # Instead of failing, we'll try to proceed with auto-filled values
+        
+        # Process predictions with enhanced error handling
+        results = []
+        successful_predictions = 0
+        failed_predictions = 0
+        error_details = {}
+        
+        for idx, row in df.iterrows():
+            try:
+                # Convert row to DataFrame for prediction
+                row_data = pd.DataFrame([row.to_dict()])
+                
+                # Make prediction
+                prediction_result = predictor.predict_with_staging(row_data, segment)
+                
+                result = {
+                    'row_index': int(idx),
+                    'customer_id': row.get('customer_id', row.get('company_id', f"{segment}_{idx}")),
+                    'pd_score': float(prediction_result['pd_scores'][0]),
+                    'risk_grade': str(prediction_result['risk_grades'][0]),
+                    'ifrs9_stage': int(prediction_result['ifrs9_stages'][0]),
+                    'basel_compliant': bool(prediction_result['basel_compliant']),
+                    'success': True,
+                    'error': None
+                }
+                results.append(result)
+                successful_predictions += 1
+                
+            except Exception as e:
+                error_msg = str(e)
+                result = {
+                    'row_index': int(idx),
+                    'customer_id': row.get('customer_id', row.get('company_id', f"{segment}_{idx}")),
+                    'pd_score': None,
+                    'risk_grade': None,
+                    'ifrs9_stage': None,
+                    'basel_compliant': None,
+                    'success': False,
+                    'error': error_msg
+                }
+                results.append(result)
+                failed_predictions += 1
+                
+                # Track error types
+                error_type = type(e).__name__
+                if error_type not in error_details:
+                    error_details[error_type] = 0
+                error_details[error_type] += 1
+                
+                logger.warning(f"Failed to process row {idx}: {error_msg}")
+        
+        processing_time = (datetime.now() - start_time).total_seconds()
+        
+        # Calculate summary statistics for successful predictions
+        successful_results = [r for r in results if r['success']]
+        summary_stats = {}
+        
+        if successful_results:
+            pd_scores = [r['pd_score'] for r in successful_results]
+            risk_grades = [r['risk_grade'] for r in successful_results]
+            stages = [r['ifrs9_stage'] for r in successful_results]
+            
+            summary_stats = {
+                'avg_pd_score': float(np.mean(pd_scores)),
+                'median_pd_score': float(np.median(pd_scores)),
+                'min_pd_score': float(np.min(pd_scores)),
+                'max_pd_score': float(np.max(pd_scores)),
+                'std_pd_score': float(np.std(pd_scores)),
+                'risk_grade_distribution': pd.Series(risk_grades).value_counts().to_dict(),
+                'ifrs9_stage_distribution': pd.Series(stages).value_counts().to_dict(),
+                'processing_time_seconds': processing_time,
+                'success_rate': successful_predictions / len(df),
+                'error_summary': error_details
+            }
+        
+        logger.info(f"Batch processing completed for {segment}: {successful_predictions} successful, {failed_predictions} failed in {processing_time:.2f}s")
+        
+        return BatchResponse(
+            total_predictions=len(df),
+            successful_predictions=successful_predictions,
+            failed_predictions=failed_predictions,
+            processing_time_seconds=processing_time,
+            results=results,
+            summary_statistics=summary_stats
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Batch prediction error: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
+
+# Add data validation endpoint
+@app.post("/api/validate/csv")
+async def validate_csv_file(file: UploadFile = File(...), segment: str = Form(...)):
+    """Validate CSV file structure before processing"""
+    try:
+        contents = await file.read()
+        content_str = contents.decode('utf-8')
+        df = pd.read_csv(io.StringIO(content_str))
+        
+        # Clean column names
+        df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+        
+        # Required columns for each segment
+        required_columns = {
+            'retail': ['age', 'income', 'debt_to_income', 'utilization_rate'],
+            'sme': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
+            'corporate': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity']
+        }
+        
+        validation_result = {
+            'file_valid': True,
+            'row_count': len(df),
+            'column_count': len(df.columns),
+            'columns_found': list(df.columns),
+            'required_columns': required_columns.get(segment, []),
+            'missing_columns': [],
+            'warnings': [],
+            'errors': []
+        }
+        
+        # Check required columns
+        if segment in required_columns:
+            for req_col in required_columns[segment]:
+                found = any(req_col in col or col in req_col for col in df.columns)
+                if not found:
+                    validation_result['missing_columns'].append(req_col)
+        
+        # Check row count
+        if len(df) > 10000:
+            validation_result['errors'].append(f"Too many rows: {len(df)}. Maximum is 10,000.")
+            validation_result['file_valid'] = False
+        
+        if len(df) == 0:
+            validation_result['errors'].append("File contains no data rows.")
+            validation_result['file_valid'] = False
+        
+        # Add warnings
+        if validation_result['missing_columns']:
+            validation_result['warnings'].append(f"Missing columns will be auto-filled: {', '.join(validation_result['missing_columns'])}")
+        
+        if len(df) > 5000:
+            validation_result['warnings'].append("Large file detected. Processing may take longer.")
+        
+        return validation_result
+        
+    except Exception as e:
+        return {
+            'file_valid': False,
+            'error': f"File validation failed: {str(e)}"
+        }
+
 # Error handlers
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc: HTTPException):
