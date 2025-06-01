@@ -4,124 +4,261 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card shadow">
+    <div class="col-xl-8 mx-auto">
+        <!-- Header Card -->
+        <div class="card shadow-lg border-0 mb-4">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">
-                    <i class="fas fa-user me-2"></i>Retail Customer PD Scoring
-                </h4>
-                <small>Enter customer details for real-time probability of default assessment</small>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="mb-1 fw-bold">
+                            <i class="fas fa-user me-2"></i>Retail Customer PD Scoring
+                        </h4>
+                        <small class="opacity-75">Enter customer details for real-time probability of default assessment</small>
+                    </div>
+                    <div class="col-auto d-none d-md-block">
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-chart-line me-1"></i>AUC: 0.844
+                            </span>
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-clock me-1"></i>&lt;100ms
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <form action="/predict/retail" method="POST" id="retailForm">
-                    <div class="row g-3">
-                        <!-- Personal Information -->
-                        <div class="col-12">
-                            <h6 class="text-primary border-bottom pb-2">
+            
+            <!-- Progress Indicator -->
+            <div class="card-body p-0">
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-primary" id="formProgress" style="width: 20%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+                <form action="/predict/retail" method="POST" id="retailForm" novalidate>
+                    <!-- Step 1: Personal Information -->
+                    <div class="form-step active" id="step1">
+                        <div class="step-header mb-4">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
                                 <i class="fas fa-id-card me-2"></i>Personal Information
-                            </h6>
+                                <span class="badge bg-primary ms-2">Step 1 of 4</span>
+                            </h5>
                         </div>
                         
-                        <div class="col-md-6">
-                            <label for="age" class="form-label">Age *</label>
-                            <input type="number" class="form-control" id="age" name="age" 
-                                   min="18" max="100" value="35" required>
-                            <small class="form-text text-muted">Customer age (18-100)</small>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="employment_status" class="form-label">Employment Status *</label>
-                            <select class="form-select" id="employment_status" name="employment_status" required>
-                                <option value="Full-time" selected>Full-time</option>
-                                <option value="Part-time">Part-time</option>
-                                <option value="Self-employed">Self-employed</option>
-                                <option value="Unemployed">Unemployed</option>
-                                <option value="Retired">Retired</option>
-                            </select>
-                        </div>
-
-                        <!-- Financial Information -->
-                        <div class="col-12 mt-4">
-                            <h6 class="text-primary border-bottom pb-2">
-                                <i class="fas fa-dollar-sign me-2"></i>Financial Information
-                            </h6>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="income" class="form-label">Annual Income ($) *</label>
-                            <input type="number" class="form-control" id="income" name="income" 
-                                   min="1000" max="1000000" value="75000" step="1000" required>
-                            <small class="form-text text-muted">Gross annual income in USD</small>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="credit_score" class="form-label">Credit Score *</label>
-                            <input type="number" class="form-control" id="credit_score" name="credit_score" 
-                                   min="300" max="850" value="720" required>
-                            <small class="form-text text-muted">FICO score (300-850)</small>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="debt_to_income" class="form-label">Debt-to-Income Ratio *</label>
-                            <input type="number" class="form-control" id="debt_to_income" name="debt_to_income" 
-                                   min="0" max="5" step="0.01" value="0.30" required>
-                            <small class="form-text text-muted">Total debt / annual income (e.g., 0.30 = 30%)</small>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="utilization_rate" class="form-label">Credit Utilization Rate *</label>
-                            <input type="number" class="form-control" id="utilization_rate" name="utilization_rate" 
-                                   min="0" max="1" step="0.01" value="0.25" required>
-                            <small class="form-text text-muted">Used credit / total credit limit (e.g., 0.25 = 25%)</small>
-                        </div>
-
-                        <!-- Advanced Options (Collapsible) -->
-                        <div class="col-12 mt-4">
-                            <div class="d-grid">
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#advancedOptions" aria-expanded="false">
-                                    <i class="fas fa-cog me-2"></i>Advanced Options (Optional)
-                                </button>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="age" class="form-label">
+                                    <i class="fas fa-birthday-cake me-1 text-muted"></i>Age *
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="age" name="age" 
+                                       min="18" max="100" value="35" required>
+                                <div class="form-text">Customer age (18-100 years)</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="employment_status" class="form-label">
+                                    <i class="fas fa-briefcase me-1 text-muted"></i>Employment Status *
+                                </label>
+                                <select class="form-select form-select-lg" id="employment_status" name="employment_status" required>
+                                    <option value="Full-time" selected>Full-time Employment</option>
+                                    <option value="Part-time">Part-time Employment</option>
+                                    <option value="Self-employed">Self-employed</option>
+                                    <option value="Unemployed">Unemployed</option>
+                                    <option value="Retired">Retired</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="employment_tenure" class="form-label">
+                                    <i class="fas fa-clock me-1 text-muted"></i>Employment Tenure (years)
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="employment_tenure" 
+                                       name="employment_tenure" min="0" max="50" step="0.1" value="3.0">
+                                <div class="form-text">Years with current employer</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="years_at_address" class="form-label">
+                                    <i class="fas fa-home me-1 text-muted"></i>Years at Current Address
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="years_at_address" 
+                                       name="years_at_address" min="0" max="50" step="0.1" value="2.0">
+                                <div class="form-text">Residential stability indicator</div>
                             </div>
                         </div>
                         
-                        <div class="collapse mt-3" id="advancedOptions">
-                            <div class="card card-body bg-light">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="employment_tenure" class="form-label">Employment Tenure (years)</label>
-                                        <input type="number" class="form-control" id="employment_tenure" 
-                                               name="employment_tenure" min="0" max="50" step="0.1" value="3.0">
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="years_at_address" class="form-label">Years at Address</label>
-                                        <input type="number" class="form-control" id="years_at_address" 
-                                               name="years_at_address" min="0" max="50" step="0.1" value="2.0">
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="num_accounts" class="form-label">Number of Credit Accounts</label>
-                                        <input type="number" class="form-control" id="num_accounts" 
-                                               name="num_accounts" min="0" max="30" value="5">
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="monthly_transactions" class="form-label">Monthly Transactions</label>
-                                        <input type="number" class="form-control" id="monthly_transactions" 
-                                               name="monthly_transactions" min="1" max="200" value="45">
-                                    </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                                Next: Financial Information <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Financial Information -->
+                    <div class="form-step" id="step2">
+                        <div class="step-header mb-4">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-dollar-sign me-2"></i>Financial Information
+                                <span class="badge bg-primary ms-2">Step 2 of 4</span>
+                            </h5>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="income" class="form-label">
+                                    <i class="fas fa-money-bill-wave me-1 text-muted"></i>Annual Income ($) *
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="income" name="income" 
+                                           min="1000" max="1000000" value="75000" step="1000" required>
+                                </div>
+                                <div class="form-text">Gross annual income in USD</div>
+                                <div id="income-helper" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="credit_score" class="form-label">
+                                    <i class="fas fa-chart-line me-1 text-muted"></i>Credit Score *
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="credit_score" name="credit_score" 
+                                       min="300" max="850" value="720" required>
+                                <div class="form-text">FICO score (300-850)</div>
+                                <div id="credit-score-helper" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="debt_to_income" class="form-label">
+                                    <i class="fas fa-calculator me-1 text-muted"></i>Debt-to-Income Ratio *
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <input type="number" class="form-control" id="debt_to_income" name="debt_to_income" 
+                                           min="0" max="5" step="0.01" value="0.30" required>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Total debt / annual income (e.g., 0.30 = 30%)</div>
+                                <div id="debt-helper" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="utilization_rate" class="form-label">
+                                    <i class="fas fa-credit-card me-1 text-muted"></i>Credit Utilization Rate *
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <input type="number" class="form-control" id="utilization_rate" name="utilization_rate" 
+                                           min="0" max="1" step="0.01" value="0.25" required>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Used credit / total credit limit (e.g., 0.25 = 25%)</div>
+                                <div id="utilization-helper" class="mt-2"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="prevStep()">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                                Next: Credit Information <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Credit Information -->
+                    <div class="form-step" id="step3">
+                        <div class="step-header mb-4">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-credit-card me-2"></i>Credit Information
+                                <span class="badge bg-primary ms-2">Step 3 of 4</span>
+                            </h5>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="num_accounts" class="form-label">
+                                    <i class="fas fa-list me-1 text-muted"></i>Number of Credit Accounts
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="num_accounts" 
+                                       name="num_accounts" min="0" max="30" value="5">
+                                <div class="form-text">Total credit accounts (cards, loans, etc.)</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="monthly_transactions" class="form-label">
+                                    <i class="fas fa-exchange-alt me-1 text-muted"></i>Monthly Transactions
+                                </label>
+                                <input type="number" class="form-control form-control-lg" id="monthly_transactions" 
+                                       name="monthly_transactions" min="1" max="200" value="45">
+                                <div class="form-text">Average monthly transaction count</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="prevStep()">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <button type="button" class="btn btn-primary btn-lg" onclick="nextStep()">
+                                Next: Review & Submit <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Review & Submit -->
+                    <div class="form-step" id="step4">
+                        <div class="step-header mb-4">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-check-circle me-2"></i>Review & Submit
+                                <span class="badge bg-primary ms-2">Step 4 of 4</span>
+                            </h5>
+                        </div>
+                        
+                        <div class="alert alert-info border-0" role="alert">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="alert-heading">Ready to Calculate PD Score</h6>
+                                    <p class="mb-0">Please review the information below before submitting. You can go back to make changes if needed.</p>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Submit Button -->
-                        <div class="col-12 mt-4">
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
-                                    <i class="fas fa-undo me-2"></i>Reset
+                        
+                        <!-- Review Summary -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-user me-2"></i>Customer Summary
+                                </h6>
+                                <div class="row g-3" id="reviewSummary">
+                                    <!-- Summary will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Risk Assessment Preview -->
+                        <div class="card border-warning bg-warning-subtle mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title text-warning-emphasis">
+                                    <i class="fas fa-shield-alt me-2"></i>Risk Assessment Notes
+                                </h6>
+                                <div id="riskPreview">
+                                    <p class="mb-0 small">Based on the provided information, this assessment will be conducted using our Basel III compliant model with IFRS 9 staging.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="prevStep()">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-warning btn-lg" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset Form
                                 </button>
-                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <button type="submit" class="btn btn-success btn-lg px-4" id="submitBtn">
                                     <i class="fas fa-calculator me-2"></i>Calculate PD Score
                                 </button>
                             </div>
@@ -131,23 +268,84 @@
             </div>
         </div>
 
-        <!-- Risk Information Card -->
-        <div class="card mt-4 border-info">
+        <!-- Help & Information Card -->
+        <div class="card mt-4 border-info bg-info-subtle">
             <div class="card-body">
-                <h6 class="card-title text-info">
-                    <i class="fas fa-info-circle me-2"></i>About Retail PD Scoring
+                <h6 class="card-title text-info-emphasis">
+                    <i class="fas fa-lightbulb me-2"></i>About Retail PD Scoring
                 </h6>
-                <p class="card-text small">
-                    Our retail PD model uses advanced machine learning to assess individual customer default risk. 
-                    The model considers 37+ risk factors including credit history, financial ratios, behavioral patterns, 
-                    and macroeconomic conditions. Results include:
-                </p>
-                <ul class="small mb-0">
-                    <li><strong>PD Score:</strong> Probability of default within 12 months</li>
-                    <li><strong>Risk Grade:</strong> AAA (lowest risk) to C (highest risk)</li>
-                    <li><strong>IFRS 9 Stage:</strong> Regulatory staging for provisioning</li>
-                    <li><strong>Basel III Compliance:</strong> Includes minimum PD floors</li>
-                </ul>
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <p class="card-text small mb-3">
+                            Our retail PD model uses advanced machine learning to assess individual customer default risk. 
+                            The model analyzes 37+ risk factors including credit history, financial ratios, behavioral patterns, 
+                            and macroeconomic conditions.
+                        </p>
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <small><strong>PD Score:</strong> 12-month default probability</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <small><strong>Risk Grade:</strong> AAA to C rating</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <small><strong>IFRS 9 Stage:</strong> Regulatory staging</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <small><strong>Basel III:</strong> Minimum floor compliance</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-white rounded p-3 text-center">
+                            <div class="fw-bold text-primary fs-4">0.844</div>
+                            <small class="text-muted">Model AUC Score</small>
+                            <hr class="my-2">
+                            <div class="fw-bold text-success fs-5">1.61%</div>
+                            <small class="text-muted">Portfolio Default Rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-upload fa-2x text-primary mb-2"></i>
+                        <h6>Batch Processing</h6>
+                        <p class="small text-muted mb-3">Process multiple customers at once</p>
+                        <a href="/batch" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>Go to Batch
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-code fa-2x text-info mb-2"></i>
+                        <h6>API Integration</h6>
+                        <p class="small text-muted mb-3">Integrate with your systems</p>
+                        <a href="/api/docs" target="_blank" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>View API Docs
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -156,41 +354,482 @@
 
 {% block scripts %}
 <script>
-function resetForm() {
-    document.getElementById('retailForm').reset();
-    // Reset to default values
-    document.getElementById('age').value = '35';
-    document.getElementById('income').value = '75000';
-    document.getElementById('credit_score').value = '720';
-    document.getElementById('debt_to_income').value = '0.30';
-    document.getElementById('utilization_rate').value = '0.25';
+let currentStep = 1;
+const totalSteps = 4;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeForm();
+    setupValidation();
+    setupHelpers();
+    updateProgress();
+});
+
+function initializeForm() {
+    // Show only the first step
+    showStep(1);
+    
+    // Add event listeners for real-time updates
+    document.getElementById('retailForm').addEventListener('input', function(e) {
+        validateStep(currentStep);
+        updateProgress();
+        updateReviewSummary();
+    });
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            if (currentStep < totalSteps) {
+                nextStep();
+            } else {
+                document.getElementById('submitBtn').click();
+            }
+        }
+        
+        if (e.key === 'Escape') {
+            if (currentStep > 1) {
+                prevStep();
+            }
+        }
+    });
 }
 
-// Form validation and UX improvements
-document.getElementById('retailForm').addEventListener('submit', function(e) {
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
-    submitBtn.disabled = true;
-});
+function setupValidation() {
+    const form = document.getElementById('retailForm');
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateInput(this);
+        });
+        
+        input.addEventListener('input', function() {
+            clearValidation(this);
+        });
+    });
+}
 
-// Real-time DTI calculation helper
-document.getElementById('income').addEventListener('input', function() {
-    updateDTIHelper();
-});
-
-document.getElementById('debt_to_income').addEventListener('input', function() {
-    updateDTIHelper();
-});
+function setupHelpers() {
+    // Income helper
+    document.getElementById('income').addEventListener('input', function() {
+        const income = parseFloat(this.value) || 0;
+        const helper = document.getElementById('income-helper');
+        
+        if (income > 0) {
+            let message = '';
+            let className = 'small text-info';
+            
+            if (income < 30000) {
+                message = '<i class="fas fa-info-circle me-1"></i>Below median household income';
+                className = 'small text-warning';
+            } else if (income > 100000) {
+                message = '<i class="fas fa-star me-1"></i>High income bracket';
+                className = 'small text-success';
+            } else {
+                message = '<i class="fas fa-check me-1"></i>Median income range';
+                className = 'small text-info';
+            }
+            
+            helper.innerHTML = `<div class="${className}">${message}</div>`;
+        } else {
+            helper.innerHTML = '';
+        }
+    });
+    
+    // Credit score helper
+    document.getElementById('credit_score').addEventListener('input', function() {
+        const score = parseInt(this.value) || 0;
+        const helper = document.getElementById('credit-score-helper');
+        
+        if (score >= 300) {
+            let message = '';
+            let className = 'small';
+            
+            if (score >= 750) {
+                message = '<i class="fas fa-star me-1 text-success"></i>Excellent credit';
+                className += ' text-success';
+            } else if (score >= 700) {
+                message = '<i class="fas fa-thumbs-up me-1 text-primary"></i>Good credit';
+                className += ' text-primary';
+            } else if (score >= 650) {
+                message = '<i class="fas fa-info-circle me-1 text-warning"></i>Fair credit';
+                className += ' text-warning';
+            } else {
+                message = '<i class="fas fa-exclamation-triangle me-1 text-danger"></i>Poor credit';
+                className += ' text-danger';
+            }
+            
+            helper.innerHTML = `<div class="${className}">${message}</div>`;
+        } else {
+            helper.innerHTML = '';
+        }
+    });
+    
+    // DTI helper
+    document.getElementById('debt_to_income').addEventListener('input', function() {
+        updateDTIHelper();
+    });
+    
+    document.getElementById('income').addEventListener('input', function() {
+        updateDTIHelper();
+    });
+    
+    // Utilization helper
+    document.getElementById('utilization_rate').addEventListener('input', function() {
+        const utilization = parseFloat(this.value) || 0;
+        const percentage = (utilization * 100).toFixed(1);
+        const helper = document.getElementById('utilization-helper');
+        
+        if (utilization > 0) {
+            let message = '';
+            let className = 'small';
+            
+            if (utilization <= 0.1) {
+                message = '<i class="fas fa-star me-1 text-success"></i>Excellent utilization';
+                className += ' text-success';
+            } else if (utilization <= 0.3) {
+                message = '<i class="fas fa-check me-1 text-primary"></i>Good utilization';
+                className += ' text-primary';
+            } else if (utilization <= 0.7) {
+                message = '<i class="fas fa-exclamation-triangle me-1 text-warning"></i>High utilization';
+                className += ' text-warning';
+            } else {
+                message = '<i class="fas fa-times-circle me-1 text-danger"></i>Very high utilization';
+                className += ' text-danger';
+            }
+            
+            helper.innerHTML = `<div class="${className}">${percentage}% - ${message}</div>`;
+        } else {
+            helper.innerHTML = '';
+        }
+    });
+}
 
 function updateDTIHelper() {
     const income = parseFloat(document.getElementById('income').value) || 0;
     const dti = parseFloat(document.getElementById('debt_to_income').value) || 0;
-    const totalDebt = income * dti;
+    const helper = document.getElementById('debt-helper');
     
     if (income > 0 && dti > 0) {
-        const helper = document.querySelector('#debt_to_income + .form-text');
-        helper.innerHTML = `Total debt / annual income = $${totalDebt.toLocaleString()} / $${income.toLocaleString()}`;
+        const totalDebt = income * dti;
+        const monthlyDebt = totalDebt / 12;
+        
+        let message = `<i class="fas fa-calculator me-1"></i>Total debt: $${totalDebt.toLocaleString()} ($${monthlyDebt.toLocaleString()}/month)`;
+        let className = 'small text-info';
+        
+        if (dti > 0.4) {
+            message += ' - High debt burden';
+            className = 'small text-danger';
+        } else if (dti > 0.3) {
+            message += ' - Moderate debt burden';
+            className = 'small text-warning';
+        } else {
+            message += ' - Manageable debt burden';
+            className = 'small text-success';
+        }
+        
+        helper.innerHTML = `<div class="${className}">${message}</div>`;
+    } else {
+        helper.innerHTML = '';
     }
 }
+
+function nextStep() {
+    if (currentStep < totalSteps) {
+        if (validateStep(currentStep)) {
+            hideStep(currentStep);
+            currentStep++;
+            showStep(currentStep);
+            updateProgress();
+            updateReviewSummary();
+            
+            // Scroll to top smoothly
+            document.querySelector('.card-header').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        hideStep(currentStep);
+        currentStep--;
+        showStep(currentStep);
+        updateProgress();
+        
+        // Scroll to top smoothly
+        document.querySelector('.card-header').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }
+}
+
+function showStep(step) {
+    const stepElement = document.getElementById(`step${step}`);
+    stepElement.classList.add('active');
+    stepElement.style.display = 'block';
+    
+    // Focus on first input in the step
+    const firstInput = stepElement.querySelector('input, select');
+    if (firstInput) {
+        setTimeout(() => firstInput.focus(), 100);
+    }
+}
+
+function hideStep(step) {
+    const stepElement = document.getElementById(`step${step}`);
+    stepElement.classList.remove('active');
+    stepElement.style.display = 'none';
+}
+
+function updateProgress() {
+    const progress = (currentStep / totalSteps) * 100;
+    const progressBar = document.getElementById('formProgress');
+    progressBar.style.width = progress + '%';
+    progressBar.setAttribute('aria-valuenow', progress);
+}
+
+function validateStep(step) {
+    const stepElement = document.getElementById(`step${step}`);
+    const requiredInputs = stepElement.querySelectorAll('input[required], select[required]');
+    let isValid = true;
+    
+    requiredInputs.forEach(input => {
+        if (!validateInput(input)) {
+            isValid = false;
+        }
+    });
+    
+    return isValid;
+}
+
+function validateInput(input) {
+    const value = input.value.trim();
+    let isValid = true;
+    let message = '';
+    
+    // Clear previous validation
+    clearValidation(input);
+    
+    // Required validation
+    if (input.hasAttribute('required') && !value) {
+        isValid = false;
+        message = 'This field is required';
+    }
+    
+    // Type-specific validation
+    if (value && input.type === 'number') {
+        const numValue = parseFloat(value);
+        const min = parseFloat(input.min);
+        const max = parseFloat(input.max);
+        
+        if (isNaN(numValue)) {
+            isValid = false;
+            message = 'Please enter a valid number';
+        } else if (!isNaN(min) && numValue < min) {
+            isValid = false;
+            message = `Value must be at least ${min}`;
+        } else if (!isNaN(max) && numValue > max) {
+            isValid = false;
+            message = `Value must be at most ${max}`;
+        }
+    }
+    
+    // Apply validation styles
+    if (value) { // Only validate non-empty fields
+        if (isValid) {
+            input.classList.add('is-valid');
+            input.classList.remove('is-invalid');
+        } else {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            showValidationMessage(input, message);
+        }
+    }
+    
+    return isValid;
+}
+
+function clearValidation(input) {
+    input.classList.remove('is-valid', 'is-invalid');
+    const feedback = input.parentElement.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+}
+
+function showValidationMessage(input, message) {
+    const feedback = document.createElement('div');
+    feedback.className = 'invalid-feedback';
+    feedback.textContent = message;
+    input.parentElement.appendChild(feedback);
+}
+
+function updateReviewSummary() {
+    if (currentStep === 4) {
+        const formData = new FormData(document.getElementById('retailForm'));
+        const summary = document.getElementById('reviewSummary');
+        
+        const data = {
+            'Age': formData.get('age') + ' years',
+            'Employment': formData.get('employment_status'),
+            'Annual Income': '$' + Number(formData.get('income')).toLocaleString(),
+            'Credit Score': formData.get('credit_score'),
+            'Debt-to-Income': (formData.get('debt_to_income') * 100).toFixed(1) + '%',
+            'Utilization Rate': (formData.get('utilization_rate') * 100).toFixed(1) + '%'
+        };
+        
+        let html = '';
+        Object.entries(data).forEach(([key, value]) => {
+            html += `
+                <div class="col-md-6 col-lg-4">
+                    <div class="d-flex justify-content-between">
+                        <strong class="text-muted">${key}:</strong>
+                        <span>${value}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        summary.innerHTML = html;
+        
+        // Update risk preview
+        updateRiskPreview(formData);
+    }
+}
+
+function updateRiskPreview(formData) {
+    const riskPreview = document.getElementById('riskPreview');
+    const creditScore = parseInt(formData.get('credit_score'));
+    const dti = parseFloat(formData.get('debt_to_income'));
+    const utilization = parseFloat(formData.get('utilization_rate'));
+    
+    let riskLevel = 'Medium';
+    let riskColor = 'warning';
+    let riskIcon = 'exclamation-triangle';
+    
+    // Simple risk assessment
+    if (creditScore >= 750 && dti <= 0.3 && utilization <= 0.3) {
+        riskLevel = 'Low';
+        riskColor = 'success';
+        riskIcon = 'check-circle';
+    } else if (creditScore < 650 || dti > 0.5 || utilization > 0.7) {
+        riskLevel = 'High';
+        riskColor = 'danger';
+        riskIcon = 'exclamation-triangle';
+    }
+    
+    riskPreview.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-${riskIcon} text-${riskColor} me-2"></i>
+            <div>
+                <strong>Preliminary Risk Assessment: ${riskLevel}</strong>
+                <p class="mb-0 small">This is a preliminary assessment. Final PD score will be calculated using our comprehensive model with 37+ risk factors.</p>
+            </div>
+        </div>
+    `;
+}
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+        document.getElementById('retailForm').reset();
+        
+        // Reset to defaults
+        document.getElementById('age').value = '35';
+        document.getElementById('employment_status').value = 'Full-time';
+        document.getElementById('income').value = '75000';
+        document.getElementById('credit_score').value = '720';
+        document.getElementById('debt_to_income').value = '0.30';
+        document.getElementById('utilization_rate').value = '0.25';
+        document.getElementById('employment_tenure').value = '3.0';
+        document.getElementById('years_at_address').value = '2.0';
+        document.getElementById('num_accounts').value = '5';
+        document.getElementById('monthly_transactions').value = '45';
+        
+        // Clear validation states
+        document.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+            el.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        
+        // Clear helpers
+        document.querySelectorAll('[id$="-helper"]').forEach(el => el.innerHTML = '');
+        
+        // Reset to first step
+        hideStep(currentStep);
+        currentStep = 1;
+        showStep(currentStep);
+        updateProgress();
+    }
+}
+
+// Form submission with loading state
+document.getElementById('retailForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating PD Score...';
+    submitBtn.disabled = true;
+    
+    // Update progress to 100%
+    document.getElementById('formProgress').style.width = '100%';
+});
+
+// Add CSS for step transitions
+const style = document.createElement('style');
+style.textContent = `
+    .form-step {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .progress-bar {
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .form-control-lg, .form-select-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .step-header {
+        position: relative;
+    }
+    
+    .step-header::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: var(--bs-primary);
+        border-radius: 2px;
+    }
+    
+    .input-group-text {
+        background: var(--bs-light);
+        border-color: var(--bs-border-color);
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}

@@ -4,89 +4,268 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-10 mx-auto">
-        <div class="card shadow">
+    <div class="col-xl-10 mx-auto">
+        <!-- Header Card -->
+        <div class="card shadow-lg border-0 mb-4">
             <div class="card-header bg-info text-white">
-                <h4 class="mb-0">
-                    <i class="fas fa-upload me-2"></i>Batch PD Scoring
-                </h4>
-                <small>Upload CSV files for portfolio-level risk assessment</small>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="mb-1 fw-bold">
+                            <i class="fas fa-upload me-2"></i>Batch PD Scoring
+                        </h4>
+                        <small class="opacity-75">Upload CSV files for portfolio-level risk assessment</small>
+                    </div>
+                    <div class="col-auto d-none d-md-block">
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-clock me-1"></i>Real-time Progress
+                            </span>
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-chart-bar me-1"></i>Instant Results
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
+        </div>
+
+        <!-- Main Upload Card -->
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
                 <form action="/api/predict/batch" method="POST" enctype="multipart/form-data" id="batchForm">
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <!-- Segment Selection -->
                         <div class="col-12">
-                            <h6 class="text-info border-bottom pb-2">
-                                <i class="fas fa-layer-group me-2"></i>Select Model Segment
+                            <h6 class="text-info border-bottom pb-2 mb-3">
+                                <i class="fas fa-layer-group me-2"></i>Step 1: Select Model Segment
                             </h6>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="segment" class="form-label">Customer Segment *</label>
-                            <select class="form-select" id="segment" name="segment" required>
-                                <option value="">Choose segment...</option>
-                                <option value="retail">Retail Banking</option>
-                                <option value="sme">SME Banking</option>
-                                <option value="corporate">Corporate Banking</option>
-                            </select>
+                            
+                            <div class="row g-3">
+                                <div class="col-lg-4">
+                                    <div class="segment-option" data-segment="retail">
+                                        <input type="radio" class="btn-check" name="segment" id="segment-retail" value="retail" required>
+                                        <label class="btn btn-outline-primary btn-lg w-100 h-100" for="segment-retail">
+                                            <div class="text-center p-3">
+                                                <i class="fas fa-user fa-2x mb-2"></i>
+                                                <h6 class="mb-1">Retail Banking</h6>
+                                                <small class="text-muted">Individual consumers</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="segment-option" data-segment="sme">
+                                        <input type="radio" class="btn-check" name="segment" id="segment-sme" value="sme" required>
+                                        <label class="btn btn-outline-success btn-lg w-100 h-100" for="segment-sme">
+                                            <div class="text-center p-3">
+                                                <i class="fas fa-building fa-2x mb-2"></i>
+                                                <h6 class="mb-1">SME Banking</h6>
+                                                <small class="text-muted">Small & medium enterprises</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="segment-option" data-segment="corporate">
+                                        <input type="radio" class="btn-check" name="segment" id="segment-corporate" value="corporate" required>
+                                        <label class="btn btn-outline-warning btn-lg w-100 h-100" for="segment-corporate">
+                                            <div class="text-center p-3">
+                                                <i class="fas fa-city fa-2x mb-2"></i>
+                                                <h6 class="mb-1">Corporate Banking</h6>
+                                                <small class="text-muted">Large corporations</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- File Upload -->
-                        <div class="col-12 mt-4">
-                            <h6 class="text-info border-bottom pb-2">
-                                <i class="fas fa-file-csv me-2"></i>Upload Data File
-                            </h6>
-                        </div>
-                        
+                        <!-- File Upload Section -->
                         <div class="col-12">
-                            <div class="upload-area border-2 border-dashed border-info rounded p-4 text-center" id="upload-area">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-info mb-3"></i>
-                                <h5>Drop your CSV file here or click to browse</h5>
-                                <p class="text-muted">Maximum file size: 10MB</p>
-                                <input type="file" class="form-control d-none" id="batch-file" name="file" accept=".csv" required>
-                                <button type="button" class="btn btn-outline-info" onclick="document.getElementById('batch-file').click()">
-                                    <i class="fas fa-folder-open me-2"></i>Choose File
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- File Info -->
-                        <div class="col-12" id="file-info" style="display: none;">
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-file me-2"></i>Selected File:</h6>
-                                <p class="mb-1"><strong>Name:</strong> <span id="file-name"></span></p>
-                                <p class="mb-0"><strong>Size:</strong> <span id="file-size"></span></p>
+                            <h6 class="text-info border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-csv me-2"></i>Step 2: Upload Your Data File
+                            </h6>
+                            
+                            <div class="upload-container">
+                                <div class="upload-area border-2 border-dashed border-info rounded p-5 text-center" id="upload-area">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt fa-4x text-info mb-3"></i>
+                                        <h5 class="mb-3">Drop your CSV file here or click to browse</h5>
+                                        <p class="text-muted mb-3">
+                                            Maximum file size: <strong>10MB</strong> | 
+                                            Supported format: <strong>CSV</strong>
+                                        </p>
+                                        <input type="file" class="form-control d-none" id="batch-file" name="file" accept=".csv" required>
+                                        <button type="button" class="btn btn-info btn-lg" onclick="document.getElementById('batch-file').click()">
+                                            <i class="fas fa-folder-open me-2"></i>Choose File
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- File Preview Area -->
+                                <div class="file-preview-container mt-3" id="file-preview-container" style="display: none;">
+                                    <!-- File Info -->
+                                    <div class="alert alert-info border-0" id="file-info">
+                                        <div class="row align-items-center">
+                                            <div class="col">
+                                                <h6 class="alert-heading mb-1">
+                                                    <i class="fas fa-file-csv me-2"></i>Selected File
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <strong>Name:</strong> <span id="file-name"></span>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <strong>Size:</strong> <span id="file-size"></span>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <strong>Rows:</strong> <span id="file-rows">Calculating...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFile()">
+                                                    <i class="fas fa-times me-1"></i>Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- File Content Preview -->
+                                    <div class="card border-0 bg-light" id="file-preview">
+                                        <div class="card-header bg-transparent border-0">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-eye me-2"></i>File Preview (First 5 rows)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover" id="preview-table">
+                                                    <thead class="table-dark">
+                                                        <!-- Headers will be populated by JavaScript -->
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Rows will be populated by JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Validation Results -->
+                                    <div class="validation-results mt-3" id="validation-results">
+                                        <!-- Validation info will be populated by JavaScript -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- File Preview -->
-                        <div class="col-12" id="file-preview" style="display: none;">
-                            <h6 class="text-info">File Preview:</h6>
-                            <div class="bg-light p-3 rounded">
-                                <pre id="preview-content" class="small mb-0" style="max-height: 200px; overflow-y: auto;"></pre>
+                        <!-- Processing Options -->
+                        <div class="col-12" id="processing-options" style="display: none;">
+                            <h6 class="text-info border-bottom pb-2 mb-3">
+                                <i class="fas fa-cogs me-2"></i>Step 3: Processing Options
+                            </h6>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card border-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-tachometer-alt me-2 text-primary"></i>Processing Speed
+                                            </h6>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="processing_speed" id="speed-standard" value="standard" checked>
+                                                <label class="form-check-label" for="speed-standard">
+                                                    <strong>Standard</strong> - Balanced speed and accuracy
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="processing_speed" id="speed-fast" value="fast">
+                                                <label class="form-check-label" for="speed-fast">
+                                                    <strong>Fast</strong> - Optimized for speed
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-download me-2 text-success"></i>Output Format
+                                            </h6>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-details" checked>
+                                                <label class="form-check-label" for="include-details">
+                                                    Include detailed explanations
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-summary" checked>
+                                                <label class="form-check-label" for="include-summary">
+                                                    Include summary statistics
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Progress Bar -->
+                        <!-- Progress Section -->
                         <div class="col-12" id="progress-section" style="display: none;">
-                            <h6>Processing Progress:</h6>
-                            <div class="progress mb-2">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                                     id="batch-progress" style="width: 0%"></div>
+                            <h6 class="text-info border-bottom pb-2 mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Processing Progress
+                            </h6>
+                            
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold">Processing Status</span>
+                                        <span id="progress-percentage" class="badge bg-primary">0%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 8px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                             id="batch-progress" style="width: 0%"></div>
+                                    </div>
+                                    <div class="row g-3 text-center">
+                                        <div class="col-md-3">
+                                            <div class="fw-bold text-primary" id="total-records">0</div>
+                                            <small class="text-muted">Total Records</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="fw-bold text-success" id="processed-records">0</div>
+                                            <small class="text-muted">Processed</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="fw-bold text-warning" id="remaining-records">0</div>
+                                            <small class="text-muted">Remaining</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="fw-bold text-info" id="processing-time">00:00</div>
+                                            <small class="text-muted">Time Elapsed</small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <small class="text-muted" id="progress-text">Ready to start processing...</small>
+                                    </div>
+                                </div>
                             </div>
-                            <small class="text-muted" id="progress-text">Preparing upload...</small>
                         </div>
 
-                        <!-- Submit Button -->
-                        <div class="col-12 mt-4">
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
-                                    <i class="fas fa-undo me-2"></i>Reset
-                                </button>
-                                <button type="submit" class="btn btn-info btn-lg" id="submitBtn" disabled>
-                                    <i class="fas fa-play me-2"></i>Start Batch Processing
-                                </button>
+                        <!-- Submit Section -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                        <i class="fas fa-undo me-2"></i>Reset Form
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-info btn-lg px-4" id="submitBtn" disabled>
+                                        <i class="fas fa-play me-2"></i>Start Batch Processing
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -94,30 +273,101 @@
             </div>
         </div>
 
-        <!-- Instructions Card -->
-        <div class="card mt-4 border-info">
-            <div class="card-body">
-                <h6 class="card-title text-info">
-                    <i class="fas fa-info-circle me-2"></i>Batch Processing Instructions
-                </h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>File Format Requirements:</h6>
-                        <ul class="small">
-                            <li>CSV format only</li>
-                            <li>Maximum 10MB file size</li>
-                            <li>UTF-8 encoding recommended</li>
-                            <li>Header row required</li>
+        <!-- Instructions & Requirements -->
+        <div class="row g-4 mt-3">
+            <div class="col-md-6">
+                <div class="card border-info h-100">
+                    <div class="card-header bg-info-subtle border-info">
+                        <h6 class="mb-0 text-info-emphasis">
+                            <i class="fas fa-info-circle me-2"></i>File Format Requirements
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Format:</strong> CSV (Comma Separated Values) only
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Size:</strong> Maximum 10MB file size
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Encoding:</strong> UTF-8 encoding recommended
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Header:</strong> First row must contain column headers
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Records:</strong> Up to 100,000 records per file
+                            </li>
                         </ul>
                     </div>
-                    <div class="col-md-6">
-                        <h6>Processing Features:</h6>
-                        <ul class="small">
-                            <li>Supports thousands of records</li>
-                            <li>Real-time progress tracking</li>
-                            <li>Downloadable results in JSON/CSV</li>
-                            <li>Risk grade and IFRS 9 staging</li>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-success h-100">
+                    <div class="card-header bg-success-subtle border-success">
+                        <h6 class="mb-0 text-success-emphasis">
+                            <i class="fas fa-rocket me-2"></i>Processing Features
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-lightning text-warning me-2"></i>
+                                <strong>Speed:</strong> Process thousands of records in seconds
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-chart-line text-primary me-2"></i>
+                                <strong>Progress:</strong> Real-time processing updates
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-shield-alt text-info me-2"></i>
+                                <strong>Validation:</strong> Automatic data quality checks
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-download text-success me-2"></i>
+                                <strong>Results:</strong> Downloadable in JSON/CSV format
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-tags text-danger me-2"></i>
+                                <strong>Output:</strong> Risk grades and IFRS 9 staging
+                            </li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Data Templates -->
+        <div class="card mt-4 border-warning">
+            <div class="card-header bg-warning-subtle border-warning">
+                <h6 class="mb-0 text-warning-emphasis">
+                    <i class="fas fa-download me-2"></i>Sample Data Templates
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Download sample CSV templates to ensure your data is formatted correctly:</p>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-primary w-100" onclick="downloadTemplate('retail')">
+                            <i class="fas fa-user me-2"></i>Retail Template
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-success w-100" onclick="downloadTemplate('sme')">
+                            <i class="fas fa-building me-2"></i>SME Template
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-warning w-100" onclick="downloadTemplate('corporate')">
+                            <i class="fas fa-city me-2"></i>Corporate Template
+                        </button>
                     </div>
                 </div>
             </div>
@@ -128,46 +378,495 @@
 
 {% block scripts %}
 <script>
-function resetForm() {
-    document.getElementById('batchForm').reset();
-    document.getElementById('file-info').style.display = 'none';
-    document.getElementById('file-preview').style.display = 'none';
-    document.getElementById('progress-section').style.display = 'none';
-    document.getElementById('submitBtn').disabled = true;
+let uploadedFile = null;
+let processingStartTime = null;
+let processingInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeBatchForm();
+    setupFileUpload();
+    setupFormValidation();
+});
+
+function initializeBatchForm() {
+    // Add segment selection handlers
+    document.querySelectorAll('input[name="segment"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateSegmentSelection();
+            validateForm();
+        });
+    });
+    
+    // Add keyboard support
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && processingInterval) {
+            // Could add cancel processing functionality here
+        }
+    });
 }
 
-// File upload handling
-document.getElementById('batch-file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const segment = document.getElementById('segment').value;
+function setupFileUpload() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('batch-file');
     
-    if (file && segment) {
-        document.getElementById('file-name').textContent = file.name;
-        document.getElementById('file-size').textContent = formatFileSize(file.size);
-        document.getElementById('file-info').style.display = 'block';
-        document.getElementById('submitBtn').disabled = false;
-        
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = e.target.result.split('\n').slice(0, 5).join('\n');
-            document.getElementById('preview-content').textContent = preview + '\n...';
-            document.getElementById('file-preview').style.display = 'block';
-        };
-        reader.readAsText(file);
-    }
-});
+    // Drag and drop handlers
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('drag-over');
+            uploadArea.style.borderColor = 'var(--bs-info)';
+            uploadArea.style.backgroundColor = 'rgba(13, 202, 240, 0.1)';
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('drag-over');
+            uploadArea.style.borderColor = '';
+            uploadArea.style.backgroundColor = '';
+        }, false);
+    });
+    
+    uploadArea.addEventListener('drop', handleFileDrop, false);
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+}
 
-document.getElementById('segment').addEventListener('change', function() {
-    const file = document.getElementById('batch-file').files[0];
-    const segment = this.value;
-    
-    if (file && segment) {
-        document.getElementById('submitBtn').disabled = false;
-    } else {
-        document.getElementById('submitBtn').disabled = true;
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleFileDrop(e) {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        processFile(files[0]);
     }
-});
+}
+
+function handleFileSelect(e) {
+    const files = e.target.files;
+    if (files.length > 0) {
+        processFile(files[0]);
+    }
+}
+
+function processFile(file) {
+    if (!validateFileType(file)) return;
+    if (!validateFileSize(file)) return;
+    
+    uploadedFile = file;
+    
+    // Update file info
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-size').textContent = formatFileSize(file.size);
+    
+    // Show file preview container
+    document.getElementById('file-preview-container').style.display = 'block';
+    
+    // Parse and preview file
+    parseCSVFile(file);
+    
+    // Show processing options
+    document.getElementById('processing-options').style.display = 'block';
+    
+    // Validate form
+    validateForm();
+    
+    // Smooth scroll to preview
+    setTimeout(() => {
+        document.getElementById('file-preview-container').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100);
+}
+
+function validateFileType(file) {
+    const allowedTypes = ['text/csv', 'application/csv'];
+    const isCSV = allowedTypes.includes(file.type) || file.name.toLowerCase().endsWith('.csv');
+    
+    if (!isCSV) {
+        showNotification('Please select a CSV file only.', 'warning');
+        return false;
+    }
+    return true;
+}
+
+function validateFileSize(file) {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (file.size > maxSize) {
+        showNotification('File size must be less than 10MB. Please reduce your file size.', 'danger');
+        return false;
+    }
+    return true;
+}
+
+function parseCSVFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const lines = csv.split('\n').filter(line => line.trim() !== '');
+        
+        if (lines.length < 2) {
+            showValidationError('File must contain at least a header row and one data row.');
+            return;
+        }
+        
+        // Parse header
+        const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''));
+        
+        // Parse first 5 data rows for preview
+        const previewRows = [];
+        for (let i = 1; i < Math.min(6, lines.length); i++) {
+            const row = lines[i].split(',').map(cell => cell.trim().replace(/['"]/g, ''));
+            previewRows.push(row);
+        }
+        
+        // Update row count
+        document.getElementById('file-rows').textContent = (lines.length - 1).toLocaleString();
+        
+        // Create preview table
+        createPreviewTable(headers, previewRows);
+        
+        // Validate data structure
+        validateDataStructure(headers, lines.length - 1);
+    };
+    
+    reader.onerror = function() {
+        showValidationError('Error reading file. Please try again.');
+    };
+    
+    reader.readAsText(file);
+}
+
+function createPreviewTable(headers, rows) {
+    const table = document.getElementById('preview-table');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // Clear existing content
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+    
+    // Create header row
+    const headerRow = document.createElement('tr');
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        th.className = 'text-nowrap';
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    
+    // Create data rows
+    rows.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        row.forEach((cell, cellIndex) => {
+            const td = document.createElement('td');
+            td.textContent = cell.length > 20 ? cell.substring(0, 20) + '...' : cell;
+            td.className = 'text-nowrap';
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+}
+
+function validateDataStructure(headers, rowCount) {
+    const validationResults = document.getElementById('validation-results');
+    let validationHTML = '';
+    let isValid = true;
+    
+    // Check row count
+    if (rowCount > 100000) {
+        validationHTML += `
+            <div class="alert alert-warning border-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Large file detected:</strong> ${rowCount.toLocaleString()} rows. Processing may take longer.
+            </div>
+        `;
+    } else {
+        validationHTML += `
+            <div class="alert alert-success border-0">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>File size optimal:</strong> ${rowCount.toLocaleString()} rows ready for processing.
+            </div>
+        `;
+    }
+    
+    // Check required columns based on selected segment
+    const selectedSegment = document.querySelector('input[name="segment"]:checked')?.value;
+    if (selectedSegment) {
+        const requiredColumns = getRequiredColumns(selectedSegment);
+        const missingColumns = requiredColumns.filter(col => 
+            !headers.some(header => header.toLowerCase().includes(col.toLowerCase()))
+        );
+        
+        if (missingColumns.length > 0) {
+            validationHTML += `
+                <div class="alert alert-danger border-0">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Missing required columns:</strong> ${missingColumns.join(', ')}
+                </div>
+            `;
+            isValid = false;
+        } else {
+            validationHTML += `
+                <div class="alert alert-success border-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Column validation passed:</strong> All required columns found.
+                </div>
+            `;
+        }
+    }
+    
+    validationResults.innerHTML = validationHTML;
+    return isValid;
+}
+
+function getRequiredColumns(segment) {
+    const requiredColumns = {
+        retail: ['age', 'income', 'credit_score', 'debt_to_income', 'utilization_rate'],
+        sme: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
+        corporate: ['industry', 'annual_revenue', 'current_ratio', 'debt_to_equity', 'credit_rating']
+    };
+    
+    return requiredColumns[segment] || [];
+}
+
+function updateSegmentSelection() {
+    const selectedSegment = document.querySelector('input[name="segment"]:checked')?.value;
+    
+    // Update UI based on selection
+    document.querySelectorAll('.segment-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    if (selectedSegment) {
+        const selectedOption = document.querySelector(`[data-segment="${selectedSegment}"]`);
+        selectedOption.classList.add('selected');
+        
+        // Re-validate file if uploaded
+        if (uploadedFile) {
+            parseCSVFile(uploadedFile);
+        }
+    }
+}
+
+function validateForm() {
+    const segment = document.querySelector('input[name="segment"]:checked');
+    const file = uploadedFile;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (segment && file) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-outline-info');
+        submitBtn.classList.add('btn-info');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.remove('btn-info');
+        submitBtn.classList.add('btn-outline-info');
+    }
+}
+
+function setupFormValidation() {
+    document.getElementById('batchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!uploadedFile) {
+            showNotification('Please select a file to upload.', 'warning');
+            return;
+        }
+        
+        const selectedSegment = document.querySelector('input[name="segment"]:checked');
+        if (!selectedSegment) {
+            showNotification('Please select a model segment.', 'warning');
+            return;
+        }
+        
+        startBatchProcessing();
+    });
+}
+
+function startBatchProcessing() {
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+    formData.append('segment', document.querySelector('input[name="segment"]:checked').value);
+    
+    // Show progress section
+    document.getElementById('progress-section').style.display = 'block';
+    document.getElementById('progress-section').scrollIntoView({ behavior: 'smooth' });
+    
+    // Update submit button
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    submitBtn.disabled = true;
+    
+    // Start processing timer
+    processingStartTime = Date.now();
+    processingInterval = setInterval(updateProcessingTime, 1000);
+    
+    // Initialize progress
+    const totalRows = parseInt(document.getElementById('file-rows').textContent.replace(/,/g, ''));
+    document.getElementById('total-records').textContent = totalRows.toLocaleString();
+    document.getElementById('remaining-records').textContent = totalRows.toLocaleString();
+    
+    // Simulate progress (replace with actual fetch)
+    simulateProgress(totalRows);
+    
+    // Actual API call
+    fetch('/api/predict/batch', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        completeProcessing(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Batch processing failed. Please try again.', 'danger');
+        resetProcessing();
+    });
+}
+
+function simulateProgress(total) {
+    let processed = 0;
+    const progressInterval = setInterval(() => {
+        processed += Math.floor(Math.random() * (total / 20)) + 1;
+        if (processed >= total * 0.9) {
+            processed = Math.floor(total * 0.9);
+            clearInterval(progressInterval);
+        }
+        
+        updateProgress(processed, total);
+    }, 500);
+}
+
+function updateProgress(processed, total) {
+    const percentage = Math.min((processed / total) * 100, 100);
+    
+    document.getElementById('batch-progress').style.width = percentage + '%';
+    document.getElementById('progress-percentage').textContent = Math.round(percentage) + '%';
+    document.getElementById('processed-records').textContent = processed.toLocaleString();
+    document.getElementById('remaining-records').textContent = Math.max(0, total - processed).toLocaleString();
+    
+    if (percentage < 100) {
+        document.getElementById('progress-text').textContent = `Processing records... ${processed.toLocaleString()} of ${total.toLocaleString()} completed`;
+    }
+}
+
+function updateProcessingTime() {
+    if (processingStartTime) {
+        const elapsed = Math.floor((Date.now() - processingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('processing-time').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+function completeProcessing(data) {
+    clearInterval(processingInterval);
+    
+    // Update final progress
+    const total = data.total_predictions;
+    updateProgress(total, total);
+    
+    document.getElementById('progress-text').innerHTML = `
+        <strong>Processing completed!</strong> ${data.successful_predictions} successful, ${data.failed_predictions} failed.
+    `;
+    
+    // Download results
+    setTimeout(() => {
+        downloadResults(data);
+        showNotification('Batch processing completed successfully!', 'success');
+        
+        // Reset form after delay
+        setTimeout(() => {
+            resetForm();
+        }, 3000);
+    }, 1000);
+}
+
+function downloadResults(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `batch_pd_results_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function resetProcessing() {
+    clearInterval(processingInterval);
+    
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-play me-2"></i>Start Batch Processing';
+    submitBtn.disabled = false;
+    
+    document.getElementById('progress-section').style.display = 'none';
+}
+
+function removeFile() {
+    uploadedFile = null;
+    document.getElementById('batch-file').value = '';
+    document.getElementById('file-preview-container').style.display = 'none';
+    document.getElementById('processing-options').style.display = 'none';
+    validateForm();
+}
+
+function resetForm() {
+    removeFile();
+    document.querySelectorAll('input[name="segment"]').forEach(radio => {
+        radio.checked = false;
+    });
+    document.querySelectorAll('.segment-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    resetProcessing();
+    validateForm();
+}
+
+function downloadTemplate(segment) {
+    const templates = {
+        retail: {
+            headers: ['age', 'income', 'credit_score', 'debt_to_income', 'utilization_rate', 'employment_status'],
+            sample: ['35', '75000', '720', '0.30', '0.25', 'Full-time']
+        },
+        sme: {
+            headers: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity', 'profit_margin'],
+            sample: ['Technology', '2000000', '25', '1.5', '0.8', '0.12']
+        },
+        corporate: {
+            headers: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity', 'credit_rating'],
+            sample: ['Technology', '1000000000', '5000', '1.2', '0.6', 'A']
+        }
+    };
+    
+    const template = templates[segment];
+    const csv = template.headers.join(',') + '\n' + template.sample.join(',');
+    
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${segment}_template.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification(`${segment.charAt(0).toUpperCase() + segment.slice(1)} template downloaded!`, 'success');
+}
 
 function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -176,59 +875,107 @@ function formatFileSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 }
 
-// Form submission with progress
-document.getElementById('batchForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+function showValidationError(message) {
+    const validationResults = document.getElementById('validation-results');
+    validationResults.innerHTML = `
+        <div class="alert alert-danger border-0">
+            <i class="fas fa-times-circle me-2"></i>
+            <strong>Validation Error:</strong> ${message}
+        </div>
+    `;
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible position-fixed fade show`;
+    notification.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        max-width: 400px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    `;
     
-    const formData = new FormData(this);
-    const progressSection = document.getElementById('progress-section');
-    const submitBtn = document.getElementById('submitBtn');
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-${getNotificationIcon(type)} me-2"></i>
+            <div class="flex-grow-1">${message}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
     
-    progressSection.style.display = 'block';
-    submitBtn.disabled = true;
+    document.body.appendChild(notification);
     
-    // Simulate progress (replace with actual upload progress)
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 90) progress = 90;
-        
-        document.getElementById('batch-progress').style.width = progress + '%';
-        document.getElementById('progress-text').textContent = `Processing... ${Math.round(progress)}%`;
-        
-        if (progress >= 90) {
-            clearInterval(interval);
-            
-            // Actual form submission
-            fetch('/api/predict/batch', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('batch-progress').style.width = '100%';
-                document.getElementById('progress-text').textContent = 'Processing complete!';
-                
-                // Handle results
-                alert(`Batch processing complete! Processed ${data.total_predictions} records.`);
-                
-                // Download results
-                const blob = new Blob([JSON.stringify(data.results, null, 2)], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'batch_pd_results.json';
-                a.click();
-                
-                resetForm();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Batch processing failed. Please try again.');
-                resetForm();
-            });
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
         }
-    }, 200);
-});
+    }, 5000);
+}
+
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'success': return 'check-circle';
+        case 'warning': return 'exclamation-triangle';
+        case 'danger': return 'times-circle';
+        case 'info':
+        default: return 'info-circle';
+    }
+}
+
+// Add CSS for enhanced styling
+const style = document.createElement('style');
+style.textContent = `
+    .segment-option.selected .btn {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .upload-area {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: var(--bs-info) !important;
+        background-color: rgba(13, 202, 240, 0.05) !important;
+    }
+    
+    .upload-area.drag-over {
+        transform: scale(1.02);
+    }
+    
+    .progress-bar {
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .btn-check:checked + .btn {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .alert {
+        border-left: 4px solid;
+    }
+    
+    .alert-success {
+        border-left-color: var(--bs-success);
+    }
+    
+    .alert-warning {
+        border-left-color: var(--bs-warning);
+    }
+    
+    .alert-danger {
+        border-left-color: var(--bs-danger);
+    }
+    
+    .alert-info {
+        border-left-color: var(--bs-info);
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}

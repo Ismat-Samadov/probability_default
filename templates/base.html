@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -16,8 +16,8 @@
     <link rel="shortcut icon" href="/static/favicon_io/favicon.ico">
     
     <!-- Meta tags for mobile and PWA -->
-    <meta name="theme-color" content="#0066cc">
-    <meta name="msapplication-TileColor" content="#0066cc">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="msapplication-TileColor" content="#2563eb">
     <meta name="msapplication-config" content="/static/favicon_io/browserconfig.xml">
     
     <!-- Preload critical fonts -->
@@ -40,7 +40,7 @@
             width: 1rem;
             height: 1rem;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #0066cc;
+            border-top: 2px solid #2563eb;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -52,17 +52,32 @@
         
         /* Prevent flash of unstyled content */
         body {
-            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
         
         body.loaded {
-            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Theme initialization */
+        html[data-theme="dark"] {
+            color-scheme: dark;
+        }
+        
+        html[data-theme="light"] {
+            color-scheme: light;
         }
     </style>
 </head>
 <body>
     <!-- Skip to main content for accessibility -->
     <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
     
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" role="navigation" aria-label="Main navigation">
@@ -149,6 +164,106 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
             integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     
+    <!-- Theme handling script (must be inline for immediate execution) -->
+    <script>
+        // Theme management
+        class ThemeManager {
+            constructor() {
+                this.html = document.documentElement;
+                this.themeToggle = null;
+                this.themeIcon = null;
+                this.init();
+            }
+
+            init() {
+                // Get stored theme or default to system preference
+                const storedTheme = localStorage.getItem('theme');
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                const initialTheme = storedTheme || systemTheme;
+                
+                this.setTheme(initialTheme);
+                
+                // Wait for DOM to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => this.setupToggle());
+                } else {
+                    this.setupToggle();
+                }
+                
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!localStorage.getItem('theme')) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
+
+            setupToggle() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.themeIcon = document.getElementById('themeIcon');
+                
+                if (this.themeToggle && this.themeIcon) {
+                    this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                    this.updateIcon();
+                }
+            }
+
+            setTheme(theme) {
+                this.html.setAttribute('data-theme', theme);
+                this.html.style.colorScheme = theme;
+                
+                // Force Bootstrap components to respect the theme
+                document.body.className = document.body.className.replace(/\b(theme-light|theme-dark)\b/g, '');
+                document.body.classList.add(`theme-${theme}`);
+                
+                if (this.themeIcon) {
+                    this.updateIcon();
+                }
+            }
+
+            toggleTheme() {
+                const currentTheme = this.html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                this.setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+                this.updateIcon();
+                
+                // Dispatch custom event for other components
+                window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+            }
+
+            updateIcon() {
+                if (!this.themeIcon) return;
+                
+                const currentTheme = this.html.getAttribute('data-theme');
+                
+                // Add transition effect
+                this.themeIcon.style.transform = 'scale(0)';
+                
+                setTimeout(() => {
+                    if (currentTheme === 'dark') {
+                        this.themeIcon.className = 'fas fa-sun';
+                        this.themeToggle.setAttribute('aria-label', 'Switch to light mode');
+                        this.themeToggle.setAttribute('title', 'Switch to light mode');
+                    } else {
+                        this.themeIcon.className = 'fas fa-moon';
+                        this.themeToggle.setAttribute('aria-label', 'Switch to dark mode');
+                        this.themeToggle.setAttribute('title', 'Switch to dark mode');
+                    }
+                    this.themeIcon.style.transform = 'scale(1)';
+                }, 150);
+            }
+
+            getCurrentTheme() {
+                return this.html.getAttribute('data-theme');
+            }
+        }
+
+        // Initialize theme manager immediately
+        window.themeManager = new ThemeManager();
+    </script>
+    
     <!-- Custom JavaScript -->
     <script src="/static/js/app.js"></script>
     
@@ -209,10 +324,19 @@
                         bsCollapse.hide();
                     }
                 }
+                
+                // Ctrl/Cmd + Shift + D to toggle theme
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+                    e.preventDefault();
+                    window.themeManager.toggleTheme();
+                }
             });
             
             // Check API health status
             checkAPIHealth();
+            
+            // Initialize enhanced form features
+            initializeFormFeatures();
         });
         
         async function checkAPIHealth() {
@@ -236,6 +360,108 @@
             }
         }
         
+        function initializeFormFeatures() {
+            // Enhanced form validation and UX
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                // Add loading states
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                        submitBtn.disabled = true;
+                        submitBtn.dataset.originalText = originalText;
+                        
+                        // Timeout fallback
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        }, 30000);
+                    }
+                });
+                
+                // Real-time validation
+                const inputs = form.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', function() {
+                        validateInput(this);
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        // Clear validation state on input
+                        this.classList.remove('is-valid', 'is-invalid');
+                        const feedback = this.parentElement.querySelector('.invalid-feedback, .valid-feedback');
+                        if (feedback) feedback.remove();
+                    });
+                });
+            });
+        }
+        
+        function validateInput(input) {
+            const value = input.value.trim();
+            let isValid = true;
+            let message = '';
+            
+            // Required validation
+            if (input.hasAttribute('required') && !value) {
+                isValid = false;
+                message = 'This field is required';
+            }
+            
+            // Type-specific validation
+            if (value && input.type === 'number') {
+                const numValue = parseFloat(value);
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+                
+                if (isNaN(numValue)) {
+                    isValid = false;
+                    message = 'Please enter a valid number';
+                } else if (!isNaN(min) && numValue < min) {
+                    isValid = false;
+                    message = `Value must be at least ${min}`;
+                } else if (!isNaN(max) && numValue > max) {
+                    isValid = false;
+                    message = `Value must be at most ${max}`;
+                }
+            }
+            
+            // Email validation
+            if (value && input.type === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    isValid = false;
+                    message = 'Please enter a valid email address';
+                }
+            }
+            
+            // Apply validation styles
+            input.classList.remove('is-valid', 'is-invalid');
+            const existingFeedback = input.parentElement.querySelector('.invalid-feedback, .valid-feedback');
+            if (existingFeedback) existingFeedback.remove();
+            
+            if (value) { // Only show validation for non-empty fields
+                if (isValid) {
+                    input.classList.add('is-valid');
+                    const feedback = document.createElement('div');
+                    feedback.className = 'valid-feedback';
+                    feedback.textContent = 'Looks good!';
+                    input.parentElement.appendChild(feedback);
+                } else {
+                    input.classList.add('is-invalid');
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = message;
+                    input.parentElement.appendChild(feedback);
+                }
+            }
+            
+            return isValid;
+        }
+        
         // Performance monitoring
         window.addEventListener('load', function() {
             // Log page load time for monitoring
@@ -243,8 +469,16 @@
             console.log(`Page loaded in ${Math.round(loadTime)}ms`);
             
             // Check for Web Vitals if available
-            if ('web-vital' in window) {
-                // Could integrate with monitoring service here
+            if ('PerformanceObserver' in window) {
+                // Monitor Cumulative Layout Shift
+                let cls = 0;
+                new PerformanceObserver((entryList) => {
+                    for (const entry of entryList.getEntries()) {
+                        if (!entry.hadRecentInput) {
+                            cls += entry.value;
+                        }
+                    }
+                }).observe({ type: 'layout-shift', buffered: true });
             }
         });
         
@@ -256,7 +490,7 @@
             }
         }, true);
         
-        // Service Worker registration for PWA features
+        // Service Worker registration for PWA features (production only)
         if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js')
@@ -268,6 +502,18 @@
                     });
             });
         }
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            // In production, send to error tracking service
+        });
+        
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            // In production, send to error tracking service
+        });
     </script>
     
     <!-- Schema.org structured data for SEO -->
