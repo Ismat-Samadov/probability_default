@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Error - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Processing Error
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-times-circle me-2"></i>Error Details</h5>
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                
+                <h6>Possible Solutions:</h6>
+                <ul>
+                    <li>Check that all required fields are filled correctly</li>
+                    <li>Verify that numerical values are within valid ranges</li>
+                    <li>Ensure the model service is running properly</li>
+                    <li>Try refreshing the page and submitting again</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <a href="javascript:history.back()" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </a>
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support Information -->
+        <div class="card mt-4 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="fas fa-life-ring me-2"></i>Need Help?
+                </h6>
+                <p class="card-text">
+                    If the error persists, please check the API documentation or contact support.
+                </p>
+                <a href="/api/docs" target="_blank" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-book me-2"></i>API Documentation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

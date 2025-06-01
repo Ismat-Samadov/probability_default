@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}SME Company Scoring - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-building me-2"></i>SME Company PD Scoring
+                </h4>
+                <small>Enter SME business data for comprehensive risk assessment</small>
+            </div>
+            <div class="card-body">
+                <form action="/predict/sme" method="POST" id="smeForm">
+                    <div class="row g-3">
+                        <!-- Company Information -->
+                        <div class="col-12">
+                            <h6 class="text-success border-bottom pb-2">
+                                <i class="fas fa-building me-2"></i>Company Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="industry" class="form-label">Industry Sector *</label>
+                            <select class="form-select" id="industry" name="industry" required>
+                                <option value="">Select industry...</option>
+                                <option value="Retail Trade">Retail Trade</option>
+                                <option value="Professional Services" selected>Professional Services</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Food Services">Food Services</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Real Estate">Real Estate</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Education">Education</option>
+                                <option value="Other Services">Other Services</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="years_in_business" class="form-label">Years in Business *</label>
+                            <input type="number" class="form-control" id="years_in_business" name="years_in_business" 
+                                   min="0.5" max="50" step="0.1" value="8.0" required>
+                            <small class="form-text text-muted">Years since company establishment</small>
+                        </div>
+
+                        <!-- Business Metrics -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-success border-bottom pb-2">
+                                <i class="fas fa-chart-bar me-2"></i>Business Metrics
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="annual_revenue" class="form-label">Annual Revenue ($) *</label>
+                            <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
+                                   min="100000" max="25000000" value="1500000" step="10000" required>
+                            <small class="form-text text-muted">Annual revenue in USD</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="num_employees" class="form-label">Number of Employees *</label>
+                            <input type="number" class="form-control" id="num_employees" name="num_employees" 
+                                   min="1" max="500" value="20" required>
+                            <small class="form-text text-muted">Total number of employees</small>
+                        </div>
+
+                        <!-- Financial Ratios -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-success border-bottom pb-2">
+                                <i class="fas fa-calculator me-2"></i>Financial Ratios
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="current_ratio" class="form-label">Current Ratio *</label>
+                            <input type="number" class="form-control" id="current_ratio" name="current_ratio" 
+                                   min="0.5" max="5" step="0.1" value="1.6" required>
+                            <small class="form-text text-muted">Current Assets / Current Liabilities</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="debt_to_equity" class="form-label">Debt-to-Equity Ratio *</label>
+                            <input type="number" class="form-control" id="debt_to_equity" name="debt_to_equity" 
+                                   min="0.1" max="3" step="0.1" value="1.2" required>
+                            <small class="form-text text-muted">Total Debt / Total Equity</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="interest_coverage" class="form-label">Interest Coverage Ratio *</label>
+                            <input type="number" class="form-control" id="interest_coverage" name="interest_coverage" 
+                                   min="0.5" max="20" step="0.1" value="5.0" required>
+                            <small class="form-text text-muted">EBIT / Interest Expense</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="profit_margin" class="form-label">Profit Margin *</label>
+                            <input type="number" class="form-control" id="profit_margin" name="profit_margin" 
+                                   min="-0.2" max="0.3" step="0.01" value="0.08" required>
+                            <small class="form-text text-muted">Net Profit / Revenue (e.g., 0.08 = 8%)</small>
+                        </div>
+
+                        <!-- Cash Flow Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-success border-bottom pb-2">
+                                <i class="fas fa-money-bill-wave me-2"></i>Cash Flow & Credit
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="operating_cash_flow" class="form-label">Operating Cash Flow ($) *</label>
+                            <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
+                                   min="0" max="5000000" value="150000" step="1000" required>
+                            <small class="form-text text-muted">Annual operating cash flow</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="working_capital" class="form-label">Working Capital ($) *</label>
+                            <input type="number" class="form-control" id="working_capital" name="working_capital" 
+                                   min="0" max="2000000" value="200000" step="1000" required>
+                            <small class="form-text text-muted">Current Assets - Current Liabilities</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="credit_utilization" class="form-label">Credit Utilization Rate *</label>
+                            <input type="number" class="form-control" id="credit_utilization" name="credit_utilization" 
+                                   min="0" max="1" step="0.01" value="0.35" required>
+                            <small class="form-text text-muted">Used credit / total credit available (e.g., 0.35 = 35%)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="payment_delays_12m" class="form-label">Payment Delays (12 months) *</label>
+                            <input type="number" class="form-control" id="payment_delays_12m" name="payment_delays_12m" 
+                                   min="0" max="12" value="1" required>
+                            <small class="form-text text-muted">Number of payment delays in past 12 months</small>
+                        </div>
+
+                        <!-- Risk Factors -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-success border-bottom pb-2">
+                                <i class="fas fa-shield-alt me-2"></i>Risk Assessment
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="geographic_risk" class="form-label">Geographic Risk *</label>
+                            <select class="form-select" id="geographic_risk" name="geographic_risk" required>
+                                <option value="Low" selected>Low Risk Location</option>
+                                <option value="Medium">Medium Risk Location</option>
+                                <option value="High">High Risk Location</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="market_competition" class="form-label">Market Competition *</label>
+                            <select class="form-select" id="market_competition" name="market_competition" required>
+                                <option value="Low">Low Competition</option>
+                                <option value="Medium" selected>Medium Competition</option>
+                                <option value="High">High Competition</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="management_quality" class="form-label">Management Quality Score *</label>
+                            <input type="number" class="form-control" id="management_quality" name="management_quality" 
+                                   min="1" max="10" step="0.1" value="7.0" required>
+                            <small class="form-text text-muted">Management quality assessment (1-10 scale)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="days_past_due" class="form-label">Days Past Due *</label>
+                            <select class="form-select" id="days_past_due" name="days_past_due" required>
+                                <option value="0" selected>Current (0 days)</option>
+                                <option value="30">30 days past due</option>
+                                <option value="60">60 days past due</option>
+                                <option value="90">90 days past due</option>
+                                <option value="120">120+ days past due</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                    <i class="fas fa-calculator me-2"></i>Calculate SME PD Score
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SME Information Card -->
+        <div class="card mt-4 border-success">
+            <div class="card-body">
+                <h6 class="card-title text-success">
+                    <i class="fas fa-info-circle me-2"></i>About SME PD Scoring
+                </h6>
+                <p class="card-text small">
+                    Our SME PD model evaluates small and medium enterprises using comprehensive business and financial analysis. 
+                    The model considers 31+ risk factors including:
+                </p>
+                <ul class="small mb-0">
+                    <li><strong>Business Fundamentals:</strong> Industry sector, company age, and scale metrics</li>
+                    <li><strong>Financial Health:</strong> Liquidity, leverage, and profitability ratios</li>
+                    <li><strong>Cash Flow Analysis:</strong> Operating cash flow and working capital management</li>
+                    <li><strong>Payment Behavior:</strong> Credit utilization and payment history</li>
+                    <li><strong>Risk Factors:</strong> Geographic risk and market competition assessment</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function resetForm() {
+    document.getElementById('smeForm').reset();
+    // Reset to default values
+    document.getElementById('years_in_business').value = '8.0';
+    document.getElementById('annual_revenue').value = '1500000';
+    document.getElementById('num_employees').value = '20';
+    document.getElementById('current_ratio').value = '1.6';
+    document.getElementById('debt_to_equity').value = '1.2';
+    document.getElementById('interest_coverage').value = '5.0';
+    document.getElementById('profit_margin').value = '0.08';
+    document.getElementById('operating_cash_flow').value = '150000';
+    document.getElementById('working_capital').value = '200000';
+    document.getElementById('credit_utilization').value = '0.35';
+    document.getElementById('payment_delays_12m').value = '1';
+    document.getElementById('management_quality').value = '7.0';
+}
+
+// Form validation and UX improvements
+document.getElementById('smeForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
+    submitBtn.disabled = true;
+});
+
+// Real-time validation helpers
+document.getElementById('profit_margin').addEventListener('input', function() {
+    const margin = parseFloat(this.value);
+    const helper = this.parentElement.querySelector('.margin-helper') || document.createElement('div');
+    helper.className = 'margin-helper mt-1 small';
+    
+    if (margin < 0) {
+        helper.className += ' text-danger';
+        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Negative profit margin indicates losses';
+    } else if (margin < 0.05) {
+        helper.className += ' text-warning';
+        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Low profit margin - monitor closely';
+    } else {
+        helper.className += ' text-success';
+        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Healthy profit margin';
+    }
+    
+    if (!this.parentElement.querySelector('.margin-helper')) {
+        this.parentElement.appendChild(helper);
+    }
+});
+
+// Credit utilization helper
+document.getElementById('credit_utilization').addEventListener('input', function() {
+    const utilization = parseFloat(this.value);
+    const percentage = (utilization * 100).toFixed(1);
+    
+    let helperElement = this.parentElement.querySelector('.utilization-helper');
+    if (!helperElement) {
+        helperElement = document.createElement('div');
+        helperElement.className = 'utilization-helper mt-1 small';
+        this.parentElement.appendChild(helperElement);
+    }
+    
+    let colorClass = 'text-success';
+    let icon = 'fas fa-check-circle';
+    let message = 'Conservative utilization';
+    
+    if (utilization > 0.5) {
+        colorClass = 'text-warning';
+        icon = 'fas fa-exclamation-triangle';
+        message = 'Moderate utilization';
+    }
+    if (utilization > 0.8) {
+        colorClass = 'text-danger';
+        icon = 'fas fa-times-circle';
+        message = 'High utilization - increased risk';
+    }
+    
+    helperElement.className = `utilization-helper mt-1 small ${colorClass}`;
+    helperElement.innerHTML = `
+        <i class="${icon} me-1"></i>
+        ${percentage}% - ${message}
+    `;
+});
+</script>
+{% endblock %}
