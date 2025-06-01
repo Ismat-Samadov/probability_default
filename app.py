@@ -231,53 +231,62 @@ class PDModelPredictor:
         return self.clean_infinite_values(df)
     
     def engineer_sme_features(self, df):
-        """Engineer EXACT SME features matching training"""
-        df = df.copy()
-        logger.info(f"Starting SME feature engineering with columns: {list(df.columns)}")
-        
-        # Required base columns
-        required_base = ['annual_revenue', 'num_employees']
-        for col in required_base:
-            if col not in df.columns:
-                raise ValueError(f"Required column missing: {col}")
-        
-        # Add missing columns with defaults
-        defaults = {
-            'operating_cash_flow': lambda x: x['annual_revenue'] * 0.1,
-            'asset_turnover': 1.5,
-            'primary_bank_relationship_years': 5.0,
-            'num_banking_products': 3,
-            'credit_line_amount': 500000,
-            'outstanding_loans': 200000
-        }
-        
-        for col, default_val in defaults.items():
-            if col not in df.columns:
-                if callable(default_val):
-                    df[col] = default_val(df)
-                else:
-                    df[col] = default_val
-        
-        # EXACT feature engineering as in training
-        # 1. revenue_per_employee
-        df['revenue_per_employee'] = np.where(
-            df['num_employees'] > 0,
-            df['annual_revenue'] / df['num_employees'],
-            0
-        )
-        
-        # 2. cash_flow_margin
-        df['cash_flow_margin'] = np.where(
-            df['annual_revenue'] > 0,
-            df['operating_cash_flow'] / df['annual_revenue'],
-            0
-        )
-        
-        # 3. payment_risk_score
-        df['payment_risk_score'] = df['payment_delays_12m'] * 10 + df['days_past_due'] / 30
-        
-        logger.info(f"SME features after engineering: {list(df.columns)}")
-        return self.clean_infinite_values(df)
+            """Engineer EXACT SME features matching training"""
+            df = df.copy()
+            logger.info(f"Starting SME feature engineering with columns: {list(df.columns)}")
+            
+            # Required base columns
+            required_base = ['annual_revenue', 'num_employees']
+            for col in required_base:
+                if col not in df.columns:
+                    raise ValueError(f"Required column missing: {col}")
+            
+            # Add missing columns with defaults
+            defaults = {
+                'operating_cash_flow': lambda x: x['annual_revenue'] * 0.1,
+                'asset_turnover': 1.5,
+                'primary_bank_relationship_years': 5.0,
+                'num_banking_products': 3,
+                'credit_line_amount': 500000,
+                'outstanding_loans': 200000,
+                'payment_delays_12m': 0,  # Default: no payment delays
+                'days_past_due': 0,       # Default: not past due
+                'years_in_business': 5.0,
+                'interest_coverage': 5.0,
+                'credit_utilization': 0.3,
+                'geographic_risk': 'Medium',
+                'market_competition': 'Medium',
+                'management_quality': 7.0,
+                'working_capital': lambda x: x['annual_revenue'] * 0.15
+            }
+            
+            for col, default_val in defaults.items():
+                if col not in df.columns:
+                    if callable(default_val):
+                        df[col] = default_val(df)
+                    else:
+                        df[col] = default_val
+            
+            # EXACT feature engineering as in training
+            # 1. revenue_per_employee
+            df['revenue_per_employee'] = np.where(
+                df['num_employees'] > 0,
+                df['annual_revenue'] / df['num_employees'],
+                0
+            )
+            
+            # 2. cash_flow_margin
+            df['cash_flow_margin'] = np.where(
+                df['annual_revenue'] > 0,
+                df['operating_cash_flow'] / df['annual_revenue'],
+                0
+            )
+            
+            # 3. payment_risk_score
+            df['payment_risk_score'] = df['payment_delays_12m'] * 10 + df['days_past_due'] / 30
+            
+            logger.info(f"SME features after engineering: {list(df.columns)}")
+            return self.clean_infinite_values(df)
     
     def engineer_corporate_features(self, df):
         """Engineer EXACT corporate features matching training"""

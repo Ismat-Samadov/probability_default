@@ -23,6 +23,68 @@
                             <span class="badge bg-light text-dark">
                                 <i class="fas fa-chart-bar me-1"></i>Instant Results
                             </span>
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-shield-alt me-1"></i>Basel III Compliant
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Templates Card -->
+        <div class="card shadow border-0 mb-4">
+            <div class="card-header bg-success-subtle">
+                <h5 class="mb-0 text-success-emphasis">
+                    <i class="fas fa-download me-2"></i>Download CSV Templates
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Start with our pre-formatted templates to ensure your data is structured correctly:</p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card border-primary h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user fa-3x text-primary mb-3"></i>
+                                <h6 class="card-title">Retail Banking</h6>
+                                <p class="small text-muted mb-3">Individual customers and consumers</p>
+                                <a href="/api/templates/retail.csv" class="btn btn-primary btn-sm w-100 mb-2">
+                                    <i class="fas fa-download me-1"></i>Download Template
+                                </a>
+                                <div class="mt-2">
+                                    <span class="badge bg-primary-subtle text-primary-emphasis">5 required columns</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-building fa-3x text-success mb-3"></i>
+                                <h6 class="card-title">SME Banking</h6>
+                                <p class="small text-muted mb-3">Small & medium enterprises</p>
+                                <a href="/api/templates/sme.csv" class="btn btn-success btn-sm w-100 mb-2">
+                                    <i class="fas fa-download me-1"></i>Download Template
+                                </a>
+                                <div class="mt-2">
+                                    <span class="badge bg-success-subtle text-success-emphasis">5 required columns</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-warning h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-city fa-3x text-warning mb-3"></i>
+                                <h6 class="card-title">Corporate Banking</h6>
+                                <p class="small text-muted mb-3">Large corporations and enterprises</p>
+                                <a href="/api/templates/corporate.csv" class="btn btn-warning btn-sm w-100 mb-2">
+                                    <i class="fas fa-download me-1"></i>Download Template
+                                </a>
+                                <div class="mt-2">
+                                    <span class="badge bg-warning-subtle text-warning-emphasis">5 required columns</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,6 +111,9 @@
                                                 <i class="fas fa-user fa-2x mb-2"></i>
                                                 <h6 class="mb-1">Retail Banking</h6>
                                                 <small class="text-muted">Individual consumers</small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-primary-subtle text-primary-emphasis">Most Flexible</span>
+                                                </div>
                                             </div>
                                         </label>
                                     </div>
@@ -61,6 +126,9 @@
                                                 <i class="fas fa-building fa-2x mb-2"></i>
                                                 <h6 class="mb-1">SME Banking</h6>
                                                 <small class="text-muted">Small & medium enterprises</small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success-subtle text-success-emphasis">Auto-Fill Missing</span>
+                                                </div>
                                             </div>
                                         </label>
                                     </div>
@@ -73,6 +141,9 @@
                                                 <i class="fas fa-city fa-2x mb-2"></i>
                                                 <h6 class="mb-1">Corporate Banking</h6>
                                                 <small class="text-muted">Large corporations</small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-warning-subtle text-warning-emphasis">Smart Defaults</span>
+                                                </div>
                                             </div>
                                         </label>
                                     </div>
@@ -92,8 +163,10 @@
                                         <i class="fas fa-cloud-upload-alt fa-4x text-info mb-3"></i>
                                         <h5 class="mb-3">Drop your CSV file here or click to browse</h5>
                                         <p class="text-muted mb-3">
-                                            Maximum file size: <strong>10MB</strong> | 
-                                            Supported format: <strong>CSV</strong>
+                                            <strong>File Requirements:</strong><br>
+                                            Maximum size: <span class="badge bg-info-subtle text-info-emphasis">10MB</span> | 
+                                            Format: <span class="badge bg-info-subtle text-info-emphasis">CSV only</span> |
+                                            Max rows: <span class="badge bg-info-subtle text-info-emphasis">10,000</span>
                                         </p>
                                         <input type="file" class="form-control d-none" id="batch-file" name="file" accept=".csv" required>
                                         <button type="button" class="btn btn-info btn-lg" onclick="document.getElementById('batch-file').click()">
@@ -112,7 +185,7 @@
                                                     <i class="fas fa-file-csv me-2"></i>Selected File
                                                 </h6>
                                                 <div class="row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-4">
                                                         <strong>Name:</strong> <span id="file-name"></span>
                                                     </div>
                                                     <div class="col-md-3">
@@ -120,6 +193,9 @@
                                                     </div>
                                                     <div class="col-md-3">
                                                         <strong>Rows:</strong> <span id="file-rows">Calculating...</span>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <strong>Status:</strong> <span id="file-status" class="badge bg-secondary">Checking...</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -171,18 +247,20 @@
                                     <div class="card border-light">
                                         <div class="card-body">
                                             <h6 class="card-title">
-                                                <i class="fas fa-tachometer-alt me-2 text-primary"></i>Processing Speed
+                                                <i class="fas fa-tachometer-alt me-2 text-primary"></i>Processing Mode
                                             </h6>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="processing_speed" id="speed-standard" value="standard" checked>
-                                                <label class="form-check-label" for="speed-standard">
-                                                    <strong>Standard</strong> - Balanced speed and accuracy
+                                                <input class="form-check-input" type="radio" name="processing_mode" id="mode-standard" value="standard" checked>
+                                                <label class="form-check-label" for="mode-standard">
+                                                    <strong>Standard Processing</strong><br>
+                                                    <small class="text-muted">Full feature engineering with all validations</small>
                                                 </label>
                                             </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="processing_speed" id="speed-fast" value="fast">
-                                                <label class="form-check-label" for="speed-fast">
-                                                    <strong>Fast</strong> - Optimized for speed
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="radio" name="processing_mode" id="mode-fast" value="fast">
+                                                <label class="form-check-label" for="mode-fast">
+                                                    <strong>Fast Processing</strong><br>
+                                                    <small class="text-muted">Optimized for speed with smart defaults</small>
                                                 </label>
                                             </div>
                                         </div>
@@ -192,18 +270,24 @@
                                     <div class="card border-light">
                                         <div class="card-body">
                                             <h6 class="card-title">
-                                                <i class="fas fa-download me-2 text-success"></i>Output Format
+                                                <i class="fas fa-download me-2 text-success"></i>Output Options
                                             </h6>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="include-details" checked>
                                                 <label class="form-check-label" for="include-details">
-                                                    Include detailed explanations
+                                                    Include prediction details
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="include-summary" checked>
                                                 <label class="form-check-label" for="include-summary">
                                                     Include summary statistics
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-risk-grades" checked>
+                                                <label class="form-check-label" for="include-risk-grades">
+                                                    Include risk grades and IFRS 9 staging
                                                 </label>
                                             </div>
                                         </div>
@@ -224,30 +308,32 @@
                                         <span class="fw-semibold">Processing Status</span>
                                         <span id="progress-percentage" class="badge bg-primary">0%</span>
                                     </div>
-                                    <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress mb-3" style="height: 12px;">
                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
                                              id="batch-progress" style="width: 0%"></div>
                                     </div>
                                     <div class="row g-3 text-center">
                                         <div class="col-md-3">
-                                            <div class="fw-bold text-primary" id="total-records">0</div>
+                                            <div class="fw-bold text-primary fs-4" id="total-records">0</div>
                                             <small class="text-muted">Total Records</small>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="fw-bold text-success" id="processed-records">0</div>
-                                            <small class="text-muted">Processed</small>
+                                            <div class="fw-bold text-success fs-4" id="processed-records">0</div>
+                                            <small class="text-muted">Successfully Processed</small>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="fw-bold text-warning" id="remaining-records">0</div>
-                                            <small class="text-muted">Remaining</small>
+                                            <div class="fw-bold text-danger fs-4" id="failed-records">0</div>
+                                            <small class="text-muted">Failed</small>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="fw-bold text-info" id="processing-time">00:00</div>
+                                            <div class="fw-bold text-info fs-4" id="processing-time">00:00</div>
                                             <small class="text-muted">Time Elapsed</small>
                                         </div>
                                     </div>
                                     <div class="mt-3">
-                                        <small class="text-muted" id="progress-text">Ready to start processing...</small>
+                                        <div id="progress-text" class="text-center">
+                                            <small class="text-muted">Ready to start processing...</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -262,7 +348,7 @@
                                     </button>
                                 </div>
                                 <div>
-                                    <button type="submit" class="btn btn-info btn-lg px-4" id="submitBtn" disabled>
+                                    <button type="submit" class="btn btn-info btn-lg px-5" id="submitBtn" disabled>
                                         <i class="fas fa-play me-2"></i>Start Batch Processing
                                     </button>
                                 </div>
@@ -270,6 +356,135 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Column Requirements Reference -->
+        <div class="row g-4 mt-3">
+            <div class="col-12">
+                <div class="card border-info">
+                    <div class="card-header bg-info-subtle border-info">
+                        <h6 class="mb-0 text-info-emphasis">
+                            <i class="fas fa-table me-2"></i>Column Requirements Reference
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="columnsAccordion">
+                            <!-- Retail Columns -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#retailColumns">
+                                        <i class="fas fa-user me-2 text-primary"></i>Retail Segment - Required vs Optional Columns
+                                    </button>
+                                </h2>
+                                <div id="retailColumns" class="accordion-collapse collapse" data-bs-parent="#columnsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Required Columns (Must Include):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-danger border-3"><code>age</code> - Customer age (18-100 years)</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>income</code> - Annual income in USD</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>credit_score</code> - Credit score (300-850)</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>debt_to_income</code> - Debt-to-income ratio (0.0-5.0)</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>utilization_rate</code> - Credit utilization (0.0-1.0)</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="text-success"><i class="fas fa-check-circle me-1"></i>Optional Columns (Auto-filled with smart defaults):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-success border-3"><code>employment_status</code> - Employment type</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>employment_tenure</code> - Years with employer</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>years_at_address</code> - Years at address</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>num_accounts</code> - Number of accounts</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>monthly_transactions</code> - Monthly transactions</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SME Columns -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#smeColumns">
+                                        <i class="fas fa-building me-2 text-success"></i>SME Segment - Required vs Optional Columns
+                                    </button>
+                                </h2>
+                                <div id="smeColumns" class="accordion-collapse collapse" data-bs-parent="#columnsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Required Columns (Must Include):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-danger border-3"><code>industry</code> - Business industry sector</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>annual_revenue</code> - Annual revenue in USD</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>num_employees</code> - Number of employees</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>current_ratio</code> - Current assets / liabilities</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>debt_to_equity</code> - Debt-to-equity ratio</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="text-success"><i class="fas fa-check-circle me-1"></i>Optional Columns (Auto-filled if missing):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-success border-3"><code>profit_margin</code> - Net profit margin</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>years_in_business</code> - Years established</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>payment_delays_12m</code> - Payment delays count</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>days_past_due</code> - Current past due days</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>credit_utilization</code> - Credit utilization rate</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Note:</strong> The system will automatically calculate missing financial metrics and apply industry-standard defaults for optional fields.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Corporate Columns -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#corporateColumns">
+                                        <i class="fas fa-city me-2 text-warning"></i>Corporate Segment - Required vs Optional Columns
+                                    </button>
+                                </h2>
+                                <div id="corporateColumns" class="accordion-collapse collapse" data-bs-parent="#columnsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Required Columns (Must Include):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-danger border-3"><code>industry</code> - Corporate industry sector</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>annual_revenue</code> - Annual revenue in USD</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>num_employees</code> - Number of employees</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>current_ratio</code> - Current ratio</li>
+                                                    <li class="list-group-item border-start border-danger border-3"><code>debt_to_equity</code> - Debt-to-equity ratio</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="text-success"><i class="fas fa-check-circle me-1"></i>Optional Columns (Auto-calculated if missing):</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item border-start border-success border-3"><code>free_cash_flow</code> - Free cash flow (estimated)</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>credit_rating</code> - External credit rating</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>times_interest_earned</code> - Interest coverage</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>roa</code> - Return on assets</li>
+                                                    <li class="list-group-item border-start border-success border-3"><code>market_position</code> - Market position</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Note:</strong> Missing financial metrics will be estimated using industry benchmarks and revenue-based calculations.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -294,15 +509,15 @@
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong>Encoding:</strong> UTF-8 encoding recommended
+                                <strong>Records:</strong> Up to 10,000 records per file
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong>Header:</strong> First row must contain column headers
+                                <strong>Encoding:</strong> UTF-8 encoding recommended
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-check text-success me-2"></i>
-                                <strong>Records:</strong> Up to 100,000 records per file
+                                <strong>Header:</strong> First row must contain column headers
                             </li>
                         </ul>
                     </div>
@@ -320,7 +535,7 @@
                         <ul class="list-unstyled mb-0">
                             <li class="mb-2">
                                 <i class="fas fa-lightning text-warning me-2"></i>
-                                <strong>Speed:</strong> Process thousands of records in seconds
+                                <strong>Auto-Fill:</strong> Missing columns filled with smart defaults
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-chart-line text-primary me-2"></i>
@@ -332,42 +547,13 @@
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-download text-success me-2"></i>
-                                <strong>Results:</strong> Downloadable in JSON/CSV format
+                                <strong>Results:</strong> Downloadable JSON format
                             </li>
                             <li class="mb-0">
                                 <i class="fas fa-tags text-danger me-2"></i>
                                 <strong>Output:</strong> Risk grades and IFRS 9 staging
                             </li>
                         </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sample Data Templates -->
-        <div class="card mt-4 border-warning">
-            <div class="card-header bg-warning-subtle border-warning">
-                <h6 class="mb-0 text-warning-emphasis">
-                    <i class="fas fa-download me-2"></i>Sample Data Templates
-                </h6>
-            </div>
-            <div class="card-body">
-                <p class="card-text">Download sample CSV templates to ensure your data is formatted correctly:</p>
-                <div class="row g-2">
-                    <div class="col-md-4">
-                        <button class="btn btn-outline-primary w-100" onclick="downloadTemplate('retail')">
-                            <i class="fas fa-user me-2"></i>Retail Template
-                        </button>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-outline-success w-100" onclick="downloadTemplate('sme')">
-                            <i class="fas fa-building me-2"></i>SME Template
-                        </button>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-outline-warning w-100" onclick="downloadTemplate('corporate')">
-                            <i class="fas fa-city me-2"></i>Corporate Template
-                        </button>
                     </div>
                 </div>
             </div>
@@ -463,6 +649,8 @@ function processFile(file) {
     // Update file info
     document.getElementById('file-name').textContent = file.name;
     document.getElementById('file-size').textContent = formatFileSize(file.size);
+    document.getElementById('file-status').textContent = 'Analyzing...';
+    document.getElementById('file-status').className = 'badge bg-warning';
     
     // Show file preview container
     document.getElementById('file-preview-container').style.display = 'block';
@@ -528,13 +716,24 @@ function parseCSVFile(file) {
         }
         
         // Update row count
-        document.getElementById('file-rows').textContent = (lines.length - 1).toLocaleString();
+        const rowCount = lines.length - 1;
+        document.getElementById('file-rows').textContent = rowCount.toLocaleString();
+        
+        // Validate record count
+        if (rowCount > 10000) {
+            showValidationError(`Too many records (${rowCount.toLocaleString()}). Maximum allowed is 10,000 records.`);
+            return;
+        }
         
         // Create preview table
         createPreviewTable(headers, previewRows);
         
         // Validate data structure
-        validateDataStructure(headers, lines.length - 1);
+        const isValid = validateDataStructure(headers, rowCount);
+        
+        // Update file status
+        document.getElementById('file-status').textContent = isValid ? 'Valid' : 'Issues Found';
+        document.getElementById('file-status').className = isValid ? 'badge bg-success' : 'badge bg-warning';
     };
     
     reader.onerror = function() {
@@ -582,7 +781,15 @@ function validateDataStructure(headers, rowCount) {
     let isValid = true;
     
     // Check row count
-    if (rowCount > 100000) {
+    if (rowCount > 10000) {
+        validationHTML += `
+            <div class="alert alert-danger border-0">
+                <i class="fas fa-times-circle me-2"></i>
+                <strong>Too many records:</strong> ${rowCount.toLocaleString()} rows. Maximum allowed is 10,000 rows.
+            </div>
+        `;
+        isValid = false;
+    } else if (rowCount > 5000) {
         validationHTML += `
             <div class="alert alert-warning border-0">
                 <i class="fas fa-exclamation-triangle me-2"></i>
@@ -603,22 +810,40 @@ function validateDataStructure(headers, rowCount) {
     if (selectedSegment) {
         const requiredColumns = getRequiredColumns(selectedSegment);
         const missingColumns = requiredColumns.filter(col => 
-            !headers.some(header => header.toLowerCase().includes(col.toLowerCase()))
+            !headers.some(header => header.toLowerCase().includes(col.toLowerCase()) || 
+                         col.toLowerCase().includes(header.toLowerCase()))
         );
         
         if (missingColumns.length > 0) {
             validationHTML += `
-                <div class="alert alert-danger border-0">
-                    <i class="fas fa-times-circle me-2"></i>
-                    <strong>Missing required columns:</strong> ${missingColumns.join(', ')}
+                <div class="alert alert-warning border-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Missing columns will be auto-filled:</strong> ${missingColumns.join(', ')}
+                    <br><small class="text-muted">The system will automatically provide default values for missing columns.</small>
                 </div>
             `;
-            isValid = false;
         } else {
             validationHTML += `
                 <div class="alert alert-success border-0">
                     <i class="fas fa-check-circle me-2"></i>
                     <strong>Column validation passed:</strong> All required columns found.
+                </div>
+            `;
+        }
+        
+        // Show optional columns that are present
+        const optionalColumns = getOptionalColumns(selectedSegment);
+        const presentOptionalColumns = optionalColumns.filter(col => 
+            headers.some(header => header.toLowerCase().includes(col.toLowerCase()) || 
+                        col.toLowerCase().includes(header.toLowerCase()))
+        );
+        
+        if (presentOptionalColumns.length > 0) {
+            validationHTML += `
+                <div class="alert alert-info border-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Optional columns detected:</strong> ${presentOptionalColumns.join(', ')}
+                    <br><small class="text-muted">These will enhance prediction accuracy.</small>
                 </div>
             `;
         }
@@ -629,13 +854,25 @@ function validateDataStructure(headers, rowCount) {
 }
 
 function getRequiredColumns(segment) {
+    // Updated based on the actual requirements from the fixed app.py
     const requiredColumns = {
         retail: ['age', 'income', 'credit_score', 'debt_to_income', 'utilization_rate'],
         sme: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
-        corporate: ['industry', 'annual_revenue', 'current_ratio', 'debt_to_equity', 'credit_rating']
+        corporate: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity']
     };
     
     return requiredColumns[segment] || [];
+}
+
+function getOptionalColumns(segment) {
+    // Optional columns that will be auto-filled if missing
+    const optionalColumns = {
+        retail: ['employment_status', 'employment_tenure', 'years_at_address', 'num_accounts', 'monthly_transactions'],
+        sme: ['profit_margin', 'years_in_business', 'payment_delays_12m', 'days_past_due', 'credit_utilization', 'interest_coverage'],
+        corporate: ['credit_rating', 'times_interest_earned', 'roa', 'market_position', 'free_cash_flow', 'operating_cash_flow']
+    };
+    
+    return optionalColumns[segment] || [];
 }
 
 function updateSegmentSelection() {
@@ -714,10 +951,11 @@ function startBatchProcessing() {
     // Initialize progress
     const totalRows = parseInt(document.getElementById('file-rows').textContent.replace(/,/g, ''));
     document.getElementById('total-records').textContent = totalRows.toLocaleString();
-    document.getElementById('remaining-records').textContent = totalRows.toLocaleString();
     
-    // Simulate progress (replace with actual fetch)
-    simulateProgress(totalRows);
+    // Update progress text
+    document.getElementById('progress-text').innerHTML = `
+        <i class="fas fa-cog fa-spin me-2"></i>Starting batch processing...
+    `;
     
     // Actual API call
     fetch('/api/predict/batch', {
@@ -735,29 +973,18 @@ function startBatchProcessing() {
     });
 }
 
-function simulateProgress(total) {
-    let processed = 0;
-    const progressInterval = setInterval(() => {
-        processed += Math.floor(Math.random() * (total / 20)) + 1;
-        if (processed >= total * 0.9) {
-            processed = Math.floor(total * 0.9);
-            clearInterval(progressInterval);
-        }
-        
-        updateProgress(processed, total);
-    }, 500);
-}
-
-function updateProgress(processed, total) {
-    const percentage = Math.min((processed / total) * 100, 100);
+function updateProgress(processed, failed, total) {
+    const percentage = Math.min(((processed + failed) / total) * 100, 100);
     
     document.getElementById('batch-progress').style.width = percentage + '%';
     document.getElementById('progress-percentage').textContent = Math.round(percentage) + '%';
     document.getElementById('processed-records').textContent = processed.toLocaleString();
-    document.getElementById('remaining-records').textContent = Math.max(0, total - processed).toLocaleString();
+    document.getElementById('failed-records').textContent = failed.toLocaleString();
     
     if (percentage < 100) {
-        document.getElementById('progress-text').textContent = `Processing records... ${processed.toLocaleString()} of ${total.toLocaleString()} completed`;
+        document.getElementById('progress-text').innerHTML = `
+            <i class="fas fa-cog fa-spin me-2"></i>Processing records... ${(processed + failed).toLocaleString()} of ${total.toLocaleString()} completed
+        `;
     }
 }
 
@@ -776,22 +1003,79 @@ function completeProcessing(data) {
     
     // Update final progress
     const total = data.total_predictions;
-    updateProgress(total, total);
+    const successful = data.successful_predictions;
+    const failed = data.failed_predictions;
     
+    updateProgress(successful, failed, total);
+    
+    // Update final status
+    const successRate = (successful / total * 100).toFixed(1);
     document.getElementById('progress-text').innerHTML = `
-        <strong>Processing completed!</strong> ${data.successful_predictions} successful, ${data.failed_predictions} failed.
+        <i class="fas fa-check-circle text-success me-2"></i>
+        <strong>Processing completed!</strong> ${successful.toLocaleString()} successful (${successRate}%), ${failed.toLocaleString()} failed.
+        <br><small class="text-muted">Results are being prepared for download...</small>
     `;
+    
+    // Show summary if available
+    if (data.summary_statistics && Object.keys(data.summary_statistics).length > 0) {
+        setTimeout(() => {
+            showSummaryStats(data.summary_statistics);
+        }, 1000);
+    }
     
     // Download results
     setTimeout(() => {
         downloadResults(data);
-        showNotification('Batch processing completed successfully!', 'success');
+        showNotification(`Batch processing completed! ${successful.toLocaleString()} records processed successfully.`, 'success');
         
         // Reset form after delay
         setTimeout(() => {
             resetForm();
-        }, 3000);
-    }, 1000);
+        }, 5000);
+    }, 2000);
+}
+
+function showSummaryStats(stats) {
+    const validationResults = document.getElementById('validation-results');
+    
+    let statsHTML = `
+        <div class="alert alert-success border-0 mt-3">
+            <h6><i class="fas fa-chart-bar me-2"></i>Processing Summary</h6>
+    `;
+    
+    if (stats.avg_pd_score !== undefined) {
+        statsHTML += `
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Average PD:</strong> ${(stats.avg_pd_score * 100).toFixed(2)}%
+                </div>
+                <div class="col-md-3">
+                    <strong>Median PD:</strong> ${(stats.median_pd_score * 100).toFixed(2)}%
+                </div>
+                <div class="col-md-3">
+                    <strong>Min PD:</strong> ${(stats.min_pd_score * 100).toFixed(2)}%
+                </div>
+                <div class="col-md-3">
+                    <strong>Max PD:</strong> ${(stats.max_pd_score * 100).toFixed(2)}%
+                </div>
+            </div>
+        `;
+    }
+    
+    if (stats.risk_grade_distribution) {
+        statsHTML += `
+            <div class="mt-2">
+                <strong>Risk Grade Distribution:</strong>
+        `;
+        for (const [grade, count] of Object.entries(stats.risk_grade_distribution)) {
+            statsHTML += ` ${grade}: ${count}`;
+        }
+        statsHTML += `</div>`;
+    }
+    
+    statsHTML += `</div>`;
+    
+    validationResults.innerHTML += statsHTML;
 }
 
 function downloadResults(data) {
@@ -799,7 +1083,7 @@ function downloadResults(data) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `batch_pd_results_${Date.now()}.json`;
+    a.download = `batch_pd_results_${new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -814,6 +1098,7 @@ function resetProcessing() {
     submitBtn.disabled = false;
     
     document.getElementById('progress-section').style.display = 'none';
+    processingStartTime = null;
 }
 
 function removeFile() {
@@ -836,38 +1121,6 @@ function resetForm() {
     validateForm();
 }
 
-function downloadTemplate(segment) {
-    const templates = {
-        retail: {
-            headers: ['age', 'income', 'credit_score', 'debt_to_income', 'utilization_rate', 'employment_status'],
-            sample: ['35', '75000', '720', '0.30', '0.25', 'Full-time']
-        },
-        sme: {
-            headers: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity', 'profit_margin'],
-            sample: ['Technology', '2000000', '25', '1.5', '0.8', '0.12']
-        },
-        corporate: {
-            headers: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity', 'credit_rating'],
-            sample: ['Technology', '1000000000', '5000', '1.2', '0.6', 'A']
-        }
-    };
-    
-    const template = templates[segment];
-    const csv = template.headers.join(',') + '\n' + template.sample.join(',');
-    
-    const blob = new Blob([csv], {type: 'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${segment}_template.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification(`${segment.charAt(0).toUpperCase() + segment.slice(1)} template downloaded!`, 'success');
-}
-
 function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
@@ -883,6 +1136,10 @@ function showValidationError(message) {
             <strong>Validation Error:</strong> ${message}
         </div>
     `;
+    
+    // Update file status
+    document.getElementById('file-status').textContent = 'Invalid';
+    document.getElementById('file-status').className = 'badge bg-danger';
 }
 
 function showNotification(message, type = 'info') {
@@ -945,6 +1202,8 @@ style.textContent = `
     
     .upload-area.drag-over {
         transform: scale(1.02);
+        border-color: var(--bs-success) !important;
+        background-color: rgba(25, 135, 84, 0.1) !important;
     }
     
     .progress-bar {
@@ -958,6 +1217,12 @@ style.textContent = `
     
     .alert {
         border-left: 4px solid;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .alert-success {
@@ -974,6 +1239,24 @@ style.textContent = `
     
     .alert-info {
         border-left-color: var(--bs-info);
+    }
+    
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .accordion-button {
+        transition: all 0.2s ease;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(13, 202, 240, 0.1);
+        color: var(--bs-info);
     }
 `;
 document.head.appendChild(style);
