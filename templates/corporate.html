@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Corporate Entity Scoring - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-city me-2"></i>Corporate Entity PD Scoring
+                </h4>
+                <small>Enter corporate financial data for enterprise-level risk assessment</small>
+            </div>
+            <div class="card-body">
+                <form action="/predict/corporate" method="POST" id="corporateForm">
+                    <div class="row g-3">
+                        <!-- Company Information -->
+                        <div class="col-12">
+                            <h6 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-building me-2"></i>Company Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="annual_revenue" class="form-label">Annual Revenue ($) *</label>
+                            <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
+                                   min="50000000" max="500000000000" value="1000000000" step="1000000" required>
+                            <small class="form-text text-muted">Annual revenue in USD (minimum $50M)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="num_employees" class="form-label">Number of Employees *</label>
+                            <input type="number" class="form-control" id="num_employees" name="num_employees" 
+                                   min="500" max="500000" value="5000" required>
+                            <small class="form-text text-muted">Total number of employees</small>
+                        </div>
+
+                        <!-- Financial Ratios -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-chart-line me-2"></i>Financial Ratios
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="current_ratio" class="form-label">Current Ratio *</label>
+                            <input type="number" class="form-control" id="current_ratio" name="current_ratio" 
+                                   min="0.5" max="5" step="0.1" value="1.5" required>
+                            <small class="form-text text-muted">Current Assets / Current Liabilities</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="debt_to_equity" class="form-label">Debt-to-Equity Ratio *</label>
+                            <input type="number" class="form-control" id="debt_to_equity" name="debt_to_equity" 
+                                   min="0" max="3" step="0.1" value="0.8" required>
+                            <small class="form-text text-muted">Total Debt / Total Equity</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="times_interest_earned" class="form-label">Interest Coverage Ratio *</label>
+                            <input type="number" class="form-control" id="times_interest_earned" name="times_interest_earned" 
+                                   min="0.5" max="50" step="0.1" value="8.0" required>
+                            <small class="form-text text-muted">EBIT / Interest Expense</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="roa" class="form-label">Return on Assets (ROA) *</label>
+                            <input type="number" class="form-control" id="roa" name="roa" 
+                                   min="-0.5" max="0.5" step="0.01" value="0.08" required>
+                            <small class="form-text text-muted">Net Income / Total Assets (e.g., 0.08 = 8%)</small>
+                        </div>
+
+                        <!-- Credit Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-star me-2"></i>Credit Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="credit_rating" class="form-label">Credit Rating *</label>
+                            <select class="form-select" id="credit_rating" name="credit_rating" required>
+                                <option value="AAA">AAA - Highest Quality</option>
+                                <option value="AA+">AA+ - Very High Quality</option>
+                                <option value="AA">AA - Very High Quality</option>
+                                <option value="AA-">AA- - Very High Quality</option>
+                                <option value="A+">A+ - High Quality</option>
+                                <option value="A" selected>A - High Quality</option>
+                                <option value="A-">A- - High Quality</option>
+                                <option value="BBB+">BBB+ - Good Quality</option>
+                                <option value="BBB">BBB - Good Quality</option>
+                                <option value="BBB-">BBB- - Good Quality</option>
+                                <option value="BB+">BB+ - Speculative</option>
+                                <option value="BB">BB - Speculative</option>
+                                <option value="BB-">BB- - Speculative</option>
+                                <option value="B+">B+ - Highly Speculative</option>
+                                <option value="B">B - Highly Speculative</option>
+                                <option value="B-">B- - Highly Speculative</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="market_position" class="form-label">Market Position *</label>
+                            <select class="form-select" id="market_position" name="market_position" required>
+                                <option value="Leader">Market Leader</option>
+                                <option value="Strong" selected>Strong Position</option>
+                                <option value="Average">Average Position</option>
+                                <option value="Weak">Weak Position</option>
+                            </select>
+                        </div>
+
+                        <!-- Cash Flow Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-money-bill-wave me-2"></i>Cash Flow Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="operating_cash_flow" class="form-label">Operating Cash Flow ($) *</label>
+                            <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
+                                   min="1000000" max="100000000000" value="150000000" step="1000000" required>
+                            <small class="form-text text-muted">Annual operating cash flow</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="free_cash_flow" class="form-label">Free Cash Flow ($) *</label>
+                            <input type="number" class="form-control" id="free_cash_flow" name="free_cash_flow" 
+                                   min="0" max="100000000000" value="100000000" step="1000000" required>
+                            <small class="form-text text-muted">Operating cash flow - Capital expenditures</small>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-warning btn-lg" id="submitBtn">
+                                    <i class="fas fa-calculator me-2"></i>Calculate Corporate PD
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Corporate Information Card -->
+        <div class="card mt-4 border-warning">
+            <div class="card-body">
+                <h6 class="card-title text-warning">
+                    <i class="fas fa-info-circle me-2"></i>About Corporate PD Scoring
+                </h6>
+                <p class="card-text small">
+                    Our corporate PD model evaluates large enterprises using sophisticated financial analysis and market indicators. 
+                    The model incorporates 40+ risk factors including:
+                </p>
+                <ul class="small mb-0">
+                    <li><strong>Financial Strength:</strong> Liquidity, leverage, and profitability ratios</li>
+                    <li><strong>Credit Quality:</strong> External ratings and market position assessment</li>
+                    <li><strong>Cash Generation:</strong> Operating and free cash flow analysis</li>
+                    <li><strong>Regulatory Compliance:</strong> Basel III capital requirements and IFRS 9 staging</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function resetForm() {
+    document.getElementById('corporateForm').reset();
+    // Reset to default values
+    document.getElementById('annual_revenue').value = '1000000000';
+    document.getElementById('num_employees').value = '5000';
+    document.getElementById('current_ratio').value = '1.5';
+    document.getElementById('debt_to_equity').value = '0.8';
+    document.getElementById('times_interest_earned').value = '8.0';
+    document.getElementById('roa').value = '0.08';
+    document.getElementById('operating_cash_flow').value = '150000000';
+    document.getElementById('free_cash_flow').value = '100000000';
+}
+
+// Form validation and UX improvements
+document.getElementById('corporateForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
+    submitBtn.disabled = true;
+});
+
+// Real-time ratio validation
+document.getElementById('debt_to_equity').addEventListener('input', function() {
+    const ratio = parseFloat(this.value);
+    const helper = this.parentElement.querySelector('.ratio-helper') || document.createElement('div');
+    helper.className = 'ratio-helper mt-1 small';
+    
+    if (ratio > 2.0) {
+        helper.className += ' text-danger';
+        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>High leverage - may indicate higher risk';
+    } else if (ratio > 1.0) {
+        helper.className += ' text-warning';
+        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Moderate leverage level';
+    } else {
+        helper.className += ' text-success';
+        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Conservative leverage level';
+    }
+    
+    if (!this.parentElement.querySelector('.ratio-helper')) {
+        this.parentElement.appendChild(helper);
+    }
+});
+</script>
+{% endblock %}

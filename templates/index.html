@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}PD Model API - Enterprise Risk Modeling{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold text-primary">
+                <i class="fas fa-brain me-3"></i>Advanced PD Models
+            </h1>
+            <p class="lead mb-4">
+                Enterprise-grade Probability of Default scoring with regulatory compliance.
+                Choose your customer segment to get started with real-time risk assessment.
+            </p>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt text-success"></i>
+                        <h6>Basel III Compliant</h6>
+                        <small>Regulatory ready with 3bp minimum floors</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-tachometer-alt text-warning"></i>
+                        <h6>Sub-100ms Response</h6>
+                        <small>Real-time scoring for instant decisions</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line text-info"></i>
+                        <h6>IFRS 9 Ready</h6>
+                        <small>Automated staging and ECL calculation</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="stats-card">
+                <h4 class="text-center mb-3">Model Performance</h4>
+                <div class="stat-item">
+                    <span class="stat-label">Average AUC</span>
+                    <span class="stat-value">0.787</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Segments Covered</span>
+                    <span class="stat-value">3/3</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Compliance Score</span>
+                    <span class="stat-value">98.5%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 my-5">
+    <!-- Retail Card -->
+    <div class="col-lg-4">
+        <div class="card h-100 segment-card">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-primary mb-3">
+                    <i class="fas fa-user fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">Retail Banking</h5>
+                <p class="card-text">
+                    Score individual consumers for personal loans, credit cards, and mortgages.
+                    Advanced behavioral analytics with 37 risk factors.
+                </p>
+                <div class="metrics mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-chart-bar me-1"></i>AUC: 0.844 | 
+                        <i class="fas fa-users me-1"></i>50K+ records |
+                        <i class="fas fa-percentage me-1"></i>1.61% default rate
+                    </small>
+                </div>
+                <a href="/retail" class="btn btn-primary">
+                    <i class="fas fa-calculator me-2"></i>Score Customer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SME Card -->
+    <div class="col-lg-4">
+        <div class="card h-100 segment-card">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-success mb-3">
+                    <i class="fas fa-building fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">SME Banking</h5>
+                <p class="card-text">
+                    Assess small and medium enterprises with comprehensive financial analysis.
+                    Industry-specific risk modeling with 31 business metrics.
+                </p>
+                <div class="metrics mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-chart-bar me-1"></i>AUC: 0.747 | 
+                        <i class="fas fa-building me-1"></i>10K+ companies |
+                        <i class="fas fa-percentage me-1"></i>3.99% default rate
+                    </small>
+                </div>
+                <a href="/sme" class="btn btn-success">
+                    <i class="fas fa-calculator me-2"></i>Score Company
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Corporate Card -->
+    <div class="col-lg-4">
+        <div class="card h-100 segment-card">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-warning mb-3">
+                    <i class="fas fa-city fa-2x text-white"></i>
+                </div>
+                <h5 class="card-title">Corporate Banking</h5>
+                <p class="card-text">
+                    Evaluate large corporations with advanced financial ratios and market analysis.
+                    Credit rating integration with 40 enterprise indicators.
+                </p>
+                <div class="metrics mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-chart-bar me-1"></i>AUC: 0.770 | 
+                        <i class="fas fa-city me-1"></i>2K+ entities |
+                        <i class="fas fa-percentage me-1"></i>1.45% default rate
+                    </small>
+                </div>
+                <a href="/corporate" class="btn btn-warning">
+                    <i class="fas fa-calculator me-2"></i>Score Entity
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card border-primary">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-upload me-2 text-primary"></i>Batch Processing
+                </h5>
+                <p class="card-text">
+                    Upload CSV files for portfolio-level risk assessment. 
+                    Process thousands of customers in seconds.
+                </p>
+                <a href="/batch" class="btn btn-outline-primary">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>Upload File
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-info">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-code me-2 text-info"></i>API Integration
+                </h5>
+                <p class="card-text">
+                    RESTful API with comprehensive documentation. 
+                    Easy integration with your existing systems.
+                </p>
+                <a href="/api/docs" target="_blank" class="btn btn-outline-info">
+                    <i class="fas fa-book me-2"></i>View API Docs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Specifications -->
+<div class="tech-specs">
+    <h3 class="text-center mb-4">Technical Specifications</h3>
+    <div class="row g-4">
+        <div class="col-md-3 text-center">
+            <i class="fas fa-brain fa-3x text-primary mb-2"></i>
+            <h6>ML Algorithms</h6>
+            <small>Ensemble of Logistic Regression & Random Forest</small>
+        </div>
+        <div class="col-md-3 text-center">
+            <i class="fas fa-database fa-3x text-success mb-2"></i>
+            <h6>Data Processing</h6>
+            <small>Advanced feature engineering with 100+ variables</small>
+        </div>
+        <div class="col-md-3 text-center">
+            <i class="fas fa-shield-alt fa-3x text-warning mb-2"></i>
+            <h6>Compliance</h6>
+            <small>Basel III floors, IFRS 9 staging, audit trails</small>
+        </div>
+        <div class="col-md-3 text-center">
+            <i class="fas fa-rocket fa-3x text-info mb-2"></i>
+            <h6>Performance</h6>
+            <small>Sub-100ms response, 99.9% uptime SLA</small>
+        </div>
+    </div>
+</div>
+{% endblock %}

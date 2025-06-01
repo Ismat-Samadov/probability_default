@@ -1,0 +1,292 @@
+<!-- templates/batch.html -->
+{% extends "base.html" %}
+
+{% block title %}Batch Processing - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Batch PD Scoring
+                </h4>
+                <small>Upload CSV files for portfolio-level risk assessment</small>
+            </div>
+            <div class="card-body">
+                <form action="/api/predict/batch" method="POST" enctype="multipart/form-data" id="batchForm">
+                    <div class="row g-3">
+                        <!-- Segment Selection -->
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2">
+                                <i class="fas fa-layer-group me-2"></i>Select Model Segment
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="segment" class="form-label">Customer Segment *</label>
+                            <select class="form-select" id="segment" name="segment" required>
+                                <option value="">Choose segment...</option>
+                                <option value="retail">Retail Banking</option>
+                                <option value="sme">SME Banking</option>
+                                <option value="corporate">Corporate Banking</option>
+                            </select>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-info border-bottom pb-2">
+                                <i class="fas fa-file-csv me-2"></i>Upload Data File
+                            </h6>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="upload-area border-2 border-dashed border-info rounded p-4 text-center" id="upload-area">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-info mb-3"></i>
+                                <h5>Drop your CSV file here or click to browse</h5>
+                                <p class="text-muted">Maximum file size: 10MB</p>
+                                <input type="file" class="form-control d-none" id="batch-file" name="file" accept=".csv" required>
+                                <button type="button" class="btn btn-outline-info" onclick="document.getElementById('batch-file').click()">
+                                    <i class="fas fa-folder-open me-2"></i>Choose File
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- File Info -->
+                        <div class="col-12" id="file-info" style="display: none;">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-file me-2"></i>Selected File:</h6>
+                                <p class="mb-1"><strong>Name:</strong> <span id="file-name"></span></p>
+                                <p class="mb-0"><strong>Size:</strong> <span id="file-size"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- File Preview -->
+                        <div class="col-12" id="file-preview" style="display: none;">
+                            <h6 class="text-info">File Preview:</h6>
+                            <div class="bg-light p-3 rounded">
+                                <pre id="preview-content" class="small mb-0" style="max-height: 200px; overflow-y: auto;"></pre>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="col-12" id="progress-section" style="display: none;">
+                            <h6>Processing Progress:</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     id="batch-progress" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted" id="progress-text">Preparing upload...</small>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-info btn-lg" id="submitBtn" disabled>
+                                    <i class="fas fa-play me-2"></i>Start Batch Processing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Instructions Card -->
+        <div class="card mt-4 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="fas fa-info-circle me-2"></i>Batch Processing Instructions
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>File Format Requirements:</h6>
+                        <ul class="small">
+                            <li>CSV format only</li>
+                            <li>Maximum 10MB file size</li>
+                            <li>UTF-8 encoding recommended</li>
+                            <li>Header row required</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Processing Features:</h6>
+                        <ul class="small">
+                            <li>Supports thousands of records</li>
+                            <li>Real-time progress tracking</li>
+                            <li>Downloadable results in JSON/CSV</li>
+                            <li>Risk grade and IFRS 9 staging</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function resetForm() {
+    document.getElementById('batchForm').reset();
+    document.getElementById('file-info').style.display = 'none';
+    document.getElementById('file-preview').style.display = 'none';
+    document.getElementById('progress-section').style.display = 'none';
+    document.getElementById('submitBtn').disabled = true;
+}
+
+// File upload handling
+document.getElementById('batch-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const segment = document.getElementById('segment').value;
+    
+    if (file && segment) {
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = formatFileSize(file.size);
+        document.getElementById('file-info').style.display = 'block';
+        document.getElementById('submitBtn').disabled = false;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = e.target.result.split('\n').slice(0, 5).join('\n');
+            document.getElementById('preview-content').textContent = preview + '\n...';
+            document.getElementById('file-preview').style.display = 'block';
+        };
+        reader.readAsText(file);
+    }
+});
+
+document.getElementById('segment').addEventListener('change', function() {
+    const file = document.getElementById('batch-file').files[0];
+    const segment = this.value;
+    
+    if (file && segment) {
+        document.getElementById('submitBtn').disabled = false;
+    } else {
+        document.getElementById('submitBtn').disabled = true;
+    }
+});
+
+function formatFileSize(bytes) {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Form submission with progress
+document.getElementById('batchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const progressSection = document.getElementById('progress-section');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    progressSection.style.display = 'block';
+    submitBtn.disabled = true;
+    
+    // Simulate progress (replace with actual upload progress)
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        
+        document.getElementById('batch-progress').style.width = progress + '%';
+        document.getElementById('progress-text').textContent = `Processing... ${Math.round(progress)}%`;
+        
+        if (progress >= 90) {
+            clearInterval(interval);
+            
+            // Actual form submission
+            fetch('/api/predict/batch', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('batch-progress').style.width = '100%';
+                document.getElementById('progress-text').textContent = 'Processing complete!';
+                
+                // Handle results
+                alert(`Batch processing complete! Processed ${data.total_predictions} records.`);
+                
+                // Download results
+                const blob = new Blob([JSON.stringify(data.results, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'batch_pd_results.json';
+                a.click();
+                
+                resetForm();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Batch processing failed. Please try again.');
+                resetForm();
+            });
+        }
+    }, 200);
+});
+</script>
+{% endblock %}
+
+<!-- templates/error.html -->
+{% extends "base.html" %}
+
+{% block title %}Error - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Processing Error
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-times-circle me-2"></i>Error Details</h5>
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                
+                <h6>Possible Solutions:</h6>
+                <ul>
+                    <li>Check that all required fields are filled correctly</li>
+                    <li>Verify that numerical values are within valid ranges</li>
+                    <li>Ensure the model service is running properly</li>
+                    <li>Try refreshing the page and submitting again</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <a href="javascript:history.back()" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </a>
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support Information -->
+        <div class="card mt-4 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="fas fa-life-ring me-2"></i>Need Help?
+                </h6>
+                <p class="card-text">
+                    If the error persists, please check the API documentation or contact support.
+                </p>
+                <a href="/api/docs" target="_blank" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-book me-2"></i>API Documentation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

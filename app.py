@@ -313,47 +313,6 @@ class RetailCustomer(BaseModel):
     num_bank_accounts: int = Field(default=2, description="Bank accounts")
     monthly_transactions: int = Field(default=45, description="Monthly transactions")
 
-class SMECompany(BaseModel):
-    """SME company data model"""
-    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
-    num_employees: int = Field(..., gt=0, description="Number of employees")
-    years_in_business: float = Field(..., gt=0, description="Years in business")
-    current_ratio: float = Field(..., gt=0, description="Current ratio")
-    debt_to_equity: float = Field(..., ge=0, description="Debt-to-equity ratio")
-    profit_margin: float = Field(..., ge=-1, le=1, description="Profit margin")
-    industry: str = Field(..., description="Industry sector")
-    interest_coverage: float = Field(default=5.0, description="Interest coverage")
-    asset_turnover: float = Field(default=1.5, description="Asset turnover")
-    operating_cash_flow: float = Field(..., description="Operating cash flow")
-    working_capital: float = Field(..., description="Working capital")
-    credit_utilization: float = Field(default=0.3, description="Credit utilization")
-    payment_delays_12m: int = Field(default=0, description="Payment delays")
-    days_past_due: int = Field(default=0, description="Days past due")
-    management_quality: float = Field(default=7.0, description="Management quality")
-
-class CorporateCompany(BaseModel):
-    """Corporate company data model"""
-    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
-    num_employees: int = Field(..., gt=0, description="Number of employees")
-    current_ratio: float = Field(..., gt=0, description="Current ratio")
-    debt_to_equity: float = Field(..., ge=0, description="Debt-to-equity ratio")
-    times_interest_earned: float = Field(..., gt=0, description="Interest coverage ratio")
-    roa: float = Field(..., ge=-1, le=1, description="Return on assets")
-    credit_rating: str = Field(..., description="Credit rating")
-    market_position: str = Field(..., description="Market position")
-    years_established: int = Field(default=15, description="Years established")
-    is_public: int = Field(default=1, description="Public company")
-    market_cap: float = Field(default=1000000000, description="Market cap")
-    quick_ratio: float = Field(default=1.5, description="Quick ratio")
-    cash_ratio: float = Field(default=0.8, description="Cash ratio")
-    debt_to_assets: float = Field(default=0.3, description="Debt to assets")
-    net_profit_margin: float = Field(default=0.1, description="Net profit margin")
-    roe: float = Field(default=0.15, description="Return on equity")
-    asset_turnover: float = Field(default=0.8, description="Asset turnover")
-    inventory_turnover: float = Field(default=6.0, description="Inventory turnover")
-    operating_cash_flow: float = Field(..., description="Operating cash flow")
-    free_cash_flow: float = Field(..., description="Free cash flow")
-
 class PDResponse(BaseModel):
     """PD prediction response"""
     customer_id: Optional[str] = None
@@ -455,155 +414,6 @@ async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str
         logger.error(f"Retail prediction error: {e}")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-@app.post("/api/predict/sme", response_model=PDResponse)
-async def predict_sme_api(company: SMECompany, company_id: Optional[str] = None):
-    """API endpoint for SME company prediction"""
-    if predictor is None:
-        raise HTTPException(status_code=503, detail="Models not loaded")
-    
-    try:
-        # Convert to DataFrame with all required features
-        company_dict = company.dict()
-        
-        # Add calculated fields
-        company_dict['credit_line_amount'] = company_dict['annual_revenue'] * 0.1
-        company_dict['outstanding_loans'] = company_dict['credit_line_amount'] * company_dict['credit_utilization']
-        company_dict['primary_bank_relationship_years'] = min(company_dict['years_in_business'], 5.0)
-        company_dict['num_banking_products'] = 3
-        company_dict['geographic_risk'] = 'Medium'
-        company_dict['market_competition'] = 'Medium'
-        company_dict['sme_credit_score'] = 650  # Will be recalculated during feature engineering
-        
-        # Add macro features
-        company_dict['gdp_growth'] = 0.025
-        company_dict['unemployment_rate'] = 0.055
-        company_dict['interest_rate'] = 0.035
-        company_dict['credit_spread'] = 0.015
-        company_dict['vix'] = 20.0
-        company_dict['macro_risk_factor'] = 0.15
-        
-        data = pd.DataFrame([company_dict])
-        
-        # Make prediction
-        result = predictor.predict_with_staging(data, 'sme')
-        
-        return PDResponse(
-            customer_id=company_id,
-            segment='sme',
-            pd_score=result['pd_scores'][0],
-            risk_grade=result['risk_grades'][0],
-            ifrs9_stage=result['ifrs9_stages'][0],
-            basel_compliant=result['basel_compliant'],
-            prediction_timestamp=result['prediction_timestamp'],
-            model_details=result['model_details']
-        )
-        
-    except Exception as e:
-        logger.error(f"SME prediction error: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
-
-@app.post("/api/predict/corporate", response_model=PDResponse)
-async def predict_corporate_api(company: CorporateCompany, company_id: Optional[str] = None):
-    """API endpoint for corporate entity prediction"""
-    if predictor is None:
-        raise HTTPException(status_code=503, detail="Models not loaded")
-    
-    try:
-        # Convert to DataFrame with all required features
-        company_dict = company.dict()
-        
-        # Add calculated fields
-        company_dict['total_credit_facilities'] = company_dict['annual_revenue'] * 0.05
-        company_dict['committed_facilities'] = company_dict['total_credit_facilities'] * 0.8
-        company_dict['utilization_rate'] = 0.2
-        company_dict['outstanding_debt'] = company_dict['committed_facilities'] * company_dict['utilization_rate']
-        company_dict['num_banking_relationships'] = 5
-        company_dict['primary_bank_relationship_years'] = 8.0
-        company_dict['geographic_diversification'] = 'Global'
-        company_dict['regulatory_environment'] = 'Medium'
-        company_dict['esg_score'] = 75
-        company_dict['corporate_credit_score'] = 700  # Will be recalculated during feature engineering
-        
-        # Add macro features
-        company_dict['gdp_growth'] = 0.025
-        company_dict['unemployment_rate'] = 0.055
-        company_dict['interest_rate'] = 0.035
-        company_dict['credit_spread'] = 0.015
-        company_dict['vix'] = 20.0
-        company_dict['macro_risk_factor'] = 0.08
-        
-        data = pd.DataFrame([company_dict])
-        
-        # Make prediction
-        result = predictor.predict_with_staging(data, 'corporate')
-        
-        return PDResponse(
-            customer_id=company_id,
-            segment='corporate',
-            pd_score=result['pd_scores'][0],
-            risk_grade=result['risk_grades'][0],
-            ifrs9_stage=result['ifrs9_stages'][0],
-            basel_compliant=result['basel_compliant'],
-            prediction_timestamp=result['prediction_timestamp'],
-            model_details=result['model_details']
-        )
-        
-    except Exception as e:
-        logger.error(f"Corporate prediction error: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
-
-@app.post("/api/predict/batch")
-async def predict_batch_api(file: UploadFile = File(...), segment: str = Form(...)):
-    """Batch prediction endpoint"""
-    if predictor is None:
-        raise HTTPException(status_code=503, detail="Models not loaded")
-    
-    if segment not in ['retail', 'sme', 'corporate']:
-        raise HTTPException(status_code=400, detail="Invalid segment")
-    
-    try:
-        # Read uploaded file
-        content = await file.read()
-        df = pd.read_csv(io.StringIO(content.decode('utf-8')))
-        
-        # Make predictions
-        result = predictor.predict_with_staging(df, segment)
-        
-        # Create results DataFrame
-        results_df = pd.DataFrame({
-            'pd_score': result['pd_scores'],
-            'risk_grade': result['risk_grades'],
-            'ifrs9_stage': result['ifrs9_stages'],
-            'logistic_prediction': result['logistic_predictions'],
-            'random_forest_prediction': result['random_forest_predictions']
-        })
-        
-        # Combine with original data
-        final_results = pd.concat([df, results_df], axis=1)
-        
-        return JSONResponse({
-            "status": "success",
-            "total_predictions": len(result['pd_scores']),
-            "segment": segment,
-            "results": final_results.to_dict('records'),
-            "summary": {
-                "avg_pd": np.mean(result['pd_scores']),
-                "median_pd": np.median(result['pd_scores']),
-                "max_pd": np.max(result['pd_scores']),
-                "min_pd": np.min(result['pd_scores']),
-                "stage_distribution": {
-                    "stage_1": sum(1 for stage in result['ifrs9_stages'] if stage == 1),
-                    "stage_2": sum(1 for stage in result['ifrs9_stages'] if stage == 2),
-                    "stage_3": sum(1 for stage in result['ifrs9_stages'] if stage == 3)
-                }
-            },
-            "prediction_timestamp": result['prediction_timestamp']
-        })
-        
-    except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        raise HTTPException(status_code=500, detail=f"Batch prediction failed: {str(e)}")
-
 # Form submission endpoints (for web interface)
 @app.post("/predict/retail")
 async def predict_retail_form(
@@ -629,7 +439,7 @@ async def predict_retail_form(
         # Call API endpoint
         result = await predict_retail_api(customer)
         
-        return templates.TemplateResponse("result.html", {
+        return templates.TemplateResponse("results.html", {
             "request": request,
             "result": result,
             "segment": "Retail Customer"
@@ -644,7 +454,7 @@ async def predict_retail_form(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "api:app",
+        "app:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
