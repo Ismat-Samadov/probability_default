@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Fixed PD Model API with Complete Feature Engineering
-==================================================
-FastAPI application with proper feature handling for all trained models
+Complete Fixed PD Model API with Exact Feature Engineering
+=========================================================
+FastAPI application with exact feature engineering matching trained models
 """
 
 from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File
@@ -26,12 +26,8 @@ import traceback
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global variables for models
-models = {}
-preprocessors = {}
-
 class PDModelPredictor:
-    """Production PD model predictor with complete feature engineering"""
+    """Production PD model predictor with EXACT feature engineering"""
     
     def __init__(self, model_dir="models"):
         self.model_dir = Path(model_dir)
@@ -44,14 +40,14 @@ class PDModelPredictor:
         self.IFRS9_STAGE1_THRESHOLD = 0.01
         self.IFRS9_STAGE2_THRESHOLD = 0.05
         
-        # Default macroeconomic values (based on typical conditions)
+        # Default macroeconomic values
         self.DEFAULT_MACRO = {
-            'gdp_growth': 0.025,       # 2.5% GDP growth
-            'unemployment_rate': 0.055, # 5.5% unemployment
-            'interest_rate': 0.035,     # 3.5% interest rate
-            'inflation_rate': 0.02,     # 2% inflation
-            'credit_spread': 0.015,     # 1.5% credit spread
-            'vix': 20.0                 # VIX volatility index
+            'gdp_growth': 0.025,
+            'unemployment_rate': 0.055,
+            'interest_rate': 0.035,
+            'inflation_rate': 0.02,
+            'credit_spread': 0.015,
+            'vix': 20.0
         }
     
     def load_models(self):
@@ -78,24 +74,27 @@ class PDModelPredictor:
                     logger.error(f"❌ Error loading {segment} models: {e}")
     
     def safe_division(self, numerator, denominator, default_value=0):
-        """Safe division that handles edge cases"""
-        if isinstance(numerator, pd.Series) and isinstance(denominator, pd.Series):
-            return np.where(denominator != 0, numerator / denominator, default_value)
-        elif isinstance(numerator, pd.Series):
-            return np.where(denominator != 0, numerator / denominator, default_value)
-        elif isinstance(denominator, pd.Series):
-            return np.where(denominator != 0, numerator / denominator, default_value)
+        """Safe division handling all edge cases"""
+        if isinstance(numerator, (pd.Series, np.ndarray)) or isinstance(denominator, (pd.Series, np.ndarray)):
+            denominator = np.where(np.abs(denominator) < 1e-10, 1e-10, denominator)
+            result = numerator / denominator
+            if isinstance(result, (pd.Series, np.ndarray)):
+                return np.where(np.isfinite(result), result, default_value)
+            return result if np.isfinite(result) else default_value
         else:
-            return numerator / denominator if denominator != 0 else default_value
+            if abs(denominator) < 1e-10:
+                return default_value
+            result = numerator / denominator
+            return result if np.isfinite(result) else default_value
     
     def clean_infinite_values(self, df):
-        """Clean infinite and extreme values from dataframe"""
+        """Clean infinite and extreme values"""
         df = df.copy()
         
         # Replace infinite values with NaN
         df = df.replace([np.inf, -np.inf], np.nan)
         
-        # Fill NaN values in numerical columns
+        # Fill NaN values
         numerical_cols = df.select_dtypes(include=[np.number]).columns
         for col in numerical_cols:
             if df[col].isnull().any():
@@ -104,7 +103,7 @@ class PDModelPredictor:
                 else:
                     df[col] = df[col].fillna(df[col].median())
         
-        # Cap extreme values for numerical columns
+        # Cap extreme values
         for col in numerical_cols:
             if col not in ['customer_id', 'company_id', 'is_default']:
                 if df[col].nunique() > 1:
@@ -115,15 +114,15 @@ class PDModelPredictor:
         return df
     
     def add_macroeconomic_features(self, df, segment):
-        """Add macroeconomic features and calculated risk factors"""
+        """Add macroeconomic features exactly as in training"""
         df = df.copy()
         
-        # Add default macroeconomic features
+        # Add default macro features
         for feature, value in self.DEFAULT_MACRO.items():
             if feature not in df.columns:
                 df[feature] = value
         
-        # Calculate macro risk factor based on segment
+        # Calculate macro risk factor EXACTLY as in training
         if segment == 'retail':
             df['macro_risk_factor'] = (
                 df['unemployment_rate'] * 2 + 
@@ -144,298 +143,406 @@ class PDModelPredictor:
         
         return df
 
-    def calculate_credit_scores(self, df, segment):
-            """Calculate credit scores based on segment"""
-            df = df.copy()
-            
-            if segment == 'retail':
-                # Simplified FICO-like score calculation
-                score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
-                
-                # Payment history proxy (assume good if not specified)
-                payment_history = df.get('payment_history', pd.Series([0.95] * len(df), dtype=float))
-                if not isinstance(payment_history, pd.Series):
-                    payment_history = pd.Series([float(payment_history)] * len(df), dtype=float)
-                score += payment_history * 315
-                
-                # Credit utilization (30% of score)
-                utilization = df['utilization_rate'].astype(float)
-                utilization_penalty = np.where(utilization < 0.3, 0, (utilization - 0.3) * 200)
-                score += (1 - utilization) * 270 - utilization_penalty
-                
-                # Credit history length (15% of score)
-                credit_history = df.get('credit_history_length', pd.Series([84.0] * len(df), dtype=float))
-                if not isinstance(credit_history, pd.Series):
-                    credit_history = pd.Series([float(credit_history)] * len(df), dtype=float)
-                score += np.minimum(credit_history / 240, 1) * 135
-                
-                # Credit mix (10% of score)
-                num_accounts = df.get('num_accounts', pd.Series([5.0] * len(df), dtype=float))
-                if not isinstance(num_accounts, pd.Series):
-                    num_accounts = pd.Series([float(num_accounts)] * len(df), dtype=float)
-                score += np.minimum(num_accounts / 10, 1) * 90
-                
-                # Recent inquiries (10% of score)
-                recent_inquiries = df.get('recent_inquiries', pd.Series([1.0] * len(df), dtype=float))
-                if not isinstance(recent_inquiries, pd.Series):
-                    recent_inquiries = pd.Series([float(recent_inquiries)] * len(df), dtype=float)
-                inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
-                score += 90 - inquiry_penalty
-                
-                # Debt-to-income adjustment
-                dti_penalty = np.where(df['debt_to_income'] > 0.4, (df['debt_to_income'] - 0.4) * 100, 0)
-                score -= dti_penalty
-                
-                df['credit_score'] = np.clip(score, 300, 850).astype(int)
-                
-            elif segment == 'sme':
-                # SME credit score calculation
-                score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
-                
-                # Profitability (25%)
-                profit_margin = df.get('profit_margin', pd.Series([0.08] * len(df), dtype=float))
-                score += np.clip(profit_margin * 1000 + 50, 0, 125)
-                
-                # Liquidity (20%)
-                current_ratio = df.get('current_ratio', pd.Series([1.5] * len(df), dtype=float))
-                score += np.clip((current_ratio - 1) * 40 + 60, 20, 100)
-                
-                # Leverage (20%)
-                debt_to_equity = df.get('debt_to_equity', pd.Series([1.0] * len(df), dtype=float))
-                score += np.clip(100 - debt_to_equity * 30, 20, 100)
-                
-                # Interest coverage (15%) - use default if not available
-                interest_coverage = df.get('interest_coverage', pd.Series([5.0] * len(df), dtype=float))
-                score += np.clip(interest_coverage * 8, 0, 75)
-                
-                # Business tenure (10%)
-                years_in_business = df.get('years_in_business', pd.Series([8.0] * len(df), dtype=float))
-                score += np.minimum(years_in_business * 2.5, 50)
-                
-                # Payment behavior (10%)
-                payment_delays = df.get('payment_delays_12m', pd.Series([1.0] * len(df), dtype=float))
-                score += np.clip(50 - payment_delays * 10, 0, 50)
-                
-                # Credit utilization penalty
-                credit_utilization = df.get('credit_utilization', pd.Series([0.3] * len(df), dtype=float))
-                util_penalty = np.where(credit_utilization > 0.5, (credit_utilization - 0.5) * 100, 0)
-                score -= util_penalty
-                
-                df['sme_credit_score'] = np.clip(score, 300, 850).astype(int)
-                
-            elif segment == 'corporate':
-                # Corporate credit score based on rating
-                rating_scores = {
-                    'AAA': 850, 'AA+': 820, 'AA': 800, 'AA-': 780,
-                    'A+': 760, 'A': 740, 'A-': 720, 'BBB+': 700,
-                    'BBB': 680, 'BBB-': 660, 'BB+': 640, 'BB': 620,
-                    'BB-': 600, 'B+': 580, 'B': 560, 'B-': 540,
-                    'CCC+': 520, 'CCC': 500, 'CCC-': 480
-                }
-                
-                # Get base score from rating (use default if not available)
-                credit_rating = df.get('credit_rating', pd.Series(['A'] * len(df), dtype=str))
-                base_scores = credit_rating.map(rating_scores).fillna(500).astype(float)
-                
-                # Financial adjustments with defaults
-                times_interest_earned = df.get('times_interest_earned', pd.Series([8.0] * len(df), dtype=float))
-                coverage_adj = np.clip((times_interest_earned - 5) * 5, -50, 50)
-                
-                debt_to_equity = df.get('debt_to_equity', pd.Series([0.8] * len(df), dtype=float))
-                leverage_adj = np.clip((1 - debt_to_equity) * 20, -40, 40)
-                
-                roa = df.get('roa', pd.Series([0.08] * len(df), dtype=float))
-                profitability_adj = np.clip(roa * 200, -30, 30)
-                
-                current_ratio = df.get('current_ratio', pd.Series([1.5] * len(df), dtype=float))
-                liquidity_adj = np.clip((current_ratio - 1.5) * 10, -20, 20)
-                
-                # Market position adjustment
-                position_adj_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
-                market_position = df.get('market_position', pd.Series(['Strong'] * len(df), dtype=str))
-                position_adj = market_position.map(position_adj_map).fillna(0)
-                
-                final_scores = (base_scores + coverage_adj + leverage_adj + 
-                            profitability_adj + liquidity_adj + position_adj)
-                
-                df['corporate_credit_score'] = np.clip(final_scores, 300, 850).astype(int)
-            
-            return df
-
     def engineer_retail_features(self, df):
-        """Engineer retail features with safe operations"""
+        """Engineer EXACT retail features matching training"""
         df = df.copy()
+        logger.info(f"Starting retail feature engineering with columns: {list(df.columns)}")
         
-        # Ensure required columns exist with defaults
+        # Ensure required base columns exist
+        required_base = ['age', 'income', 'debt_to_income', 'utilization_rate']
+        for col in required_base:
+            if col not in df.columns:
+                raise ValueError(f"Required column missing: {col}")
+        
+        # Add missing base columns with defaults if not present
         if 'savings_balance' not in df.columns:
             df['savings_balance'] = df['income'] * 0.3
         if 'credit_limit' not in df.columns:
             df['credit_limit'] = df['income'] * 0.8
         if 'current_debt' not in df.columns:
             df['current_debt'] = df['income'] * df['debt_to_income']
+        if 'checking_balance' not in df.columns:
+            df['checking_balance'] = df['income'] * 0.05
+        if 'monthly_transactions' not in df.columns:
+            df['monthly_transactions'] = 45
+        if 'avg_transaction_amount' not in df.columns:
+            df['avg_transaction_amount'] = df['income'] / np.maximum(df['monthly_transactions'], 1)
         
-        # Safe financial ratios
-        df['debt_service_ratio'] = self.safe_division(
-            df['current_debt'], 
-            np.maximum(df['income'] / 12, 1), 
+        # EXACT feature engineering as in training script
+        # 1. debt_service_ratio
+        df['debt_service_ratio'] = np.where(
+            df['income'] > 0, 
+            df['current_debt'] / np.maximum(df['income'] / 12, 1), 
             0
         )
         
-        df['savings_to_income_ratio'] = self.safe_division(
-            df['savings_balance'], 
-            df['income'], 
+        # 2. savings_to_income_ratio
+        df['savings_to_income_ratio'] = np.where(
+            df['income'] > 0,
+            df['savings_balance'] / df['income'],
             0
         )
         
+        # 3. available_credit
         df['available_credit'] = np.maximum(0, df['credit_limit'] - df['current_debt'])
-        df['available_credit_ratio'] = self.safe_division(
-            df['available_credit'], 
-            df['credit_limit'], 
+        
+        # 4. available_credit_ratio
+        df['available_credit_ratio'] = np.where(
+            df['credit_limit'] > 0,
+            df['available_credit'] / df['credit_limit'],
             0
         )
         
-        # Additional features
+        # 5. age_squared
         df['age_squared'] = df['age'] ** 2
+        
+        # 6. high_utilization
         df['high_utilization'] = (df['utilization_rate'] > 0.8).astype(int)
+        
+        # 7. high_dti
         df['high_dti'] = (df['debt_to_income'] > 0.4).astype(int)
         
+        # Add credit score if missing (calculated later)
+        if 'credit_score' not in df.columns:
+            df['credit_score'] = 720  # Will be recalculated
+        
+        # Add other required fields with defaults
+        defaults = {
+            'gender': 'M',
+            'education_level': 'Bachelor',
+            'employment_status': 'Full-time',
+            'employment_tenure': 3.0,
+            'years_at_address': 2.0,
+            'homeowner': 1,
+            'credit_history_length': 84,
+            'num_accounts': 5,
+            'payment_history': 0.95,
+            'recent_inquiries': 1,
+            'months_since_last_delinquency': 999.0,
+            'num_delinquent_accounts': 0,
+            'num_bank_accounts': 2
+        }
+        
+        for col, default_val in defaults.items():
+            if col not in df.columns:
+                df[col] = default_val
+        
+        logger.info(f"Retail features after engineering: {list(df.columns)}")
         return self.clean_infinite_values(df)
     
     def engineer_sme_features(self, df):
-        """Engineer SME features with safe operations"""
+        """Engineer EXACT SME features matching training"""
         df = df.copy()
+        logger.info(f"Starting SME feature engineering with columns: {list(df.columns)}")
         
-        # Safe financial indicators
-        df['revenue_per_employee'] = self.safe_division(
-            df['annual_revenue'], 
-            df['num_employees'], 
+        # Required base columns
+        required_base = ['annual_revenue', 'num_employees']
+        for col in required_base:
+            if col not in df.columns:
+                raise ValueError(f"Required column missing: {col}")
+        
+        # Add missing columns with defaults
+        defaults = {
+            'operating_cash_flow': lambda x: x['annual_revenue'] * 0.1,
+            'asset_turnover': 1.5,
+            'primary_bank_relationship_years': 5.0,
+            'num_banking_products': 3,
+            'credit_line_amount': 500000,
+            'outstanding_loans': 200000
+        }
+        
+        for col, default_val in defaults.items():
+            if col not in df.columns:
+                if callable(default_val):
+                    df[col] = default_val(df)
+                else:
+                    df[col] = default_val
+        
+        # EXACT feature engineering as in training
+        # 1. revenue_per_employee
+        df['revenue_per_employee'] = np.where(
+            df['num_employees'] > 0,
+            df['annual_revenue'] / df['num_employees'],
             0
         )
         
-        df['cash_flow_margin'] = self.safe_division(
-            df['operating_cash_flow'], 
-            df['annual_revenue'], 
+        # 2. cash_flow_margin
+        df['cash_flow_margin'] = np.where(
+            df['annual_revenue'] > 0,
+            df['operating_cash_flow'] / df['annual_revenue'],
             0
         )
         
-        # Risk indicators
+        # 3. payment_risk_score
         df['payment_risk_score'] = df['payment_delays_12m'] * 10 + df['days_past_due'] / 30
         
+        logger.info(f"SME features after engineering: {list(df.columns)}")
         return self.clean_infinite_values(df)
     
     def engineer_corporate_features(self, df):
-        """Engineer corporate features with safe operations"""
+        """Engineer EXACT corporate features matching training"""
         df = df.copy()
+        logger.info(f"Starting corporate feature engineering with columns: {list(df.columns)}")
         
-        # Ensure required columns exist
+        # Ensure required columns
+        required_base = ['annual_revenue', 'num_employees', 'free_cash_flow']
+        for col in required_base:
+            if col not in df.columns:
+                raise ValueError(f"Required column missing: {col}")
+        
+        # Add missing columns with defaults
         if 'market_cap' not in df.columns:
-            df['market_cap'] = df['annual_revenue'] * 2  # Default P/S ratio
+            df['market_cap'] = df['annual_revenue'] * 2
         if 'is_public' not in df.columns:
             df['is_public'] = 1
-        if 'industry' not in df.columns:
-            logger.warning("Industry column missing, using default 'Technology'")
-            df['industry'] = 'Technology'
+        if 'years_established' not in df.columns:
+            df['years_established'] = 25
         
-        # Safe financial ratios
-        df['cash_generation_ability'] = self.safe_division(
-            df['free_cash_flow'], 
-            df['annual_revenue'], 
+        # Add other defaults
+        defaults = {
+            'quick_ratio': 1.2,
+            'cash_ratio': 0.8,
+            'debt_to_assets': 0.4,
+            'net_profit_margin': 0.1,
+            'roe': 0.15,
+            'asset_turnover': 1.5,
+            'inventory_turnover': 8,
+            'num_banking_relationships': 5,
+            'primary_bank_relationship_years': 10.0,
+            'total_credit_facilities': 100000000,
+            'committed_facilities': 80000000,
+            'utilization_rate': 0.3,
+            'outstanding_debt': 50000000,
+            'geographic_diversification': 'Regional',
+            'regulatory_environment': 'Medium',
+            'esg_score': 65
+        }
+        
+        for col, default_val in defaults.items():
+            if col not in df.columns:
+                df[col] = default_val
+        
+        # EXACT feature engineering as in training
+        # 1. cash_generation_ability
+        df['cash_generation_ability'] = np.where(
+            df['annual_revenue'] > 0,
+            df['free_cash_flow'] / df['annual_revenue'],
             0
         )
         
+        # 2. market_cap_to_revenue
         df['market_cap_to_revenue'] = np.where(
             (df['is_public'] == 1) & (df['annual_revenue'] > 0),
-            np.minimum(self.safe_division(df['market_cap'], df['annual_revenue'], 0), 100),
+            np.minimum(df['market_cap'] / df['annual_revenue'], 100),
             0
         )
         
-        # Scale indicators
+        # 3. company_scale
         df['company_scale'] = (
             np.log1p(np.maximum(1, df['annual_revenue'])) + 
             np.log1p(np.maximum(1, df['num_employees']))
         )
         
+        logger.info(f"Corporate features after engineering: {list(df.columns)}")
         return self.clean_infinite_values(df)
+
+    def calculate_credit_scores(self, df, segment):
+        """Calculate credit scores exactly as in training"""
+        df = df.copy()
+        
+        if segment == 'retail':
+            # FICO-like calculation
+            score = pd.Series([300.0] * len(df), index=df.index)
+            
+            # Payment history (35%)
+            payment_history = df.get('payment_history', 0.95)
+            if isinstance(payment_history, (int, float)):
+                payment_history = pd.Series([payment_history] * len(df))
+            score += payment_history * 315
+            
+            # Credit utilization (30%)
+            utilization_penalty = np.where(df['utilization_rate'] < 0.3, 0, (df['utilization_rate'] - 0.3) * 200)
+            score += (1 - df['utilization_rate']) * 270 - utilization_penalty
+            
+            # Credit history length (15%)
+            credit_history = df.get('credit_history_length', 84)
+            if isinstance(credit_history, (int, float)):
+                credit_history = pd.Series([credit_history] * len(df))
+            score += np.minimum(credit_history / 240, 1) * 135
+            
+            # Credit mix (10%)
+            num_accounts = df.get('num_accounts', 5)
+            if isinstance(num_accounts, (int, float)):
+                num_accounts = pd.Series([num_accounts] * len(df))
+            score += np.minimum(num_accounts / 10, 1) * 90
+            
+            # Recent inquiries (10%)
+            recent_inquiries = df.get('recent_inquiries', 1)
+            if isinstance(recent_inquiries, (int, float)):
+                recent_inquiries = pd.Series([recent_inquiries] * len(df))
+            inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
+            score += 90 - inquiry_penalty
+            
+            # DTI adjustment
+            dti_penalty = np.where(df['debt_to_income'] > 0.4, (df['debt_to_income'] - 0.4) * 100, 0)
+            score -= dti_penalty
+            
+            df['credit_score'] = np.clip(score, 300, 850).astype(int)
+            
+        elif segment == 'sme':
+            # SME credit score
+            score = pd.Series([300.0] * len(df), index=df.index)
+            
+            # Profitability (25%)
+            score += np.clip(df['profit_margin'] * 1000 + 50, 0, 125)
+            
+            # Liquidity (20%)
+            score += np.clip((df['current_ratio'] - 1) * 40 + 60, 20, 100)
+            
+            # Leverage (20%)
+            score += np.clip(100 - df['debt_to_equity'] * 30, 20, 100)
+            
+            # Interest coverage (15%)
+            score += np.clip(df['interest_coverage'] * 8, 0, 75)
+            
+            # Business tenure (10%)
+            score += np.minimum(df['years_in_business'] * 2.5, 50)
+            
+            # Payment behavior (10%)
+            score += np.clip(50 - df['payment_delays_12m'] * 10, 0, 50)
+            
+            # Credit utilization penalty
+            util_penalty = np.where(df['credit_utilization'] > 0.5, (df['credit_utilization'] - 0.5) * 100, 0)
+            score -= util_penalty
+            
+            df['sme_credit_score'] = np.clip(score, 300, 850).astype(int)
+            
+        elif segment == 'corporate':
+            # Corporate credit score from rating
+            rating_scores = {
+                'AAA': 850, 'AA+': 820, 'AA': 800, 'AA-': 780,
+                'A+': 760, 'A': 740, 'A-': 720, 'BBB+': 700,
+                'BBB': 680, 'BBB-': 660, 'BB+': 640, 'BB': 620,
+                'BB-': 600, 'B+': 580, 'B': 560, 'B-': 540,
+                'CCC+': 520, 'CCC': 500, 'CCC-': 480
+            }
+            
+            credit_rating = df.get('credit_rating', 'A')
+            if isinstance(credit_rating, str):
+                credit_rating = pd.Series([credit_rating] * len(df))
+            
+            base_scores = credit_rating.map(rating_scores).fillna(500)
+            
+            # Adjustments
+            coverage_adj = np.clip((df['times_interest_earned'] - 5) * 5, -50, 50)
+            leverage_adj = np.clip((1 - df['debt_to_equity']) * 20, -40, 40)
+            profitability_adj = np.clip(df['roa'] * 200, -30, 30)
+            liquidity_adj = np.clip((df['current_ratio'] - 1.5) * 10, -20, 20)
+            
+            # Stability adjustment
+            stability_adj = np.clip(df['years_established'] / 5, 0, 20)
+            
+            # Market position
+            position_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
+            market_position = df.get('market_position', 'Strong')
+            if isinstance(market_position, str):
+                market_position = pd.Series([market_position] * len(df))
+            position_adj = market_position.map(position_map).fillna(0)
+            
+            final_scores = (base_scores + coverage_adj + leverage_adj + 
+                          profitability_adj + liquidity_adj + stability_adj + position_adj)
+            
+            df['corporate_credit_score'] = np.clip(final_scores, 300, 850).astype(int)
+        
+        return df
     
     def prepare_model_data(self, data, segment):
-        """Prepare data for modeling"""
+        """Prepare data exactly matching training expectations"""
         exclude_cols = ['is_default', 'customer_id', 'company_id', 'observation_date', 'default_probability']
         feature_cols = [col for col in data.columns if col not in exclude_cols]
         X = data[feature_cols].copy()
+        
+        logger.info(f"Prepared {segment} data with {len(feature_cols)} features: {feature_cols}")
         return X
     
     def predict_pd(self, data: pd.DataFrame, segment: str) -> Dict:
-        """Predict PD for given data and segment"""
+        """Predict PD with exact feature engineering"""
         if segment not in self.models or not self.models[segment]:
             raise ValueError(f"No models available for segment: {segment}")
         
         try:
             logger.info(f"Starting prediction for {segment} with {len(data)} records")
+            original_columns = list(data.columns)
+            logger.info(f"Input columns: {original_columns}")
             
-            # Add macroeconomic features
+            # 1. Add macroeconomic features
             data_with_macro = self.add_macroeconomic_features(data.copy(), segment)
-            logger.info(f"Added macro features, shape: {data_with_macro.shape}")
+            logger.info(f"After macro features: {data_with_macro.shape}")
             
-            # Calculate credit scores
-            data_with_scores = self.calculate_credit_scores(data_with_macro, segment)
-            logger.info(f"Calculated credit scores, shape: {data_with_scores.shape}")
-            
-            # Apply feature engineering
+            # 2. Apply feature engineering
             if segment == 'retail':
-                data_engineered = self.engineer_retail_features(data_with_scores)
+                data_engineered = self.engineer_retail_features(data_with_macro)
             elif segment == 'sme':
-                data_engineered = self.engineer_sme_features(data_with_scores)
+                data_engineered = self.engineer_sme_features(data_with_macro)
             elif segment == 'corporate':
-                data_engineered = self.engineer_corporate_features(data_with_scores)
+                data_engineered = self.engineer_corporate_features(data_with_macro)
             else:
                 raise ValueError(f"Unknown segment: {segment}")
             
-            logger.info(f"Engineered features, shape: {data_engineered.shape}")
+            logger.info(f"After feature engineering: {data_engineered.shape}")
             
-            # Prepare data
-            X = self.prepare_model_data(data_engineered, segment)
-            logger.info(f"Prepared model data, shape: {X.shape}")
-            logger.info(f"Features available: {list(X.columns)}")
+            # 3. Calculate credit scores
+            data_with_scores = self.calculate_credit_scores(data_engineered, segment)
+            logger.info(f"After credit score calculation: {data_with_scores.shape}")
             
-            # Check if we have all required features
+            # 4. Prepare model data
+            X = self.prepare_model_data(data_with_scores, segment)
+            logger.info(f"Final feature matrix: {X.shape}")
+            logger.info(f"Final features: {list(X.columns)}")
+            
+            # 5. Get expected features from preprocessor
             if segment in self.preprocessors:
-                # Get expected features from preprocessor
-                try:
-                    expected_features = []
-                    for name, transformer, features in self.preprocessors[segment].transformers_:
-                        if name != 'remainder':
-                            expected_features.extend(features)
-                    
-                    missing_features = set(expected_features) - set(X.columns)
-                    if missing_features:
-                        logger.error(f"Missing features for {segment}: {missing_features}")
-                        # Add missing features with default values
-                        for feature in missing_features:
-                            if feature == 'industry':
-                                X[feature] = 'Technology'
-                            else:
-                                X[feature] = 0
-                        logger.info(f"Added missing features with default values: {missing_features}")
-                        
-                except Exception as e:
-                    logger.warning(f"Could not check expected features: {e}")
+                expected_features = []
+                for name, transformer, features in self.preprocessors[segment].transformers_:
+                    if name != 'remainder':
+                        expected_features.extend(features)
+                
+                logger.info(f"Expected features ({len(expected_features)}): {expected_features}")
+                
+                # Check for missing features
+                missing_features = set(expected_features) - set(X.columns)
+                if missing_features:
+                    logger.warning(f"Missing features: {missing_features}")
+                    # Add missing features with defaults
+                    for feature in missing_features:
+                        if feature in ['industry', 'education_level', 'employment_status', 'gender']:
+                            X[feature] = 'Unknown'
+                        elif 'risk' in feature.lower():
+                            X[feature] = 'Medium'
+                        else:
+                            X[feature] = 0
+                    logger.info(f"Added missing features with defaults")
+                
+                # Reorder columns to match expected order
+                X = X.reindex(columns=expected_features, fill_value=0)
+                logger.info(f"Reordered features to match training: {X.shape}")
             
-            # Preprocess
+            # 6. Preprocess
             if segment in self.preprocessors:
                 X_processed = self.preprocessors[segment].transform(X)
-                logger.info(f"Preprocessed data, shape: {X_processed.shape}")
+                logger.info(f"Preprocessed data: {X_processed.shape}")
             else:
                 X_processed = X.values
-                logger.info("No preprocessor found, using raw values")
+                logger.info("No preprocessor available, using raw values")
             
-            # Get predictions from both models
+            # 7. Predict
             logistic_pred = self.models[segment]['logistic'].predict_proba(X_processed)[:, 1]
             rf_pred = self.models[segment]['random_forest'].predict_proba(X_processed)[:, 1]
             
-            # Ensemble prediction (average)
+            # 8. Ensemble
             ensemble_pred = (logistic_pred + rf_pred) / 2
             
-            # Apply Basel III minimum floor
+            # 9. Apply Basel III minimum floor
             ensemble_pred = np.maximum(ensemble_pred, self.BASEL_MIN_PD)
             
             logger.info(f"Prediction completed successfully for {segment}")
@@ -453,9 +560,7 @@ class PDModelPredictor:
             
         except Exception as e:
             logger.error(f"Prediction error for {segment}: {e}")
-            logger.error(f"Data shape: {data.shape}")
-            logger.error(f"Data columns: {list(data.columns)}")
-            logger.error(f"Error traceback: {traceback.format_exc()}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
     
     def predict_with_staging(self, data: pd.DataFrame, segment: str) -> Dict:
@@ -463,11 +568,11 @@ class PDModelPredictor:
         prediction_result = self.predict_pd(data, segment)
         pd_scores = np.array(prediction_result['pd_scores'])
         
-        # Determine IFRS 9 stages
+        # IFRS 9 stages
         stages = np.where(pd_scores <= self.IFRS9_STAGE1_THRESHOLD, 1,
                          np.where(pd_scores <= self.IFRS9_STAGE2_THRESHOLD, 2, 3))
         
-        # Assign risk grades
+        # Risk grades
         risk_grades = self._assign_risk_grades(pd_scores)
         
         return {
@@ -495,7 +600,6 @@ class PDModelPredictor:
         ]
         
         grades = ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C']
-        
         return np.select(conditions, grades[:-1], default=grades[-1]).tolist()
 
 # Initialize predictor
@@ -503,7 +607,6 @@ predictor = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     global predictor
     try:
         predictor = PDModelPredictor()
@@ -513,8 +616,6 @@ async def lifespan(app: FastAPI):
         predictor = None
     
     yield
-    
-    # Shutdown
     logger.info("🛑 PD Model API shutting down")
 
 # FastAPI app
@@ -527,106 +628,66 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Setup Jinja2 templates and static files
+# Templates and static files
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Request/Response Models
+# Request/Response Models (keeping existing ones)
 class RetailCustomer(BaseModel):
-    """Retail customer data model"""
-    age: int = Field(..., ge=18, le=100, description="Customer age")
-    income: float = Field(..., gt=0, description="Annual income")
-    credit_score: int = Field(..., ge=300, le=850, description="Credit score")
-    debt_to_income: float = Field(..., ge=0, le=5, description="Debt-to-income ratio")
-    utilization_rate: float = Field(..., ge=0, le=1, description="Credit utilization rate")
-    employment_status: str = Field(default="Full-time", description="Employment status")
-    gender: str = Field(default="M", description="Gender")
-    education_level: str = Field(default="Bachelor", description="Education level")
-    employment_tenure: float = Field(default=3.0, description="Employment tenure")
-    years_at_address: float = Field(default=2.0, description="Years at address")
-    homeowner: int = Field(default=1, description="Homeowner (1=yes, 0=no)")
-    credit_history_length: int = Field(default=84, description="Credit history length")
-    num_accounts: int = Field(default=5, description="Number of accounts")
-    payment_history: float = Field(default=0.95, description="Payment history")
-    recent_inquiries: int = Field(default=1, description="Recent inquiries")
-    months_since_last_delinquency: float = Field(default=999, description="Months since delinquency")
-    num_delinquent_accounts: int = Field(default=0, description="Delinquent accounts")
-    num_bank_accounts: int = Field(default=2, description="Bank accounts")
-    monthly_transactions: int = Field(default=45, description="Monthly transactions")
+    age: int = Field(..., ge=18, le=100)
+    income: float = Field(..., gt=0)
+    credit_score: int = Field(..., ge=300, le=850)
+    debt_to_income: float = Field(..., ge=0, le=5)
+    utilization_rate: float = Field(..., ge=0, le=1)
+    employment_status: str = Field(default="Full-time")
+    employment_tenure: float = Field(default=3.0)
+    years_at_address: float = Field(default=2.0)
+    num_accounts: int = Field(default=5)
+    monthly_transactions: int = Field(default=45)
 
 class SMECompany(BaseModel):
-    """SME company data model"""
-    industry: str = Field(..., description="Industry sector")
-    years_in_business: float = Field(..., ge=0.1, le=100, description="Years in business")
-    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
-    num_employees: int = Field(..., ge=1, le=500, description="Number of employees")
-    current_ratio: float = Field(..., ge=0, le=10, description="Current ratio")
-    debt_to_equity: float = Field(..., ge=0, le=10, description="Debt-to-equity ratio")
-    interest_coverage: float = Field(..., ge=0, le=100, description="Interest coverage ratio")
-    profit_margin: float = Field(..., ge=-1, le=1, description="Profit margin")
-    operating_cash_flow: float = Field(..., description="Operating cash flow")
-    working_capital: float = Field(..., description="Working capital")
-    credit_utilization: float = Field(..., ge=0, le=1, description="Credit utilization rate")
-    payment_delays_12m: int = Field(..., ge=0, le=12, description="Payment delays in 12 months")
-    geographic_risk: str = Field(default="Medium", description="Geographic risk level")
-    market_competition: str = Field(default="Medium", description="Market competition level")
-    management_quality: float = Field(..., ge=1, le=10, description="Management quality score")
-    days_past_due: int = Field(default=0, description="Days past due")
-    # Calculated fields
-    asset_turnover: float = Field(default=1.5, description="Asset turnover")
-    primary_bank_relationship_years: float = Field(default=5.0, description="Banking relationship years")
-    num_banking_products: int = Field(default=3, description="Number of banking products")
-    credit_line_amount: float = Field(default=500000, description="Credit line amount")
-    outstanding_loans: float = Field(default=200000, description="Outstanding loans")
+    industry: str = Field(...)
+    years_in_business: float = Field(..., ge=0.1, le=100)
+    annual_revenue: float = Field(..., gt=0)
+    num_employees: int = Field(..., ge=1, le=500)
+    current_ratio: float = Field(..., ge=0, le=10)
+    debt_to_equity: float = Field(..., ge=0, le=10)
+    interest_coverage: float = Field(..., ge=0, le=100)
+    profit_margin: float = Field(..., ge=-1, le=1)
+    operating_cash_flow: float = Field(...)
+    working_capital: float = Field(...)
+    credit_utilization: float = Field(..., ge=0, le=1)
+    payment_delays_12m: int = Field(..., ge=0, le=12)
+    geographic_risk: str = Field(default="Medium")
+    market_competition: str = Field(default="Medium")
+    management_quality: float = Field(..., ge=1, le=10)
+    days_past_due: int = Field(default=0)
 
 class CorporateEntity(BaseModel):
-    """Corporate entity data model"""
-    industry: str = Field(..., description="Industry sector")
-    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
-    num_employees: int = Field(..., ge=1, description="Number of employees")
-    current_ratio: float = Field(..., ge=0, le=10, description="Current ratio")
-    debt_to_equity: float = Field(..., ge=0, le=10, description="Debt-to-equity ratio")
-    times_interest_earned: float = Field(..., ge=0, le=100, description="Interest coverage ratio")
-    roa: float = Field(..., ge=-1, le=1, description="Return on assets")
-    credit_rating: str = Field(..., description="Credit rating")
-    market_position: str = Field(..., description="Market position")
-    operating_cash_flow: float = Field(..., description="Operating cash flow")
-    free_cash_flow: float = Field(..., description="Free cash flow")
-    # Calculated and default fields
-    years_established: int = Field(default=25, description="Years established")
-    is_public: int = Field(default=1, description="Public company indicator")
-    market_cap: float = Field(default=1000000000, description="Market capitalization")
-    quick_ratio: float = Field(default=1.2, description="Quick ratio")
-    cash_ratio: float = Field(default=0.8, description="Cash ratio")
-    debt_to_assets: float = Field(default=0.4, description="Debt to assets")
-    net_profit_margin: float = Field(default=0.1, description="Net profit margin")
-    roe: float = Field(default=0.15, description="Return on equity")
-    asset_turnover: float = Field(default=1.5, description="Asset turnover")
-    inventory_turnover: float = Field(default=8, description="Inventory turnover")
-    num_banking_relationships: int = Field(default=5, description="Banking relationships")
-    primary_bank_relationship_years: float = Field(default=10.0, description="Primary bank relationship")
-    total_credit_facilities: float = Field(default=100000000, description="Total credit facilities")
-    committed_facilities: float = Field(default=80000000, description="Committed facilities")
-    utilization_rate: float = Field(default=0.3, description="Utilization rate")
-    outstanding_debt: float = Field(default=50000000, description="Outstanding debt")
-    geographic_diversification: str = Field(default="Regional", description="Geographic diversification")
-    regulatory_environment: str = Field(default="Medium", description="Regulatory environment")
-    esg_score: int = Field(default=65, description="ESG score")
+    industry: str = Field(...)
+    annual_revenue: float = Field(..., gt=0)
+    num_employees: int = Field(..., ge=1)
+    current_ratio: float = Field(..., ge=0, le=10)
+    debt_to_equity: float = Field(..., ge=0, le=10)
+    times_interest_earned: float = Field(..., ge=0, le=100)
+    roa: float = Field(..., ge=-1, le=1)
+    credit_rating: str = Field(...)
+    market_position: str = Field(...)
+    operating_cash_flow: float = Field(...)
+    free_cash_flow: float = Field(...)
 
 class PDResponse(BaseModel):
-    """PD prediction response"""
     customer_id: Optional[str] = None
     segment: str
-    pd_score: float = Field(..., description="Probability of default")
-    risk_grade: str = Field(..., description="Risk grade (AAA to C)")
-    ifrs9_stage: int = Field(..., description="IFRS 9 stage (1, 2, or 3)")
-    basel_compliant: bool = Field(..., description="Basel III compliance")
-    prediction_timestamp: str = Field(..., description="Prediction timestamp")
+    pd_score: float
+    risk_grade: str
+    ifrs9_stage: int
+    basel_compliant: bool
+    prediction_timestamp: str
     model_version: str = "1.0.0"
-    model_details: Dict = Field(..., description="Model execution details")
+    model_details: Dict
 
 class BatchResponse(BaseModel):
-    """Batch prediction response"""
     total_predictions: int
     successful_predictions: int
     failed_predictions: int
@@ -637,33 +698,27 @@ class BatchResponse(BaseModel):
 # Web Interface Routes
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    """Home page with model selection"""
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/retail", response_class=HTMLResponse)
 async def retail_form(request: Request):
-    """Retail customer scoring form"""
     return templates.TemplateResponse("retail.html", {"request": request})
 
-@app.get("/sme", response_class=HTMLResponse)  
+@app.get("/sme", response_class=HTMLResponse)
 async def sme_form(request: Request):
-    """SME company scoring form"""
     return templates.TemplateResponse("sme.html", {"request": request})
 
 @app.get("/corporate", response_class=HTMLResponse)
 async def corporate_form(request: Request):
-    """Corporate entity scoring form"""
     return templates.TemplateResponse("corporate.html", {"request": request})
 
 @app.get("/batch", response_class=HTMLResponse)
 async def batch_form(request: Request):
-    """Batch scoring form"""
     return templates.TemplateResponse("batch.html", {"request": request})
 
-# API Routes
+# API Health Check
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint"""
     if predictor is None:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
@@ -689,24 +744,11 @@ async def health_check():
 # API Prediction Endpoints
 @app.post("/api/predict/retail", response_model=PDResponse)
 async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str] = None):
-    """API endpoint for retail customer prediction"""
     if predictor is None:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
     try:
-        # Convert to DataFrame with all required features
-        customer_dict = customer.dict()
-        
-        # Add calculated fields
-        customer_dict['credit_limit'] = customer_dict['income'] * 0.8
-        customer_dict['current_debt'] = customer_dict['income'] * customer_dict['debt_to_income']
-        customer_dict['savings_balance'] = customer_dict['income'] * 0.3
-        customer_dict['checking_balance'] = customer_dict['income'] * 0.05
-        customer_dict['avg_transaction_amount'] = customer_dict['income'] / customer_dict['monthly_transactions']
-        
-        data = pd.DataFrame([customer_dict])
-        
-        # Make prediction
+        data = pd.DataFrame([customer.dict()])
         result = predictor.predict_with_staging(data, 'retail')
         
         return PDResponse(
@@ -727,16 +769,11 @@ async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str
 
 @app.post("/api/predict/sme", response_model=PDResponse)
 async def predict_sme_api(company: SMECompany, company_id: Optional[str] = None):
-    """API endpoint for SME company prediction"""
     if predictor is None:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
     try:
-        # Convert to DataFrame
-        company_dict = company.dict()
-        data = pd.DataFrame([company_dict])
-        
-        # Make prediction
+        data = pd.DataFrame([company.dict()])
         result = predictor.predict_with_staging(data, 'sme')
         
         return PDResponse(
@@ -757,16 +794,11 @@ async def predict_sme_api(company: SMECompany, company_id: Optional[str] = None)
 
 @app.post("/api/predict/corporate", response_model=PDResponse)
 async def predict_corporate_api(entity: CorporateEntity, entity_id: Optional[str] = None):
-    """API endpoint for corporate entity prediction"""
     if predictor is None:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
     try:
-        # Convert to DataFrame
-        entity_dict = entity.dict()
-        data = pd.DataFrame([entity_dict])
-        
-        # Make prediction
+        data = pd.DataFrame([entity.dict()])
         result = predictor.predict_with_staging(data, 'corporate')
         
         return PDResponse(
@@ -787,27 +819,49 @@ async def predict_corporate_api(entity: CorporateEntity, entity_id: Optional[str
 
 @app.post("/api/predict/batch", response_model=BatchResponse)
 async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
-    """Batch prediction endpoint"""
     if predictor is None:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
     start_time = datetime.now()
     
     try:
-        # Validate file type
-        if not file.filename.endswith('.csv'):
+        # Enhanced file validation
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file provided")
+            
+        if not file.filename.lower().endswith('.csv'):
             raise HTTPException(status_code=400, detail="Only CSV files are supported")
         
-        # Validate segment
         if segment not in ['retail', 'sme', 'corporate']:
             raise HTTPException(status_code=400, detail="Invalid segment")
         
-        # Read CSV file
-        contents = await file.read()
-        df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        # Read file with better error handling
+        try:
+            contents = await file.read()
+            if len(contents) == 0:
+                raise HTTPException(status_code=400, detail="Empty file")
+                
+            # Try different encodings
+            try:
+                content_str = contents.decode('utf-8')
+            except UnicodeDecodeError:
+                try:
+                    content_str = contents.decode('latin-1')
+                except UnicodeDecodeError:
+                    content_str = contents.decode('utf-8', errors='ignore')
+            
+            df = pd.read_csv(io.StringIO(content_str))
+            
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to read CSV file: {str(e)}")
         
         if len(df) == 0:
-            raise HTTPException(status_code=400, detail="Empty CSV file")
+            raise HTTPException(status_code=400, detail="CSV file contains no data")
+        
+        if len(df) > 10000:
+            raise HTTPException(status_code=400, detail="File too large. Maximum 10,000 rows allowed")
+        
+        logger.info(f"Processing batch file: {len(df)} rows for {segment}")
         
         # Process predictions
         results = []
@@ -816,10 +870,7 @@ async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
         
         for idx, row in df.iterrows():
             try:
-                # Convert row to DataFrame
                 row_data = pd.DataFrame([row.to_dict()])
-                
-                # Make prediction
                 prediction_result = predictor.predict_with_staging(row_data, segment)
                 
                 result = {
@@ -840,8 +891,8 @@ async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
                 }
                 results.append(result)
                 failed_predictions += 1
+                logger.warning(f"Failed to process row {idx}: {e}")
         
-        # Calculate processing time
         processing_time = (datetime.now() - start_time).total_seconds()
         
         # Calculate summary statistics
@@ -852,15 +903,17 @@ async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
             stages = [r['ifrs9_stage'] for r in successful_results]
             
             summary_stats = {
-                'avg_pd_score': np.mean(pd_scores),
-                'median_pd_score': np.median(pd_scores),
-                'min_pd_score': np.min(pd_scores),
-                'max_pd_score': np.max(pd_scores),
+                'avg_pd_score': float(np.mean(pd_scores)),
+                'median_pd_score': float(np.median(pd_scores)),
+                'min_pd_score': float(np.min(pd_scores)),
+                'max_pd_score': float(np.max(pd_scores)),
                 'risk_grade_distribution': pd.Series(risk_grades).value_counts().to_dict(),
                 'ifrs9_stage_distribution': pd.Series(stages).value_counts().to_dict()
             }
         else:
             summary_stats = {}
+        
+        logger.info(f"Batch processing completed: {successful_predictions} successful, {failed_predictions} failed")
         
         return BatchResponse(
             total_predictions=len(df),
@@ -871,12 +924,14 @@ async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
             summary_statistics=summary_stats
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Batch prediction error: {e}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
 
-# Form submission endpoints (for web interface)
+# Form submission endpoints
 @app.post("/predict/retail")
 async def predict_retail_form(
     request: Request,
@@ -891,7 +946,6 @@ async def predict_retail_form(
     num_accounts: int = Form(default=5),
     monthly_transactions: int = Form(default=45)
 ):
-    """Handle retail form submission"""
     try:
         customer = RetailCustomer(
             age=age,
@@ -906,7 +960,6 @@ async def predict_retail_form(
             monthly_transactions=monthly_transactions
         )
         
-        # Call API endpoint
         result = await predict_retail_api(customer)
         
         return templates.TemplateResponse("results.html", {
@@ -917,7 +970,6 @@ async def predict_retail_form(
         
     except Exception as e:
         logger.error(f"Retail form error: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
         return templates.TemplateResponse("error.html", {
             "request": request,
             "error": str(e)
@@ -943,7 +995,6 @@ async def predict_sme_form(
     management_quality: float = Form(...),
     days_past_due: int = Form(...)
 ):
-    """Handle SME form submission"""
     try:
         company = SMECompany(
             industry=industry,
@@ -964,7 +1015,6 @@ async def predict_sme_form(
             days_past_due=days_past_due
         )
         
-        # Call API endpoint
         result = await predict_sme_api(company)
         
         return templates.TemplateResponse("results.html", {
@@ -975,7 +1025,6 @@ async def predict_sme_form(
         
     except Exception as e:
         logger.error(f"SME form error: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
         return templates.TemplateResponse("error.html", {
             "request": request,
             "error": str(e)
@@ -996,7 +1045,6 @@ async def predict_corporate_form(
     operating_cash_flow: float = Form(...),
     free_cash_flow: float = Form(...)
 ):
-    """Handle corporate form submission"""
     try:
         entity = CorporateEntity(
             industry=industry,
@@ -1012,7 +1060,6 @@ async def predict_corporate_form(
             free_cash_flow=free_cash_flow
         )
         
-        # Call API endpoint
         result = await predict_corporate_api(entity)
         
         return templates.TemplateResponse("results.html", {
@@ -1023,7 +1070,6 @@ async def predict_corporate_form(
         
     except Exception as e:
         logger.error(f"Corporate form error: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
         return templates.TemplateResponse("error.html", {
             "request": request,
             "error": str(e)

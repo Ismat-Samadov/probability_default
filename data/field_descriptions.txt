@@ -1,0 +1,49 @@
+PD MODEL API - FIELD DESCRIPTIONS
+==================================================
+
+RETAIL FIELDS
+-------------
+age                       : Customer age (18-100 years)
+income                    : Annual gross income in USD
+credit_score              : FICO score (300-850)
+debt_to_income            : Total debt / annual income (0.0-5.0)
+utilization_rate          : Credit used / credit available (0.0-1.0)
+employment_status         : Full-time, Part-time, Self-employed, Unemployed, Retired
+employment_tenure         : Years with current employer
+years_at_address          : Years at current address
+num_accounts              : Number of credit accounts
+monthly_transactions      : Average monthly transactions
+
+SME FIELDS
+----------
+industry                  : Business industry sector
+years_in_business         : Years since company establishment
+annual_revenue            : Annual revenue in USD
+num_employees             : Total number of employees
+current_ratio             : Current assets / current liabilities
+debt_to_equity            : Total debt / total equity
+interest_coverage         : EBIT / interest expense
+profit_margin             : Net profit / revenue (-1.0 to 1.0)
+operating_cash_flow       : Annual operating cash flow
+working_capital           : Current assets - current liabilities
+credit_utilization        : Used credit / available credit (0.0-1.0)
+payment_delays_12m        : Payment delays in past 12 months
+geographic_risk           : Low, Medium, High
+market_competition        : Low, Medium, High
+management_quality        : Management score (1-10)
+days_past_due             : Current days past due (0, 30, 60, 90, 120)
+
+CORPORATE FIELDS
+----------------
+industry                  : Corporate industry sector
+annual_revenue            : Annual revenue in USD (minimum $50M)
+num_employees             : Total number of employees
+current_ratio             : Current assets / current liabilities
+debt_to_equity            : Total debt / total equity
+times_interest_earned     : EBIT / interest expense
+roa                       : Return on assets (-1.0 to 1.0)
+credit_rating             : AAA, AA+, AA, AA-, A+, A, A-, BBB+, BBB, BBB-, BB+, BB, BB-, B+, B, B-
+market_position           : Leader, Strong, Average, Weak
+operating_cash_flow       : Annual operating cash flow
+free_cash_flow            : Operating cash flow - capital expenditures
+
