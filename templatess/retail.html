@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Retail Customer Scoring - PD Model API{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user me-2"></i>Retail Customer PD Scoring
+                </h4>
+                <small>Enter customer details for real-time probability of default assessment</small>
+            </div>
+            <div class="card-body">
+                <form action="/predict/retail" method="POST" id="retailForm">
+                    <div class="row g-3">
+                        <!-- Personal Information -->
+                        <div class="col-12">
+                            <h6 class="text-primary border-bottom pb-2">
+                                <i class="fas fa-id-card me-2"></i>Personal Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="age" class="form-label">Age *</label>
+                            <input type="number" class="form-control" id="age" name="age" 
+                                   min="18" max="100" value="35" required>
+                            <small class="form-text text-muted">Customer age (18-100)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="employment_status" class="form-label">Employment Status *</label>
+                            <select class="form-select" id="employment_status" name="employment_status" required>
+                                <option value="Full-time" selected>Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Self-employed">Self-employed</option>
+                                <option value="Unemployed">Unemployed</option>
+                                <option value="Retired">Retired</option>
+                            </select>
+                        </div>
+
+                        <!-- Financial Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary border-bottom pb-2">
+                                <i class="fas fa-dollar-sign me-2"></i>Financial Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="income" class="form-label">Annual Income ($) *</label>
+                            <input type="number" class="form-control" id="income" name="income" 
+                                   min="1000" max="1000000" value="75000" step="1000" required>
+                            <small class="form-text text-muted">Gross annual income in USD</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="credit_score" class="form-label">Credit Score *</label>
+                            <input type="number" class="form-control" id="credit_score" name="credit_score" 
+                                   min="300" max="850" value="720" required>
+                            <small class="form-text text-muted">FICO score (300-850)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="debt_to_income" class="form-label">Debt-to-Income Ratio *</label>
+                            <input type="number" class="form-control" id="debt_to_income" name="debt_to_income" 
+                                   min="0" max="5" step="0.01" value="0.30" required>
+                            <small class="form-text text-muted">Total debt / annual income (e.g., 0.30 = 30%)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="utilization_rate" class="form-label">Credit Utilization Rate *</label>
+                            <input type="number" class="form-control" id="utilization_rate" name="utilization_rate" 
+                                   min="0" max="1" step="0.01" value="0.25" required>
+                            <small class="form-text text-muted">Used credit / total credit limit (e.g., 0.25 = 25%)</small>
+                        </div>
+
+                        <!-- Advanced Options (Collapsible) -->
+                        <div class="col-12 mt-4">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#advancedOptions" aria-expanded="false">
+                                    <i class="fas fa-cog me-2"></i>Advanced Options (Optional)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="collapse mt-3" id="advancedOptions">
+                            <div class="card card-body bg-light">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="employment_tenure" class="form-label">Employment Tenure (years)</label>
+                                        <input type="number" class="form-control" id="employment_tenure" 
+                                               name="employment_tenure" min="0" max="50" step="0.1" value="3.0">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="years_at_address" class="form-label">Years at Address</label>
+                                        <input type="number" class="form-control" id="years_at_address" 
+                                               name="years_at_address" min="0" max="50" step="0.1" value="2.0">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="num_accounts" class="form-label">Number of Credit Accounts</label>
+                                        <input type="number" class="form-control" id="num_accounts" 
+                                               name="num_accounts" min="0" max="30" value="5">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="monthly_transactions" class="form-label">Monthly Transactions</label>
+                                        <input type="number" class="form-control" id="monthly_transactions" 
+                                               name="monthly_transactions" min="1" max="200" value="45">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-calculator me-2"></i>Calculate PD Score
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Risk Information Card -->
+        <div class="card mt-4 border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="fas fa-info-circle me-2"></i>About Retail PD Scoring
+                </h6>
+                <p class="card-text small">
+                    Our retail PD model uses advanced machine learning to assess individual customer default risk. 
+                    The model considers 37+ risk factors including credit history, financial ratios, behavioral patterns, 
+                    and macroeconomic conditions. Results include:
+                </p>
+                <ul class="small mb-0">
+                    <li><strong>PD Score:</strong> Probability of default within 12 months</li>
+                    <li><strong>Risk Grade:</strong> AAA (lowest risk) to C (highest risk)</li>
+                    <li><strong>IFRS 9 Stage:</strong> Regulatory staging for provisioning</li>
+                    <li><strong>Basel III Compliance:</strong> Includes minimum PD floors</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function resetForm() {
+    document.getElementById('retailForm').reset();
+    // Reset to default values
+    document.getElementById('age').value = '35';
+    document.getElementById('income').value = '75000';
+    document.getElementById('credit_score').value = '720';
+    document.getElementById('debt_to_income').value = '0.30';
+    document.getElementById('utilization_rate').value = '0.25';
+}
+
+// Form validation and UX improvements
+document.getElementById('retailForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
+    submitBtn.disabled = true;
+});
+
+// Real-time DTI calculation helper
+document.getElementById('income').addEventListener('input', function() {
+    updateDTIHelper();
+});
+
+document.getElementById('debt_to_income').addEventListener('input', function() {
+    updateDTIHelper();
+});
+
+function updateDTIHelper() {
+    const income = parseFloat(document.getElementById('income').value) || 0;
+    const dti = parseFloat(document.getElementById('debt_to_income').value) || 0;
+    const totalDebt = income * dti;
+    
+    if (income > 0 && dti > 0) {
+        const helper = document.querySelector('#debt_to_income + .form-text');
+        helper.innerHTML = `Total debt / annual income = $${totalDebt.toLocaleString()} / $${income.toLocaleString()}`;
+    }
+}
+</script>
+{% endblock %}

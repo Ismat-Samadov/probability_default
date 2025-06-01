@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}PD Scoring Results - {{ segment }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Results Header -->
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="mb-1">
+                            <i class="fas fa-chart-line me-2"></i>PD Scoring Results
+                        </h4>
+                        <small>{{ segment }} | Generated on {{ result.prediction_timestamp[:19] }}</small>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="fas fa-shield-alt me-1"></i>Basel III Compliant
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Results -->
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <!-- PD Score Card -->
+                    <div class="col-md-4">
+                        <div class="result-card pd-score">
+                            <div class="result-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="result-content">
+                                <h3 class="result-value">{{ "%.4f"|format(result.pd_score) }}</h3>
+                                <p class="result-label">Probability of Default</p>
+                                <small class="result-description">
+                                    {{ "%.2f"|format(result.pd_score * 100) }}% chance of default within 12 months
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Grade Card -->
+                    <div class="col-md-4">
+                        <div class="result-card risk-grade">
+                            <div class="result-icon">
+                                {% if result.risk_grade in ['AAA', 'AA', 'A'] %}
+                                    <i class="fas fa-star text-success"></i>
+                                {% elif result.risk_grade in ['BBB', 'BB'] %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                {% endif %}
+                            </div>
+                            <div class="result-content">
+                                <h3 class="result-value 
+                                    {% if result.risk_grade in ['AAA', 'AA', 'A'] %}text-success
+                                    {% elif result.risk_grade in ['BBB', 'BB'] %}text-warning
+                                    {% else %}text-danger{% endif %}">
+                                    {{ result.risk_grade }}
+                                </h3>
+                                <p class="result-label">Risk Grade</p>
+                                <small class="result-description">
+                                    {% if result.risk_grade == 'AAA' %}Excellent credit quality
+                                    {% elif result.risk_grade == 'AA' %}Very good credit quality
+                                    {% elif result.risk_grade == 'A' %}Good credit quality
+                                    {% elif result.risk_grade == 'BBB' %}Adequate credit quality
+                                    {% elif result.risk_grade == 'BB' %}Moderate credit risk
+                                    {% elif result.risk_grade == 'B' %}High credit risk
+                                    {% else %}Very high credit risk{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- IFRS 9 Stage Card -->
+                    <div class="col-md-4">
+                        <div class="result-card ifrs9-stage">
+                            <div class="result-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="result-content">
+                                <h3 class="result-value 
+                                    {% if result.ifrs9_stage == 1 %}text-success
+                                    {% elif result.ifrs9_stage == 2 %}text-warning
+                                    {% else %}text-danger{% endif %}">
+                                    Stage {{ result.ifrs9_stage }}
+                                </h3>
+                                <p class="result-label">IFRS 9 Classification</p>
+                                <small class="result-description">
+                                    {% if result.ifrs9_stage == 1 %}12-month ECL provisioning
+                                    {% elif result.ifrs9_stage == 2 %}Lifetime ECL provisioning
+                                    {% else %}Lifetime ECL - credit impaired{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="row g-4 mt-3">
+            <!-- Model Details -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>Model Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Model Version:</strong></td>
+                                <td>{{ result.model_version }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Segment:</strong></td>
+                                <td class="text-capitalize">{{ result.segment }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ensemble Method:</strong></td>
+                                <td>{{ result.model_details.ensemble_method.replace('_', ' ').title() }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Basel Floor:</strong></td>
+                                <td>
+                                    {% if result.model_details.basel_floor_applied %}
+                                        <span class="badge bg-success">Applied</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Applied</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risk Assessment -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Risk Assessment
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Risk Level Indicator -->
+                        <div class="risk-meter mb-3">
+                            <label class="form-label small">Risk Level</label>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar 
+                                    {% if result.pd_score <= 0.01 %}bg-success
+                                    {% elif result.pd_score <= 0.05 %}bg-warning
+                                    {% else %}bg-danger{% endif %}" 
+                                    style="width: {{ (result.pd_score * 1000)|min(100) }}%">
+                                    {{ "%.2f"|format(result.pd_score * 100) }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                {% if result.pd_score <= 0.01 %}Low Risk
+                                {% elif result.pd_score <= 0.05 %}Medium Risk
+                                {% else %}High Risk{% endif %}
+                            </small>
+                        </div>
+                        
+                        <!-- Recommendations -->
+                        <div class="recommendations">
+                            <label class="form-label small">Recommendations</label>
+                            <ul class="small mb-0">
+                                {% if result.pd_score <= 0.01 %}
+                                    <li class="text-success">✓ Approve with standard terms</li>
+                                    <li class="text-success">✓ Consider premium pricing</li>
+                                {% elif result.pd_score <= 0.05 %}
+                                    <li class="text-warning">⚠ Review additional documentation</li>
+                                    <li class="text-warning">⚠ Consider risk-based pricing</li>
+                                {% else %}
+                                    <li class="text-danger">⚠ Requires manual review</li>
+                                    <li class="text-danger">⚠ Enhanced monitoring recommended</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regulatory Compliance -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-info">
+                    <i class="fas fa-shield-alt me-2"></i>Regulatory Compliance Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="compliance-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Basel III:</strong> Minimum PD floor (3 bps) applied
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="compliance-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>IFRS 9:</strong> Stage {{ result.ifrs9_stage }} classification
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="compliance-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Audit Trail:</strong> Full traceability maintained
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4 mb-5">
+            <button class="btn btn-outline-secondary me-2" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Print Report
+            </button>
+            <button class="btn btn-outline-primary me-2" onclick="exportJSON()">
+                <i class="fas fa-download me-2"></i>Export JSON
+            </button>
+            <a href="/{{ result.segment }}" class="btn btn-primary">
+                <i class="fas fa-redo me-2"></i>Score Another {{ segment }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportJSON() {
+    const results = {
+        pd_score: {{ result.pd_score }},
+        risk_grade: "{{ result.risk_grade }}",
+        ifrs9_stage: {{ result.ifrs9_stage }},
+        segment: "{{ result.segment }}",
+        prediction_timestamp: "{{ result.prediction_timestamp }}",
+        model_version: "{{ result.model_version }}",
+        basel_compliant: {{ result.basel_compliant|lower }}
+    };
+    
+    const dataStr = JSON.stringify(results, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `pd_result_{{ result.segment }}_${Date.now()}.json`;
+    link.click();
+}
+
+// Auto-refresh compliance status
+setTimeout(() => {
+    const badges = document.querySelectorAll('.badge');
+    badges.forEach(badge => {
+        if (badge.textContent.includes('Compliant')) {
+            badge.classList.add('animate-pulse');
+        }
+    });
+}, 1000);
+</script>
+{% endblock %}
