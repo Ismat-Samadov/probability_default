@@ -9,7 +9,7 @@ import json
 # Test the API health
 def test_health():
     try:
-        response = requests.get("http://localhost:8000/api/health")
+        response = requests.get("https://probability-default.onrender.com//api/health")
         print("Health Check:", response.json())
         return response.status_code == 200
     except:
@@ -28,7 +28,7 @@ def test_retail():
     }
     
     try:
-        response = requests.post("http://localhost:8000/api/predict/retail", json=data)
+        response = requests.post("https://probability-default.onrender.com//api/predict/retail", json=data)
         if response.status_code == 200:
             result = response.json()
             print(f"✅ Retail Test: PD={result['pd_score']:.4f}, Grade={result['risk_grade']}")
