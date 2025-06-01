@@ -20,6 +20,7 @@ from datetime import datetime
 import json
 import io
 from contextlib import asynccontextmanager
+import traceback
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -313,6 +314,64 @@ class RetailCustomer(BaseModel):
     num_bank_accounts: int = Field(default=2, description="Bank accounts")
     monthly_transactions: int = Field(default=45, description="Monthly transactions")
 
+class SMECompany(BaseModel):
+    """SME company data model"""
+    industry: str = Field(..., description="Industry sector")
+    years_in_business: float = Field(..., ge=0.1, le=100, description="Years in business")
+    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
+    num_employees: int = Field(..., ge=1, le=500, description="Number of employees")
+    current_ratio: float = Field(..., ge=0, le=10, description="Current ratio")
+    debt_to_equity: float = Field(..., ge=0, le=10, description="Debt-to-equity ratio")
+    interest_coverage: float = Field(..., ge=0, le=100, description="Interest coverage ratio")
+    profit_margin: float = Field(..., ge=-1, le=1, description="Profit margin")
+    operating_cash_flow: float = Field(..., description="Operating cash flow")
+    working_capital: float = Field(..., description="Working capital")
+    credit_utilization: float = Field(..., ge=0, le=1, description="Credit utilization rate")
+    payment_delays_12m: int = Field(..., ge=0, le=12, description="Payment delays in 12 months")
+    geographic_risk: str = Field(default="Medium", description="Geographic risk level")
+    market_competition: str = Field(default="Medium", description="Market competition level")
+    management_quality: float = Field(..., ge=1, le=10, description="Management quality score")
+    days_past_due: int = Field(default=0, description="Days past due")
+    # Calculated fields
+    asset_turnover: float = Field(default=1.5, description="Asset turnover")
+    primary_bank_relationship_years: float = Field(default=5.0, description="Banking relationship years")
+    num_banking_products: int = Field(default=3, description="Number of banking products")
+    credit_line_amount: float = Field(default=500000, description="Credit line amount")
+    outstanding_loans: float = Field(default=200000, description="Outstanding loans")
+
+class CorporateEntity(BaseModel):
+    """Corporate entity data model"""
+    annual_revenue: float = Field(..., gt=0, description="Annual revenue")
+    num_employees: int = Field(..., ge=1, description="Number of employees")
+    current_ratio: float = Field(..., ge=0, le=10, description="Current ratio")
+    debt_to_equity: float = Field(..., ge=0, le=10, description="Debt-to-equity ratio")
+    times_interest_earned: float = Field(..., ge=0, le=100, description="Interest coverage ratio")
+    roa: float = Field(..., ge=-1, le=1, description="Return on assets")
+    credit_rating: str = Field(..., description="Credit rating")
+    market_position: str = Field(..., description="Market position")
+    operating_cash_flow: float = Field(..., description="Operating cash flow")
+    free_cash_flow: float = Field(..., description="Free cash flow")
+    # Calculated and default fields
+    years_established: int = Field(default=25, description="Years established")
+    is_public: int = Field(default=1, description="Public company indicator")
+    market_cap: float = Field(default=1000000000, description="Market capitalization")
+    quick_ratio: float = Field(default=1.2, description="Quick ratio")
+    cash_ratio: float = Field(default=0.8, description="Cash ratio")
+    debt_to_assets: float = Field(default=0.4, description="Debt to assets")
+    net_profit_margin: float = Field(default=0.1, description="Net profit margin")
+    roe: float = Field(default=0.15, description="Return on equity")
+    asset_turnover: float = Field(default=1.5, description="Asset turnover")
+    inventory_turnover: float = Field(default=8, description="Inventory turnover")
+    num_banking_relationships: int = Field(default=5, description="Banking relationships")
+    primary_bank_relationship_years: float = Field(default=10.0, description="Primary bank relationship")
+    total_credit_facilities: float = Field(default=100000000, description="Total credit facilities")
+    committed_facilities: float = Field(default=80000000, description="Committed facilities")
+    utilization_rate: float = Field(default=0.3, description="Utilization rate")
+    outstanding_debt: float = Field(default=50000000, description="Outstanding debt")
+    geographic_diversification: str = Field(default="Regional", description="Geographic diversification")
+    regulatory_environment: str = Field(default="Medium", description="Regulatory environment")
+    esg_score: int = Field(default=65, description="ESG score")
+
 class PDResponse(BaseModel):
     """PD prediction response"""
     customer_id: Optional[str] = None
@@ -324,6 +383,15 @@ class PDResponse(BaseModel):
     prediction_timestamp: str = Field(..., description="Prediction timestamp")
     model_version: str = "1.0.0"
     model_details: Dict = Field(..., description="Model execution details")
+
+class BatchResponse(BaseModel):
+    """Batch prediction response"""
+    total_predictions: int
+    successful_predictions: int
+    failed_predictions: int
+    processing_time_seconds: float
+    results: List[Dict]
+    summary_statistics: Dict
 
 # Web Interface Routes
 @app.get("/", response_class=HTMLResponse)
@@ -377,6 +445,7 @@ async def health_check():
         }
     }
 
+# API Prediction Endpoints
 @app.post("/api/predict/retail", response_model=PDResponse)
 async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str] = None):
     """API endpoint for retail customer prediction"""
@@ -414,6 +483,154 @@ async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str
         logger.error(f"Retail prediction error: {e}")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
+@app.post("/api/predict/sme", response_model=PDResponse)
+async def predict_sme_api(company: SMECompany, company_id: Optional[str] = None):
+    """API endpoint for SME company prediction"""
+    if predictor is None:
+        raise HTTPException(status_code=503, detail="Models not loaded")
+    
+    try:
+        # Convert to DataFrame
+        company_dict = company.dict()
+        data = pd.DataFrame([company_dict])
+        
+        # Make prediction
+        result = predictor.predict_with_staging(data, 'sme')
+        
+        return PDResponse(
+            customer_id=company_id,
+            segment='sme',
+            pd_score=result['pd_scores'][0],
+            risk_grade=result['risk_grades'][0],
+            ifrs9_stage=result['ifrs9_stages'][0],
+            basel_compliant=result['basel_compliant'],
+            prediction_timestamp=result['prediction_timestamp'],
+            model_details=result['model_details']
+        )
+        
+    except Exception as e:
+        logger.error(f"SME prediction error: {e}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+@app.post("/api/predict/corporate", response_model=PDResponse)
+async def predict_corporate_api(entity: CorporateEntity, entity_id: Optional[str] = None):
+    """API endpoint for corporate entity prediction"""
+    if predictor is None:
+        raise HTTPException(status_code=503, detail="Models not loaded")
+    
+    try:
+        # Convert to DataFrame
+        entity_dict = entity.dict()
+        data = pd.DataFrame([entity_dict])
+        
+        # Make prediction
+        result = predictor.predict_with_staging(data, 'corporate')
+        
+        return PDResponse(
+            customer_id=entity_id,
+            segment='corporate',
+            pd_score=result['pd_scores'][0],
+            risk_grade=result['risk_grades'][0],
+            ifrs9_stage=result['ifrs9_stages'][0],
+            basel_compliant=result['basel_compliant'],
+            prediction_timestamp=result['prediction_timestamp'],
+            model_details=result['model_details']
+        )
+        
+    except Exception as e:
+        logger.error(f"Corporate prediction error: {e}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+@app.post("/api/predict/batch", response_model=BatchResponse)
+async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
+    """Batch prediction endpoint"""
+    if predictor is None:
+        raise HTTPException(status_code=503, detail="Models not loaded")
+    
+    start_time = datetime.now()
+    
+    try:
+        # Validate file type
+        if not file.filename.endswith('.csv'):
+            raise HTTPException(status_code=400, detail="Only CSV files are supported")
+        
+        # Validate segment
+        if segment not in ['retail', 'sme', 'corporate']:
+            raise HTTPException(status_code=400, detail="Invalid segment")
+        
+        # Read CSV file
+        contents = await file.read()
+        df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        
+        if len(df) == 0:
+            raise HTTPException(status_code=400, detail="Empty CSV file")
+        
+        # Process predictions
+        results = []
+        successful_predictions = 0
+        failed_predictions = 0
+        
+        for idx, row in df.iterrows():
+            try:
+                # Convert row to DataFrame
+                row_data = pd.DataFrame([row.to_dict()])
+                
+                # Make prediction
+                prediction_result = predictor.predict_with_staging(row_data, segment)
+                
+                result = {
+                    'row_index': idx,
+                    'pd_score': prediction_result['pd_scores'][0],
+                    'risk_grade': prediction_result['risk_grades'][0],
+                    'ifrs9_stage': prediction_result['ifrs9_stages'][0],
+                    'success': True
+                }
+                results.append(result)
+                successful_predictions += 1
+                
+            except Exception as e:
+                result = {
+                    'row_index': idx,
+                    'error': str(e),
+                    'success': False
+                }
+                results.append(result)
+                failed_predictions += 1
+        
+        # Calculate processing time
+        processing_time = (datetime.now() - start_time).total_seconds()
+        
+        # Calculate summary statistics
+        successful_results = [r for r in results if r['success']]
+        if successful_results:
+            pd_scores = [r['pd_score'] for r in successful_results]
+            risk_grades = [r['risk_grade'] for r in successful_results]
+            stages = [r['ifrs9_stage'] for r in successful_results]
+            
+            summary_stats = {
+                'avg_pd_score': np.mean(pd_scores),
+                'median_pd_score': np.median(pd_scores),
+                'min_pd_score': np.min(pd_scores),
+                'max_pd_score': np.max(pd_scores),
+                'risk_grade_distribution': pd.Series(risk_grades).value_counts().to_dict(),
+                'ifrs9_stage_distribution': pd.Series(stages).value_counts().to_dict()
+            }
+        else:
+            summary_stats = {}
+        
+        return BatchResponse(
+            total_predictions=len(df),
+            successful_predictions=successful_predictions,
+            failed_predictions=failed_predictions,
+            processing_time_seconds=processing_time,
+            results=results,
+            summary_statistics=summary_stats
+        )
+        
+    except Exception as e:
+        logger.error(f"Batch prediction error: {e}")
+        raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
+
 # Form submission endpoints (for web interface)
 @app.post("/predict/retail")
 async def predict_retail_form(
@@ -423,7 +640,11 @@ async def predict_retail_form(
     credit_score: int = Form(...),
     debt_to_income: float = Form(...),
     utilization_rate: float = Form(...),
-    employment_status: str = Form(...)
+    employment_status: str = Form(...),
+    employment_tenure: float = Form(default=3.0),
+    years_at_address: float = Form(default=2.0),
+    num_accounts: int = Form(default=5),
+    monthly_transactions: int = Form(default=45)
 ):
     """Handle retail form submission"""
     try:
@@ -433,7 +654,11 @@ async def predict_retail_form(
             credit_score=credit_score,
             debt_to_income=debt_to_income,
             utilization_rate=utilization_rate,
-            employment_status=employment_status
+            employment_status=employment_status,
+            employment_tenure=employment_tenure,
+            years_at_address=years_at_address,
+            num_accounts=num_accounts,
+            monthly_transactions=monthly_transactions
         )
         
         # Call API endpoint
@@ -446,10 +671,129 @@ async def predict_retail_form(
         })
         
     except Exception as e:
+        logger.error(f"Retail form error: {e}")
         return templates.TemplateResponse("error.html", {
             "request": request,
             "error": str(e)
         })
+
+@app.post("/predict/sme")
+async def predict_sme_form(
+    request: Request,
+    industry: str = Form(...),
+    years_in_business: float = Form(...),
+    annual_revenue: float = Form(...),
+    num_employees: int = Form(...),
+    current_ratio: float = Form(...),
+    debt_to_equity: float = Form(...),
+    interest_coverage: float = Form(...),
+    profit_margin: float = Form(...),
+    operating_cash_flow: float = Form(...),
+    working_capital: float = Form(...),
+    credit_utilization: float = Form(...),
+    payment_delays_12m: int = Form(...),
+    geographic_risk: str = Form(...),
+    market_competition: str = Form(...),
+    management_quality: float = Form(...),
+    days_past_due: int = Form(...)
+):
+    """Handle SME form submission"""
+    try:
+        company = SMECompany(
+            industry=industry,
+            years_in_business=years_in_business,
+            annual_revenue=annual_revenue,
+            num_employees=num_employees,
+            current_ratio=current_ratio,
+            debt_to_equity=debt_to_equity,
+            interest_coverage=interest_coverage,
+            profit_margin=profit_margin,
+            operating_cash_flow=operating_cash_flow,
+            working_capital=working_capital,
+            credit_utilization=credit_utilization,
+            payment_delays_12m=payment_delays_12m,
+            geographic_risk=geographic_risk,
+            market_competition=market_competition,
+            management_quality=management_quality,
+            days_past_due=days_past_due
+        )
+        
+        # Call API endpoint
+        result = await predict_sme_api(company)
+        
+        return templates.TemplateResponse("results.html", {
+            "request": request,
+            "result": result,
+            "segment": "SME Company"
+        })
+        
+    except Exception as e:
+        logger.error(f"SME form error: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error": str(e)
+        })
+
+@app.post("/predict/corporate")
+async def predict_corporate_form(
+    request: Request,
+    annual_revenue: float = Form(...),
+    num_employees: int = Form(...),
+    current_ratio: float = Form(...),
+    debt_to_equity: float = Form(...),
+    times_interest_earned: float = Form(...),
+    roa: float = Form(...),
+    credit_rating: str = Form(...),
+    market_position: str = Form(...),
+    operating_cash_flow: float = Form(...),
+    free_cash_flow: float = Form(...)
+):
+    """Handle corporate form submission"""
+    try:
+        entity = CorporateEntity(
+            annual_revenue=annual_revenue,
+            num_employees=num_employees,
+            current_ratio=current_ratio,
+            debt_to_equity=debt_to_equity,
+            times_interest_earned=times_interest_earned,
+            roa=roa,
+            credit_rating=credit_rating,
+            market_position=market_position,
+            operating_cash_flow=operating_cash_flow,
+            free_cash_flow=free_cash_flow
+        )
+        
+        # Call API endpoint
+        result = await predict_corporate_api(entity)
+        
+        return templates.TemplateResponse("results.html", {
+            "request": request,
+            "result": result,
+            "segment": "Corporate Entity"
+        })
+        
+    except Exception as e:
+        logger.error(f"Corporate form error: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error": str(e)
+        })
+
+# Error handlers
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc: HTTPException):
+    return templates.TemplateResponse("error.html", {
+        "request": request,
+        "error": "Page not found"
+    }, status_code=404)
+
+@app.exception_handler(500)
+async def internal_error_handler(request: Request, exc: Exception):
+    logger.error(f"Internal server error: {exc}")
+    return templates.TemplateResponse("error.html", {
+        "request": request,
+        "error": "Internal server error"
+    }, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn
