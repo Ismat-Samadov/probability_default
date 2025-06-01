@@ -79,6 +79,8 @@ class PDModelPredictor:
     
     def clean_infinite_values(self, df):
         """Clean infinite and extreme values from dataframe"""
+        df = df.copy()
+        
         # Replace infinite values with NaN
         df = df.replace([np.inf, -np.inf], np.nan)
         
@@ -92,10 +94,10 @@ class PDModelPredictor:
                 else:
                     df[col] = df[col].fillna(df[col].median())
         
-        # Cap extreme values (beyond 99.9th percentile) for numerical columns
+        # Cap extreme values for numerical columns
         for col in numerical_cols:
             if col not in ['customer_id', 'company_id', 'is_default']:
-                if df[col].nunique() > 1:  # Only cap if there's variance
+                if df[col].nunique() > 1:
                     q99_9 = df[col].quantile(0.999)
                     q00_1 = df[col].quantile(0.001)
                     df[col] = np.clip(df[col], q00_1, q99_9)
@@ -104,6 +106,8 @@ class PDModelPredictor:
     
     def add_macroeconomic_features(self, df, segment):
         """Add macroeconomic features and calculated risk factors"""
+        df = df.copy()
+        
         # Add default macroeconomic features
         for feature, value in self.DEFAULT_MACRO.items():
             if feature not in df.columns:
@@ -135,12 +139,16 @@ class PDModelPredictor:
     
     def calculate_credit_scores(self, df, segment):
         """Calculate credit scores based on segment"""
+        df = df.copy()
+        
         if segment == 'retail':
             # Simplified FICO-like score calculation
-            score = 300
+            score = pd.Series([300] * len(df), index=df.index)
             
             # Payment history proxy (assume good if not specified)
-            payment_history = df.get('payment_history', 0.95)
+            payment_history = df.get('payment_history', pd.Series([0.95] * len(df)))
+            if not isinstance(payment_history, pd.Series):
+                payment_history = pd.Series([payment_history] * len(df))
             score += payment_history * 315
             
             # Credit utilization (30% of score)
@@ -149,15 +157,21 @@ class PDModelPredictor:
             score += (1 - utilization) * 270 - utilization_penalty
             
             # Credit history length (15% of score)
-            credit_history = df.get('credit_history_length', 84)  # Default 7 years
+            credit_history = df.get('credit_history_length', pd.Series([84] * len(df)))
+            if not isinstance(credit_history, pd.Series):
+                credit_history = pd.Series([credit_history] * len(df))
             score += np.minimum(credit_history / 240, 1) * 135
             
             # Credit mix (10% of score)
-            num_accounts = df.get('num_accounts', 5)
+            num_accounts = df.get('num_accounts', pd.Series([5] * len(df)))
+            if not isinstance(num_accounts, pd.Series):
+                num_accounts = pd.Series([num_accounts] * len(df))
             score += np.minimum(num_accounts / 10, 1) * 90
             
             # Recent inquiries (10% of score)
-            recent_inquiries = df.get('recent_inquiries', 1)
+            recent_inquiries = df.get('recent_inquiries', pd.Series([1] * len(df)))
+            if not isinstance(recent_inquiries, pd.Series):
+                recent_inquiries = pd.Series([recent_inquiries] * len(df))
             inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
             score += 90 - inquiry_penalty
             
@@ -169,7 +183,7 @@ class PDModelPredictor:
             
         elif segment == 'sme':
             # SME credit score calculation
-            score = 300
+            score = pd.Series([300] * len(df), index=df.index)
             
             # Profitability (25%)
             score += np.clip(df['profit_margin'] * 1000 + 50, 0, 125)
@@ -206,7 +220,7 @@ class PDModelPredictor:
             }
             
             # Get base score from rating
-            base_scores = [rating_scores.get(rating, 500) for rating in df['credit_rating']]
+            base_scores = df['credit_rating'].map(rating_scores).fillna(500)
             
             # Financial adjustments
             coverage_adj = np.clip((df['times_interest_earned'] - 5) * 5, -50, 50)
@@ -216,10 +230,10 @@ class PDModelPredictor:
             
             # Market position adjustment
             position_adj_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
-            position_adj = [position_adj_map.get(pos, 0) for pos in df['market_position']]
+            position_adj = df['market_position'].map(position_adj_map).fillna(0)
             
-            final_scores = (np.array(base_scores) + coverage_adj + leverage_adj + 
-                           profitability_adj + liquidity_adj + np.array(position_adj))
+            final_scores = (base_scores + coverage_adj + leverage_adj + 
+                           profitability_adj + liquidity_adj + position_adj)
             
             df['corporate_credit_score'] = np.clip(final_scores, 300, 850)
             
@@ -231,6 +245,8 @@ class PDModelPredictor:
     
     def engineer_retail_features(self, df):
         """Engineer retail features (exact copy from training)"""
+        df = df.copy()
+        
         # Safe financial ratios
         df['debt_service_ratio'] = np.where(
             df['income'] > 0, 
@@ -258,6 +274,8 @@ class PDModelPredictor:
     
     def engineer_sme_features(self, df):
         """Engineer SME features (exact copy from training)"""
+        df = df.copy()
+        
         # Safe financial indicators
         df['revenue_per_employee'] = np.where(
             df['num_employees'] > 0,
@@ -277,6 +295,8 @@ class PDModelPredictor:
     
     def engineer_corporate_features(self, df):
         """Engineer corporate features (exact copy from training)"""
+        df = df.copy()
+        
         # Safe financial ratios
         df['cash_generation_ability'] = np.where(
             df['annual_revenue'] > 0,
