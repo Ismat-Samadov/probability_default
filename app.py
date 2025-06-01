@@ -136,7 +136,7 @@ class PDModelPredictor:
             )
         
         return df
-    
+
     def calculate_credit_scores(self, df, segment):
         """Calculate credit scores based on segment"""
         df = df.copy()
@@ -219,7 +219,7 @@ class PDModelPredictor:
                 'CCC+': 520, 'CCC': 500, 'CCC-': 480
             }
             
-            # Get base score from rating
+            # Get base score from rating using pandas map
             base_scores = df['credit_rating'].map(rating_scores).fillna(500)
             
             # Financial adjustments
@@ -233,7 +233,7 @@ class PDModelPredictor:
             position_adj = df['market_position'].map(position_adj_map).fillna(0)
             
             final_scores = (base_scores + coverage_adj + leverage_adj + 
-                           profitability_adj + liquidity_adj + position_adj)
+                        profitability_adj + liquidity_adj + position_adj)
             
             df['corporate_credit_score'] = np.clip(final_scores, 300, 850)
             
@@ -242,7 +242,7 @@ class PDModelPredictor:
                 df['industry'] = 'Technology'  # Default industry
         
         return df
-    
+
     def engineer_retail_features(self, df):
         """Engineer retail features (exact copy from training)"""
         df = df.copy()
