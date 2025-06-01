@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Enterprise-grade Probability of Default scoring with regulatory compliance">
+    <meta name="keywords" content="PD model, credit risk, Basel III, IFRS 9, probability of default">
+    <meta name="author" content="Advanced PD Model API">
     <title>{% block title %}PD Model API{% endblock %}</title>
     
     <!-- Favicon Links -->
@@ -13,44 +16,99 @@
     <link rel="shortcut icon" href="/static/favicon_io/favicon.ico">
     
     <!-- Meta tags for mobile and PWA -->
-    <meta name="theme-color" content="#ffffff">
-    <meta name="msapplication-TileColor" content="#0d6efd">
+    <meta name="theme-color" content="#0066cc">
+    <meta name="msapplication-TileColor" content="#0066cc">
     <meta name="msapplication-config" content="/static/favicon_io/browserconfig.xml">
     
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- CSS Dependencies -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <link href="/static/css/style.css" rel="stylesheet">
+    
+    <!-- Critical CSS inline for faster loading -->
+    <style>
+        /* Critical loading styles */
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Prevent flash of unstyled content */
+        body {
+            visibility: hidden;
+        }
+        
+        body.loaded {
+            visibility: visible;
+        }
+    </style>
 </head>
 <body>
+    <!-- Skip to main content for accessibility -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" role="navigation" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-chart-line me-2"></i>PD Model API
+            <a class="navbar-brand" href="/" aria-label="PD Model API Home">
+                <i class="fas fa-chart-line me-2" aria-hidden="true"></i>PD Model API
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            
+            <!-- Mobile menu button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
+            <!-- Navigation menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                        <a class="nav-link" href="/" aria-label="Home page">
+                            <i class="fas fa-home me-1" aria-hidden="true"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/retail"><i class="fas fa-user me-1"></i>Retail</a>
+                        <a class="nav-link" href="/retail" aria-label="Retail customer scoring">
+                            <i class="fas fa-user me-1" aria-hidden="true"></i>Retail
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sme"><i class="fas fa-building me-1"></i>SME</a>
+                        <a class="nav-link" href="/sme" aria-label="SME company scoring">
+                            <i class="fas fa-building me-1" aria-hidden="true"></i>SME
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/corporate"><i class="fas fa-city me-1"></i>Corporate</a>
+                        <a class="nav-link" href="/corporate" aria-label="Corporate entity scoring">
+                            <i class="fas fa-city me-1" aria-hidden="true"></i>Corporate
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/batch"><i class="fas fa-upload me-1"></i>Batch</a>
+                        <a class="nav-link" href="/batch" aria-label="Batch processing">
+                            <i class="fas fa-upload me-1" aria-hidden="true"></i>Batch
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/api/docs" target="_blank"><i class="fas fa-book me-1"></i>API Docs</a>
+                        <a class="nav-link" href="/api/docs" target="_blank" rel="noopener noreferrer" aria-label="API documentation (opens in new tab)">
+                            <i class="fas fa-book me-1" aria-hidden="true"></i>API Docs
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -58,26 +116,180 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container my-4">
+    <main class="container my-4" id="main-content" role="main">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container text-center">
-            <p>&copy; 2024 Advanced PD Model API. Enterprise-grade risk modeling with regulatory compliance.</p>
-            <p class="small">
-                <i class="fas fa-shield-alt me-1"></i>Basel III & IFRS 9 Compliant
-                <span class="mx-2">|</span>
-                <i class="fas fa-clock me-1"></i>Real-time Scoring
-                <span class="mx-2">|</span>
-                <i class="fas fa-chart-bar me-1"></i>Multi-segment Models
-            </p>
+    <footer class="bg-dark text-light py-4 mt-5" role="contentinfo">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-2">&copy; 2024 Advanced PD Model API. Enterprise-grade risk modeling with regulatory compliance.</p>
+                    <p class="small mb-0">
+                        <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>Basel III & IFRS 9 Compliant
+                        <span class="mx-2" aria-hidden="true">|</span>
+                        <i class="fas fa-clock me-1" aria-hidden="true"></i>Real-time Scoring
+                        <span class="mx-2" aria-hidden="true">|</span>
+                        <i class="fas fa-chart-bar me-1" aria-hidden="true"></i>Multi-segment Models
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="mt-2 mt-md-0">
+                        <span class="badge bg-light text-dark me-2 api-status" id="api-status">
+                            <span class="loading-spinner me-1"></span>Checking...
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    
+    <!-- Custom JavaScript -->
     <script src="/static/js/app.js"></script>
+    
+    <!-- Page-specific scripts -->
     {% block scripts %}{% endblock %}
+    
+    <!-- Initialize app when DOM is loaded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove loading state
+            document.body.classList.add('loaded');
+            
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Auto-close mobile menu when clicking on a link
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (navbarCollapse.classList.contains('show')) {
+                        const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+                            toggle: false
+                        });
+                        bsCollapse.hide();
+                    }
+                });
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Add keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                // Escape key closes modals and dropdowns
+                if (e.key === 'Escape') {
+                    // Close mobile menu if open
+                    const navbarCollapse = document.querySelector('.navbar-collapse');
+                    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+                        const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+                            toggle: false
+                        });
+                        bsCollapse.hide();
+                    }
+                }
+            });
+            
+            // Check API health status
+            checkAPIHealth();
+        });
+        
+        async function checkAPIHealth() {
+            const statusElement = document.getElementById('api-status');
+            if (!statusElement) return;
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    statusElement.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>API Online';
+                    statusElement.className = 'badge bg-success text-white';
+                } else {
+                    statusElement.innerHTML = '<i class="fas fa-exclamation-triangle text-warning me-1"></i>API Issues';
+                    statusElement.className = 'badge bg-warning text-dark';
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>API Offline';
+                statusElement.className = 'badge bg-danger text-white';
+            }
+        }
+        
+        // Performance monitoring
+        window.addEventListener('load', function() {
+            // Log page load time for monitoring
+            const loadTime = performance.now();
+            console.log(`Page loaded in ${Math.round(loadTime)}ms`);
+            
+            // Check for Web Vitals if available
+            if ('web-vital' in window) {
+                // Could integrate with monitoring service here
+            }
+        });
+        
+        // Error handling for images
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.target.style.display = 'none';
+                console.warn('Image failed to load:', e.target.src);
+            }
+        }, true);
+        
+        // Service Worker registration for PWA features
+        if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+    
+    <!-- Schema.org structured data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Advanced PD Model API",
+        "description": "Enterprise-grade Probability of Default scoring with regulatory compliance",
+        "url": "{{ request.url if request else '/' }}",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "Advanced PD Model API"
+        }
+    }
+    </script>
 </body>
 </html>
