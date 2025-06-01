@@ -145,106 +145,122 @@ class PDModelPredictor:
         return df
 
     def calculate_credit_scores(self, df, segment):
-        """Calculate credit scores based on segment"""
-        df = df.copy()
-        
-        if segment == 'retail':
-            # Simplified FICO-like score calculation
-            score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
+            """Calculate credit scores based on segment"""
+            df = df.copy()
             
-            # Payment history proxy (assume good if not specified)
-            payment_history = df.get('payment_history', pd.Series([0.95] * len(df), dtype=float))
-            if not isinstance(payment_history, pd.Series):
-                payment_history = pd.Series([float(payment_history)] * len(df), dtype=float)
-            score += payment_history * 315
+            if segment == 'retail':
+                # Simplified FICO-like score calculation
+                score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
+                
+                # Payment history proxy (assume good if not specified)
+                payment_history = df.get('payment_history', pd.Series([0.95] * len(df), dtype=float))
+                if not isinstance(payment_history, pd.Series):
+                    payment_history = pd.Series([float(payment_history)] * len(df), dtype=float)
+                score += payment_history * 315
+                
+                # Credit utilization (30% of score)
+                utilization = df['utilization_rate'].astype(float)
+                utilization_penalty = np.where(utilization < 0.3, 0, (utilization - 0.3) * 200)
+                score += (1 - utilization) * 270 - utilization_penalty
+                
+                # Credit history length (15% of score)
+                credit_history = df.get('credit_history_length', pd.Series([84.0] * len(df), dtype=float))
+                if not isinstance(credit_history, pd.Series):
+                    credit_history = pd.Series([float(credit_history)] * len(df), dtype=float)
+                score += np.minimum(credit_history / 240, 1) * 135
+                
+                # Credit mix (10% of score)
+                num_accounts = df.get('num_accounts', pd.Series([5.0] * len(df), dtype=float))
+                if not isinstance(num_accounts, pd.Series):
+                    num_accounts = pd.Series([float(num_accounts)] * len(df), dtype=float)
+                score += np.minimum(num_accounts / 10, 1) * 90
+                
+                # Recent inquiries (10% of score)
+                recent_inquiries = df.get('recent_inquiries', pd.Series([1.0] * len(df), dtype=float))
+                if not isinstance(recent_inquiries, pd.Series):
+                    recent_inquiries = pd.Series([float(recent_inquiries)] * len(df), dtype=float)
+                inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
+                score += 90 - inquiry_penalty
+                
+                # Debt-to-income adjustment
+                dti_penalty = np.where(df['debt_to_income'] > 0.4, (df['debt_to_income'] - 0.4) * 100, 0)
+                score -= dti_penalty
+                
+                df['credit_score'] = np.clip(score, 300, 850).astype(int)
+                
+            elif segment == 'sme':
+                # SME credit score calculation
+                score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
+                
+                # Profitability (25%)
+                profit_margin = df.get('profit_margin', pd.Series([0.08] * len(df), dtype=float))
+                score += np.clip(profit_margin * 1000 + 50, 0, 125)
+                
+                # Liquidity (20%)
+                current_ratio = df.get('current_ratio', pd.Series([1.5] * len(df), dtype=float))
+                score += np.clip((current_ratio - 1) * 40 + 60, 20, 100)
+                
+                # Leverage (20%)
+                debt_to_equity = df.get('debt_to_equity', pd.Series([1.0] * len(df), dtype=float))
+                score += np.clip(100 - debt_to_equity * 30, 20, 100)
+                
+                # Interest coverage (15%) - use default if not available
+                interest_coverage = df.get('interest_coverage', pd.Series([5.0] * len(df), dtype=float))
+                score += np.clip(interest_coverage * 8, 0, 75)
+                
+                # Business tenure (10%)
+                years_in_business = df.get('years_in_business', pd.Series([8.0] * len(df), dtype=float))
+                score += np.minimum(years_in_business * 2.5, 50)
+                
+                # Payment behavior (10%)
+                payment_delays = df.get('payment_delays_12m', pd.Series([1.0] * len(df), dtype=float))
+                score += np.clip(50 - payment_delays * 10, 0, 50)
+                
+                # Credit utilization penalty
+                credit_utilization = df.get('credit_utilization', pd.Series([0.3] * len(df), dtype=float))
+                util_penalty = np.where(credit_utilization > 0.5, (credit_utilization - 0.5) * 100, 0)
+                score -= util_penalty
+                
+                df['sme_credit_score'] = np.clip(score, 300, 850).astype(int)
+                
+            elif segment == 'corporate':
+                # Corporate credit score based on rating
+                rating_scores = {
+                    'AAA': 850, 'AA+': 820, 'AA': 800, 'AA-': 780,
+                    'A+': 760, 'A': 740, 'A-': 720, 'BBB+': 700,
+                    'BBB': 680, 'BBB-': 660, 'BB+': 640, 'BB': 620,
+                    'BB-': 600, 'B+': 580, 'B': 560, 'B-': 540,
+                    'CCC+': 520, 'CCC': 500, 'CCC-': 480
+                }
+                
+                # Get base score from rating (use default if not available)
+                credit_rating = df.get('credit_rating', pd.Series(['A'] * len(df), dtype=str))
+                base_scores = credit_rating.map(rating_scores).fillna(500).astype(float)
+                
+                # Financial adjustments with defaults
+                times_interest_earned = df.get('times_interest_earned', pd.Series([8.0] * len(df), dtype=float))
+                coverage_adj = np.clip((times_interest_earned - 5) * 5, -50, 50)
+                
+                debt_to_equity = df.get('debt_to_equity', pd.Series([0.8] * len(df), dtype=float))
+                leverage_adj = np.clip((1 - debt_to_equity) * 20, -40, 40)
+                
+                roa = df.get('roa', pd.Series([0.08] * len(df), dtype=float))
+                profitability_adj = np.clip(roa * 200, -30, 30)
+                
+                current_ratio = df.get('current_ratio', pd.Series([1.5] * len(df), dtype=float))
+                liquidity_adj = np.clip((current_ratio - 1.5) * 10, -20, 20)
+                
+                # Market position adjustment
+                position_adj_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
+                market_position = df.get('market_position', pd.Series(['Strong'] * len(df), dtype=str))
+                position_adj = market_position.map(position_adj_map).fillna(0)
+                
+                final_scores = (base_scores + coverage_adj + leverage_adj + 
+                            profitability_adj + liquidity_adj + position_adj)
+                
+                df['corporate_credit_score'] = np.clip(final_scores, 300, 850).astype(int)
             
-            # Credit utilization (30% of score)
-            utilization = df['utilization_rate'].astype(float)
-            utilization_penalty = np.where(utilization < 0.3, 0, (utilization - 0.3) * 200)
-            score += (1 - utilization) * 270 - utilization_penalty
-            
-            # Credit history length (15% of score)
-            credit_history = df.get('credit_history_length', pd.Series([84.0] * len(df), dtype=float))
-            if not isinstance(credit_history, pd.Series):
-                credit_history = pd.Series([float(credit_history)] * len(df), dtype=float)
-            score += np.minimum(credit_history / 240, 1) * 135
-            
-            # Credit mix (10% of score)
-            num_accounts = df.get('num_accounts', pd.Series([5.0] * len(df), dtype=float))
-            if not isinstance(num_accounts, pd.Series):
-                num_accounts = pd.Series([float(num_accounts)] * len(df), dtype=float)
-            score += np.minimum(num_accounts / 10, 1) * 90
-            
-            # Recent inquiries (10% of score)
-            recent_inquiries = df.get('recent_inquiries', pd.Series([1.0] * len(df), dtype=float))
-            if not isinstance(recent_inquiries, pd.Series):
-                recent_inquiries = pd.Series([float(recent_inquiries)] * len(df), dtype=float)
-            inquiry_penalty = np.minimum(recent_inquiries * 15, 90)
-            score += 90 - inquiry_penalty
-            
-            # Debt-to-income adjustment
-            dti_penalty = np.where(df['debt_to_income'] > 0.4, (df['debt_to_income'] - 0.4) * 100, 0)
-            score -= dti_penalty
-            
-            df['credit_score'] = np.clip(score, 300, 850).astype(int)
-            
-        elif segment == 'sme':
-            # SME credit score calculation
-            score = pd.Series([300.0] * len(df), index=df.index, dtype=float)
-            
-            # Profitability (25%)
-            score += np.clip(df['profit_margin'] * 1000 + 50, 0, 125)
-            
-            # Liquidity (20%)
-            score += np.clip((df['current_ratio'] - 1) * 40 + 60, 20, 100)
-            
-            # Leverage (20%)
-            score += np.clip(100 - df['debt_to_equity'] * 30, 20, 100)
-            
-            # Interest coverage (15%)
-            score += np.clip(df['interest_coverage'] * 8, 0, 75)
-            
-            # Business tenure (10%)
-            score += np.minimum(df['years_in_business'] * 2.5, 50)
-            
-            # Payment behavior (10%)
-            score += np.clip(50 - df['payment_delays_12m'] * 10, 0, 50)
-            
-            # Credit utilization penalty
-            util_penalty = np.where(df['credit_utilization'] > 0.5, (df['credit_utilization'] - 0.5) * 100, 0)
-            score -= util_penalty
-            
-            df['sme_credit_score'] = np.clip(score, 300, 850).astype(int)
-            
-        elif segment == 'corporate':
-            # Corporate credit score based on rating
-            rating_scores = {
-                'AAA': 850, 'AA+': 820, 'AA': 800, 'AA-': 780,
-                'A+': 760, 'A': 740, 'A-': 720, 'BBB+': 700,
-                'BBB': 680, 'BBB-': 660, 'BB+': 640, 'BB': 620,
-                'BB-': 600, 'B+': 580, 'B': 560, 'B-': 540,
-                'CCC+': 520, 'CCC': 500, 'CCC-': 480
-            }
-            
-            # Get base score from rating
-            base_scores = df['credit_rating'].map(rating_scores).fillna(500).astype(float)
-            
-            # Financial adjustments
-            coverage_adj = np.clip((df['times_interest_earned'] - 5) * 5, -50, 50)
-            leverage_adj = np.clip((1 - df['debt_to_equity']) * 20, -40, 40)
-            profitability_adj = np.clip(df['roa'] * 200, -30, 30)
-            liquidity_adj = np.clip((df['current_ratio'] - 1.5) * 10, -20, 20)
-            
-            # Market position adjustment
-            position_adj_map = {'Leader': 15, 'Strong': 5, 'Average': 0, 'Weak': -15}
-            position_adj = df['market_position'].map(position_adj_map).fillna(0)
-            
-            final_scores = (base_scores + coverage_adj + leverage_adj + 
-                        profitability_adj + liquidity_adj + position_adj)
-            
-            df['corporate_credit_score'] = np.clip(final_scores, 300, 850).astype(int)
-        
-        return df
+            return df
 
     def engineer_retail_features(self, df):
         """Engineer retail features with safe operations"""
