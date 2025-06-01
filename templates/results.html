@@ -157,7 +157,7 @@
                                     {% if result.pd_score <= 0.01 %}bg-success
                                     {% elif result.pd_score <= 0.05 %}bg-warning
                                     {% else %}bg-danger{% endif %}" 
-                                    style="width: {{ (result.pd_score * 1000)|min(100) }}%">
+                                    style="width: {% if (result.pd_score * 1000) > 100 %}100{% else %}{{ result.pd_score * 1000 }}{% endif %}%">
                                     {{ "%.2f"|format(result.pd_score * 100) }}%
                                 </div>
                             </div>
