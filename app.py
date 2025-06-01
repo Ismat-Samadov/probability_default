@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Complete Fixed PD Model API with Exact Feature Engineering
-=========================================================
+Complete Fixed PD Model API with CSV Template Downloads
+======================================================
 FastAPI application with exact feature engineering matching trained models
 """
 
 from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, validator
 from typing import List, Dict, Optional, Union
 import joblib
@@ -725,6 +725,55 @@ async def corporate_form(request: Request):
 async def batch_form(request: Request):
     return templates.TemplateResponse("batch.html", {"request": request})
 
+# CSV Template Download Endpoints
+@app.get("/api/templates/retail.csv")
+async def download_retail_template():
+    """Download CSV template for retail customers"""
+    template_data = """age,income,credit_score,debt_to_income,utilization_rate,employment_status,employment_tenure,years_at_address,num_accounts,monthly_transactions
+35,50000,720,0.35,0.3,Full-time,3.5,2.0,5,45
+42,75000,680,0.45,0.6,Self-employed,8.0,5.0,8,32
+28,40000,760,0.25,0.2,Full-time,2.0,1.5,3,58
+55,85000,720,0.40,0.4,Full-time,15.0,10.0,12,28
+31,60000,700,0.30,0.35,Part-time,1.5,3.0,6,41"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=retail_template.csv"}
+    )
+
+@app.get("/api/templates/sme.csv")
+async def download_sme_template():
+    """Download CSV template for SME companies"""
+    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,years_in_business,profit_margin,interest_coverage,operating_cash_flow,working_capital,credit_utilization,payment_delays_12m,geographic_risk,market_competition,management_quality,days_past_due
+Technology,1500000,25,1.8,0.8,8.0,0.12,6.5,180000,300000,0.35,0,Low,Medium,8.5,0
+Manufacturing,2200000,45,1.5,1.2,12.0,0.08,4.2,220000,450000,0.45,1,Medium,High,7.0,0
+Healthcare,800000,15,2.1,0.6,5.0,0.15,8.1,120000,180000,0.25,0,Low,Low,9.0,0
+Retail Trade,950000,18,1.3,1.5,6.0,0.06,3.8,95000,150000,0.60,2,Medium,High,6.5,30
+Professional Services,1200000,22,1.7,0.9,10.0,0.14,7.2,168000,240000,0.30,0,Low,Medium,8.0,0"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=sme_template.csv"}
+    )
+
+@app.get("/api/templates/corporate.csv")
+async def download_corporate_template():
+    """Download CSV template for corporate entities"""
+    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,times_interest_earned,roa,credit_rating,market_position,operating_cash_flow,free_cash_flow
+Technology,5000000000,15000,1.8,0.7,12.5,0.15,A,Strong,750000000,500000000
+Financial Services,8000000000,25000,1.2,2.1,8.2,0.12,BBB+,Leader,960000000,400000000
+Healthcare,3200000000,8500,2.1,0.9,15.3,0.18,AA-,Strong,480000000,320000000
+Energy,12000000000,35000,1.5,1.4,6.8,0.09,BBB,Average,1440000000,600000000
+Manufacturing,4500000000,18000,1.7,1.1,9.4,0.11,A-,Strong,675000000,450000000"""
+    
+    return StreamingResponse(
+        io.StringIO(template_data),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=corporate_template.csv"}
+    )
+
 # API Health Check
 @app.get("/api/health")
 async def health_check():
@@ -750,7 +799,7 @@ async def health_check():
         }
     }
 
-# API Prediction Endpoints
+# API Prediction Endpoints (keeping existing ones)
 @app.post("/api/predict/retail", response_model=PDResponse)
 async def predict_retail_api(customer: RetailCustomer, customer_id: Optional[str] = None):
     if predictor is None:
@@ -826,314 +875,7 @@ async def predict_corporate_api(entity: CorporateEntity, entity_id: Optional[str
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-@app.post("/api/predict/batch", response_model=BatchResponse)
-async def predict_batch(file: UploadFile = File(...), segment: str = Form(...)):
-    if predictor is None:
-        raise HTTPException(status_code=503, detail="Models not loaded")
-    
-    start_time = datetime.now()
-    
-    try:
-        # Enhanced file validation
-        if not file.filename:
-            raise HTTPException(status_code=400, detail="No file provided")
-            
-        if not file.filename.lower().endswith('.csv'):
-            raise HTTPException(status_code=400, detail="Only CSV files are supported")
-        
-        if segment not in ['retail', 'sme', 'corporate']:
-            raise HTTPException(status_code=400, detail="Invalid segment")
-        
-        # Read file with better error handling
-        try:
-            contents = await file.read()
-            if len(contents) == 0:
-                raise HTTPException(status_code=400, detail="Empty file")
-                
-            # Try different encodings
-            try:
-                content_str = contents.decode('utf-8')
-            except UnicodeDecodeError:
-                try:
-                    content_str = contents.decode('latin-1')
-                except UnicodeDecodeError:
-                    content_str = contents.decode('utf-8', errors='ignore')
-            
-            df = pd.read_csv(io.StringIO(content_str))
-            
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Failed to read CSV file: {str(e)}")
-        
-        if len(df) == 0:
-            raise HTTPException(status_code=400, detail="CSV file contains no data")
-        
-        if len(df) > 10000:
-            raise HTTPException(status_code=400, detail="File too large. Maximum 10,000 rows allowed")
-        
-        logger.info(f"Processing batch file: {len(df)} rows for {segment}")
-        
-        # Process predictions
-        results = []
-        successful_predictions = 0
-        failed_predictions = 0
-        
-        for idx, row in df.iterrows():
-            try:
-                row_data = pd.DataFrame([row.to_dict()])
-                prediction_result = predictor.predict_with_staging(row_data, segment)
-                
-                result = {
-                    'row_index': idx,
-                    'pd_score': prediction_result['pd_scores'][0],
-                    'risk_grade': prediction_result['risk_grades'][0],
-                    'ifrs9_stage': prediction_result['ifrs9_stages'][0],
-                    'success': True
-                }
-                results.append(result)
-                successful_predictions += 1
-                
-            except Exception as e:
-                result = {
-                    'row_index': idx,
-                    'error': str(e),
-                    'success': False
-                }
-                results.append(result)
-                failed_predictions += 1
-                logger.warning(f"Failed to process row {idx}: {e}")
-        
-        processing_time = (datetime.now() - start_time).total_seconds()
-        
-        # Calculate summary statistics
-        successful_results = [r for r in results if r['success']]
-        if successful_results:
-            pd_scores = [r['pd_score'] for r in successful_results]
-            risk_grades = [r['risk_grade'] for r in successful_results]
-            stages = [r['ifrs9_stage'] for r in successful_results]
-            
-            summary_stats = {
-                'avg_pd_score': float(np.mean(pd_scores)),
-                'median_pd_score': float(np.median(pd_scores)),
-                'min_pd_score': float(np.min(pd_scores)),
-                'max_pd_score': float(np.max(pd_scores)),
-                'risk_grade_distribution': pd.Series(risk_grades).value_counts().to_dict(),
-                'ifrs9_stage_distribution': pd.Series(stages).value_counts().to_dict()
-            }
-        else:
-            summary_stats = {}
-        
-        logger.info(f"Batch processing completed: {successful_predictions} successful, {failed_predictions} failed")
-        
-        return BatchResponse(
-            total_predictions=len(df),
-            successful_predictions=successful_predictions,
-            failed_predictions=failed_predictions,
-            processing_time_seconds=processing_time,
-            results=results,
-            summary_statistics=summary_stats
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Batch prediction error: {e}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
-
-# Form submission endpoints
-@app.post("/predict/retail")
-async def predict_retail_form(
-    request: Request,
-    age: int = Form(...),
-    income: float = Form(...),
-    credit_score: int = Form(...),
-    debt_to_income: float = Form(...),
-    utilization_rate: float = Form(...),
-    employment_status: str = Form(...),
-    employment_tenure: float = Form(default=3.0),
-    years_at_address: float = Form(default=2.0),
-    num_accounts: int = Form(default=5),
-    monthly_transactions: int = Form(default=45)
-):
-    try:
-        customer = RetailCustomer(
-            age=age,
-            income=income,
-            credit_score=credit_score,
-            debt_to_income=debt_to_income,
-            utilization_rate=utilization_rate,
-            employment_status=employment_status,
-            employment_tenure=employment_tenure,
-            years_at_address=years_at_address,
-            num_accounts=num_accounts,
-            monthly_transactions=monthly_transactions
-        )
-        
-        result = await predict_retail_api(customer)
-        
-        return templates.TemplateResponse("results.html", {
-            "request": request,
-            "result": result,
-            "segment": "Retail Customer"
-        })
-        
-    except Exception as e:
-        logger.error(f"Retail form error: {e}")
-        return templates.TemplateResponse("error.html", {
-            "request": request,
-            "error": str(e)
-        })
-
-@app.post("/predict/sme")
-async def predict_sme_form(
-    request: Request,
-    industry: str = Form(...),
-    years_in_business: float = Form(...),
-    annual_revenue: float = Form(...),
-    num_employees: int = Form(...),
-    current_ratio: float = Form(...),
-    debt_to_equity: float = Form(...),
-    interest_coverage: float = Form(...),
-    profit_margin: float = Form(...),
-    operating_cash_flow: float = Form(...),
-    working_capital: float = Form(...),
-    credit_utilization: float = Form(...),
-    payment_delays_12m: int = Form(...),
-    geographic_risk: str = Form(...),
-    market_competition: str = Form(...),
-    management_quality: float = Form(...),
-    days_past_due: int = Form(...)
-):
-    try:
-        company = SMECompany(
-            industry=industry,
-            years_in_business=years_in_business,
-            annual_revenue=annual_revenue,
-            num_employees=num_employees,
-            current_ratio=current_ratio,
-            debt_to_equity=debt_to_equity,
-            interest_coverage=interest_coverage,
-            profit_margin=profit_margin,
-            operating_cash_flow=operating_cash_flow,
-            working_capital=working_capital,
-            credit_utilization=credit_utilization,
-            payment_delays_12m=payment_delays_12m,
-            geographic_risk=geographic_risk,
-            market_competition=market_competition,
-            management_quality=management_quality,
-            days_past_due=days_past_due
-        )
-        
-        result = await predict_sme_api(company)
-        
-        return templates.TemplateResponse("results.html", {
-            "request": request,
-            "result": result,
-            "segment": "SME Company"
-        })
-        
-    except Exception as e:
-        logger.error(f"SME form error: {e}")
-        return templates.TemplateResponse("error.html", {
-            "request": request,
-            "error": str(e)
-        })
-
-@app.post("/predict/corporate")
-async def predict_corporate_form(
-    request: Request,
-    industry: str = Form(...),
-    annual_revenue: float = Form(...),
-    num_employees: int = Form(...),
-    current_ratio: float = Form(...),
-    debt_to_equity: float = Form(...),
-    times_interest_earned: float = Form(...),
-    roa: float = Form(...),
-    credit_rating: str = Form(...),
-    market_position: str = Form(...),
-    operating_cash_flow: float = Form(...),
-    free_cash_flow: float = Form(...)
-):
-    try:
-        entity = CorporateEntity(
-            industry=industry,
-            annual_revenue=annual_revenue,
-            num_employees=num_employees,
-            current_ratio=current_ratio,
-            debt_to_equity=debt_to_equity,
-            times_interest_earned=times_interest_earned,
-            roa=roa,
-            credit_rating=credit_rating,
-            market_position=market_position,
-            operating_cash_flow=operating_cash_flow,
-            free_cash_flow=free_cash_flow
-        )
-        
-        result = await predict_corporate_api(entity)
-        
-        return templates.TemplateResponse("results.html", {
-            "request": request,
-            "result": result,
-            "segment": "Corporate Entity"
-        })
-        
-    except Exception as e:
-        logger.error(f"Corporate form error: {e}")
-        return templates.TemplateResponse("error.html", {
-            "request": request,
-            "error": str(e)
-        })
-
-# CSV Template endpoints
-@app.get("/api/templates/retail.csv")
-async def download_retail_template():
-    """Download CSV template for retail customers"""
-    template_data = """age,income,credit_score,debt_to_income,utilization_rate,employment_status,employment_tenure,years_at_address,num_accounts,monthly_transactions
-35,50000,720,0.35,0.3,Full-time,3.5,2.0,5,45
-42,75000,680,0.45,0.6,Self-employed,8.0,5.0,8,32
-28,40000,760,0.25,0.2,Full-time,2.0,1.5,3,58
-55,85000,720,0.40,0.4,Full-time,15.0,10.0,12,28
-31,60000,700,0.30,0.35,Part-time,1.5,3.0,6,41"""
-    
-    return StreamingResponse(
-        io.StringIO(template_data),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=retail_template.csv"}
-    )
-
-@app.get("/api/templates/sme.csv")
-async def download_sme_template():
-    """Download CSV template for SME companies"""
-    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,years_in_business,profit_margin,interest_coverage,operating_cash_flow,working_capital,credit_utilization,payment_delays_12m,geographic_risk,market_competition,management_quality,days_past_due
-Technology,1500000,25,1.8,0.8,8.0,0.12,6.5,180000,300000,0.35,0,Low,Medium,8.5,0
-Manufacturing,2200000,45,1.5,1.2,12.0,0.08,4.2,220000,450000,0.45,1,Medium,High,7.0,0
-Healthcare,800000,15,2.1,0.6,5.0,0.15,8.1,120000,180000,0.25,0,Low,Low,9.0,0
-Retail Trade,950000,18,1.3,1.5,6.0,0.06,3.8,95000,150000,0.60,2,Medium,High,6.5,30
-Professional Services,1200000,22,1.7,0.9,10.0,0.14,7.2,168000,240000,0.30,0,Low,Medium,8.0,0"""
-    
-    return StreamingResponse(
-        io.StringIO(template_data),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=sme_template.csv"}
-    )
-
-@app.get("/api/templates/corporate.csv")
-async def download_corporate_template():
-    """Download CSV template for corporate entities"""
-    template_data = """industry,annual_revenue,num_employees,current_ratio,debt_to_equity,times_interest_earned,roa,credit_rating,market_position,operating_cash_flow,free_cash_flow
-Technology,5000000000,15000,1.8,0.7,12.5,0.15,A,Strong,750000000,500000000
-Financial Services,8000000000,25000,1.2,2.1,8.2,0.12,BBB+,Leader,960000000,400000000
-Healthcare,3200000000,8500,2.1,0.9,15.3,0.18,AA-,Strong,480000000,320000000
-Energy,12000000000,35000,1.5,1.4,6.8,0.09,BBB,Average,1440000000,600000000
-Manufacturing,4500000000,18000,1.7,1.1,9.4,0.11,A-,Strong,675000000,450000000"""
-    
-    return StreamingResponse(
-        io.StringIO(template_data),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=corporate_template.csv"}
-    )
-
-# Enhanced batch processing with better error handling
+# Enhanced Batch Processing Endpoint
 @app.post("/api/predict/batch", response_model=BatchResponse)
 async def predict_batch_enhanced(file: UploadFile = File(...), segment: str = Form(...)):
     """Enhanced batch processing with better error handling and validation"""
@@ -1196,25 +938,6 @@ async def predict_batch_enhanced(file: UploadFile = File(...), segment: str = Fo
         
         # Clean column names
         df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
-        
-        # Validate required columns for segment
-        required_columns = {
-            'retail': ['age', 'income', 'debt_to_income', 'utilization_rate'],
-            'sme': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
-            'corporate': ['annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity']
-        }
-        
-        missing_required = []
-        if segment in required_columns:
-            for req_col in required_columns[segment]:
-                # Check if any column contains the required column name
-                found = any(req_col in col or col in req_col for col in df.columns)
-                if not found:
-                    missing_required.append(req_col)
-        
-        if missing_required:
-            logger.warning(f"Missing required columns for {segment}: {missing_required}")
-            # Instead of failing, we'll try to proceed with auto-filled values
         
         # Process predictions with enhanced error handling
         results = []
@@ -1368,6 +1091,150 @@ async def validate_csv_file(file: UploadFile = File(...), segment: str = Form(..
             'file_valid': False,
             'error': f"File validation failed: {str(e)}"
         }
+
+# Form submission endpoints (keeping existing ones)
+@app.post("/predict/retail")
+async def predict_retail_form(
+    request: Request,
+    age: int = Form(...),
+    income: float = Form(...),
+    credit_score: int = Form(...),
+    debt_to_income: float = Form(...),
+    utilization_rate: float = Form(...),
+    employment_status: str = Form(...),
+    employment_tenure: float = Form(default=3.0),
+    years_at_address: float = Form(default=2.0),
+    num_accounts: int = Form(default=5),
+    monthly_transactions: int = Form(default=45)
+):
+    try:
+        customer = RetailCustomer(
+            age=age,
+            income=income,
+            credit_score=credit_score,
+            debt_to_income=debt_to_income,
+            utilization_rate=utilization_rate,
+            employment_status=employment_status,
+            employment_tenure=employment_tenure,
+            years_at_address=years_at_address,
+            num_accounts=num_accounts,
+            monthly_transactions=monthly_transactions
+        )
+        
+        result = await predict_retail_api(customer)
+        
+        return templates.TemplateResponse("results.html", {
+            "request": request,
+            "result": result,
+            "segment": "Retail Customer"
+        })
+        
+    except Exception as e:
+        logger.error(f"Retail form error: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error": str(e)
+        })
+
+@app.post("/predict/sme")
+async def predict_sme_form(
+    request: Request,
+    industry: str = Form(...),
+    years_in_business: float = Form(...),
+    annual_revenue: float = Form(...),
+    num_employees: int = Form(...),
+    current_ratio: float = Form(...),
+    debt_to_equity: float = Form(...),
+    interest_coverage: float = Form(...),
+    profit_margin: float = Form(...),
+    operating_cash_flow: float = Form(...),
+    working_capital: float = Form(...),
+    credit_utilization: float = Form(...),
+    payment_delays_12m: int = Form(...),
+    geographic_risk: str = Form(...),
+    market_competition: str = Form(...),
+    management_quality: float = Form(...),
+    days_past_due: int = Form(...)
+):
+    try:
+        company = SMECompany(
+            industry=industry,
+            years_in_business=years_in_business,
+            annual_revenue=annual_revenue,
+            num_employees=num_employees,
+            current_ratio=current_ratio,
+            debt_to_equity=debt_to_equity,
+            interest_coverage=interest_coverage,
+            profit_margin=profit_margin,
+            operating_cash_flow=operating_cash_flow,
+            working_capital=working_capital,
+            credit_utilization=credit_utilization,
+            payment_delays_12m=payment_delays_12m,
+            geographic_risk=geographic_risk,
+            market_competition=market_competition,
+            management_quality=management_quality,
+            days_past_due=days_past_due
+        )
+        
+        result = await predict_sme_api(company)
+        
+        return templates.TemplateResponse("results.html", {
+            "request": request,
+            "result": result,
+            "segment": "SME Company"
+        })
+        
+    except Exception as e:
+        logger.error(f"SME form error: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error": str(e)
+        })
+
+@app.post("/predict/corporate")
+async def predict_corporate_form(
+    request: Request,
+    industry: str = Form(...),
+    annual_revenue: float = Form(...),
+    num_employees: int = Form(...),
+    current_ratio: float = Form(...),
+    debt_to_equity: float = Form(...),
+    times_interest_earned: float = Form(...),
+    roa: float = Form(...),
+    credit_rating: str = Form(...),
+    market_position: str = Form(...),
+    operating_cash_flow: float = Form(...),
+    free_cash_flow: float = Form(...)
+):
+    try:
+        entity = CorporateEntity(
+            industry=industry,
+            annual_revenue=annual_revenue,
+            num_employees=num_employees,
+            current_ratio=current_ratio,
+            debt_to_equity=debt_to_equity,
+            times_interest_earned=times_interest_earned,
+            roa=roa,
+            credit_rating=credit_rating,
+            market_position=market_position,
+            operating_cash_flow=operating_cash_flow,
+            free_cash_flow=free_cash_flow
+        )
+        
+        result = await predict_corporate_api(entity)
+        
+        return templates.TemplateResponse("results.html", {
+            "request": request,
+            "result": result,
+            "segment": "Corporate Entity"
+        })
+        
+    except Exception as e:
+        logger.error(f"Corporate form error: {e}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error": str(e)
+        })
 
 # Error handlers
 @app.exception_handler(404)
