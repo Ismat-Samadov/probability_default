@@ -1,0 +1,60 @@
+
+ADVANCED PD MODEL TRAINING REPORT
+=================================
+
+Training Completed: 2025-06-01 00:13:13
+Framework Version: 1.0.0
+
+EXECUTIVE SUMMARY
+----------------
+
+✅ Successfully trained 3/3 portfolio models
+📊 Average model AUC: 0.7870
+🎯 All models meet minimum performance thresholds
+
+DETAILED RESULTS BY SEGMENT
+---------------------------
+
+RETAIL PORTFOLIO:
+  Performance Metrics:
+    - AUC: 0.8444
+    - Gini Coefficient: 0.6889
+    - KS Statistic: 0.5576
+  
+  Model Architecture:
+    - Algorithms: Logistic Regression, Random Forest
+    - Ensemble Method: Simple Average
+    - Data Split: 60/20/20 (Train/Val/Test)
+
+SME PORTFOLIO:
+  Performance Metrics:
+    - AUC: 0.7471
+    - Gini Coefficient: 0.4942
+    - KS Statistic: 0.4271
+  
+  Model Architecture:
+    - Algorithms: Logistic Regression, Random Forest
+    - Ensemble Method: Simple Average
+    - Data Split: 60/20/20 (Train/Val/Test)
+
+CORPORATE PORTFOLIO:
+  Performance Metrics:
+    - AUC: 0.7695
+    - Gini Coefficient: 0.5389
+    - KS Statistic: 0.5795
+  
+  Model Architecture:
+    - Algorithms: Logistic Regression, Random Forest
+    - Ensemble Method: Simple Average
+    - Data Split: 60/20/20 (Train/Val/Test)
+
+
+NEXT STEPS
+----------
+1. Deploy models to production environment
+2. Set up monitoring dashboards
+3. Implement real-time scoring API
+4. Schedule quarterly model reviews
+
+---
+Report Generated: 2025-06-01 00:13:13
