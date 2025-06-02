@@ -10,6 +10,18 @@
 
 A production-ready system for calculating Probability of Default (PD) scores across retail, SME, and corporate banking segments. Features comprehensive web interface, API endpoints, batch processing, and full regulatory compliance.
 
+## 🎮 **Live Demo**
+
+**Try the application online**: [https://probability-default.onrender.com/](https://probability-default.onrender.com/)
+
+- ✨ **No installation required** - Access directly from your browser
+- 🔒 **Secure sandbox environment** - Safe to experiment with real-like data
+- 📱 **Mobile responsive** - Works on all devices
+- 🌓 **Theme switching** - Try both light and dark modes
+- ⚡ **Full functionality** - All features available including batch processing
+
+*Note: Demo may take 30-60 seconds to wake up from sleep mode on first visit.*
+
 ## 🌟 Key Features
 
 ### 🏦 **Multi-Segment Modeling**
@@ -45,12 +57,23 @@ A production-ready system for calculating Probability of Default (PD) scores acr
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: Try the Live Demo (Recommended)
+🌐 **Instant Access**: [https://probability-default.onrender.com/](https://probability-default.onrender.com/)
+
+No installation needed! Try all features including:
+- Individual PD scoring for all segments
+- Batch processing with CSV upload
+- Interactive web interface with real-time validation
+- API documentation and testing
+
+### Option 2: Local Installation
+
+#### Prerequisites
 - Python 3.8+
 - 8GB RAM minimum
 - Modern web browser
 
-### Installation
+#### Installation
 
 1. **Clone the repository**
 ```bash
@@ -145,9 +168,13 @@ Navigate to the appropriate segment:
 - Real-time progress tracking with detailed results
 
 #### 3. **API Integration**
-Access comprehensive API documentation at `/api/docs`
+Access comprehensive API documentation:
+- **Live Demo API**: [https://probability-default.onrender.com/api/docs](https://probability-default.onrender.com/api/docs)
+- **Local Installation**: `/api/docs`
 
 ### API Endpoints
+
+> 🌐 **Test Live**: Try these endpoints at [https://probability-default.onrender.com/api/docs](https://probability-default.onrender.com/api/docs)
 
 #### **Individual Predictions**
 ```python
@@ -285,6 +312,10 @@ Each segment includes 30+ engineered features:
 
 ## 🧪 Testing
 
+### **Try Online First**
+🌐 Test all functionality at [https://probability-default.onrender.com/](https://probability-default.onrender.com/) before local setup.
+
+### **Local Testing**
 Run the comprehensive test suite:
 
 ```bash
@@ -445,8 +476,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 ### **Documentation**
-- **API Docs**: `/api/docs` (Swagger UI)
-- **ReDoc**: `/api/redoc` (Alternative documentation)
+- **Live Demo**: [https://probability-default.onrender.com/](https://probability-default.onrender.com/)
+- **API Docs**: [https://probability-default.onrender.com/api/docs](https://probability-default.onrender.com/api/docs) (Swagger UI)
+- **ReDoc**: [https://probability-default.onrender.com/api/redoc](https://probability-default.onrender.com/api/redoc) (Alternative documentation)
+- **Local API Docs**: `/api/docs` (when running locally)
 
 ### **Common Issues**
 
@@ -470,7 +503,7 @@ cd training && python train_models.py
 - Consider horizontal scaling
 
 ### **Getting Help**
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Ismat-Samadov/probability_default/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/probability_default/issues)
 - 📖 **Documentation**: Comprehensive API docs at `/api/docs`
 
 ## 🔮 Roadmap
