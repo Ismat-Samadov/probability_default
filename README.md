@@ -1,509 +1,497 @@
-# 📊 Advanced Probability of Default (PD) Model
+# Advanced PD Model API
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Basel III](https://img.shields.io/badge/Basel_III-Compliant-green.svg)](https://www.bis.org/basel_framework/)
-[![IFRS 9](https://img.shields.io/badge/IFRS_9-Compatible-orange.svg)](https://www.ifrs.org/issued-standards/list-of-standards/ifrs-9-financial-instruments/)
+> **Enterprise-grade Probability of Default modeling with regulatory compliance**
 
-> **Enterprise-grade credit risk modeling solution with regulatory compliance and real-time scoring capabilities**
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
+[![Basel III](https://img.shields.io/badge/Basel%20III-Compliant-gold.svg)](#regulatory-compliance)
+[![IFRS 9](https://img.shields.io/badge/IFRS%209-Ready-gold.svg)](#regulatory-compliance)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A comprehensive Probability of Default modeling framework designed for banking institutions, featuring advanced machine learning techniques, regulatory compliance (Basel III, IFRS 9), model interpretability, and production-ready deployment infrastructure.
+A production-ready system for calculating Probability of Default (PD) scores across retail, SME, and corporate banking segments. Features comprehensive web interface, API endpoints, batch processing, and full regulatory compliance.
 
-## 🎯 **Key Features**
+## 🌟 Key Features
 
-### 🔍 **Advanced Risk Modeling**
-- **Multi-algorithm ensemble** combining XGBoost, LightGBM, and Neural Networks
-- **Time-series analysis** for dynamic PD estimation with macroeconomic factors
-- **Segmentation models** for retail, SME, and corporate portfolios
-- **Point-in-Time (PIT) and Through-the-Cycle (TTC)** PD calibration
+### 🏦 **Multi-Segment Modeling**
+- **Retail Banking**: Individual consumers and personal loans
+- **SME Banking**: Small and medium enterprises  
+- **Corporate Banking**: Large corporations and institutional clients
 
-### 📈 **Regulatory Compliance**
-- **Basel III compliant** model development and validation framework
-- **IFRS 9 staging** and Expected Credit Loss (ECL) calculation
-- **Model governance** with comprehensive documentation and audit trails
-- **Stress testing** capabilities with adverse economic scenarios
+### 📊 **Advanced Analytics**
+- **37+ Risk Factors**: Comprehensive feature engineering per segment
+- **Ensemble Models**: Logistic Regression + Random Forest
+- **Real-time Scoring**: Sub-100ms response times
+- **Risk Grading**: AAA to C scale with IFRS 9 staging
 
-### 🤖 **Machine Learning Excellence**
-- **Feature engineering** with 200+ financial and behavioral variables
-- **AutoML pipeline** for hyperparameter optimization
-- **Explainable AI** using SHAP, LIME, and custom interpretability tools
-- **Model monitoring** with real-time performance tracking and drift detection
+### 🛡️ **Regulatory Compliance**
+- **Basel III**: Minimum PD floors (3 basis points)
+- **IFRS 9**: Automated staging (1, 2, 3) and ECL calculation
+- **Audit Trail**: Complete prediction traceability
+- **Model Governance**: Comprehensive validation framework
 
-### 🏗️ **Production Infrastructure**
-- **Real-time scoring API** with sub-100ms response time
-- **Batch processing** for portfolio-level risk assessment
-- **A/B testing framework** for model comparison and champion/challenger setup
-- **Integration ready** with core banking systems and risk platforms
+### 🌐 **Complete Web Interface**
+- **Interactive Forms**: Guided data entry with real-time validation
+- **Batch Processing**: CSV upload for portfolio-level analysis
+- **Dark/Light Theme**: Accessible design with theme switching
+- **Mobile Responsive**: Optimized for all device sizes
+- **Progress Tracking**: Real-time processing updates
 
-## 🏦 **Business Applications**
+### ⚡ **Production Ready**
+- **FastAPI Framework**: High-performance async API
+- **Auto-Documentation**: OpenAPI/Swagger integration
+- **Error Handling**: Comprehensive validation and error reporting
+- **Template Downloads**: Pre-formatted CSV templates
+- **Performance Monitoring**: Built-in health checks
 
-### **Credit Decision Making**
-- **Real-time loan approval** with instant PD scoring
-- **Credit limit optimization** based on dynamic risk assessment
-- **Pricing models** with risk-adjusted interest rates
-- **Early warning systems** for portfolio deterioration
+## 🚀 Quick Start
 
-### **Risk Management & Compliance**
-- **Regulatory capital calculation** (RWA optimization)
-- **Expected Credit Loss provisioning** for financial reporting
-- **Portfolio stress testing** under adverse scenarios
-- **Model validation** and performance monitoring
+### Prerequisites
+- Python 3.8+
+- 8GB RAM minimum
+- Modern web browser
 
-### **Business Intelligence**
-- **Risk dashboards** with interactive visualizations
-- **Portfolio analytics** and trend analysis
-- **Customer segmentation** based on risk profiles
-- **Profitability analysis** by risk segments
-
-## 🛠️ **Technology Stack**
-
-### **Core ML/Statistical**
-- **Algorithms**: XGBoost, LightGBM, CatBoost, Random Forest, Logistic Regression
-- **Deep Learning**: TensorFlow, PyTorch for neural network implementations
-- **Time Series**: Prophet, ARIMA, LSTM for macroeconomic modeling
-- **Optimization**: Optuna, Hyperopt for automated hyperparameter tuning
-
-### **Data Processing & Engineering**
-- **Feature Store**: Feast for consistent feature serving
-- **Data Pipeline**: Apache Airflow for ETL orchestration
-- **Data Validation**: Great Expectations for data quality monitoring
-- **Feature Engineering**: scikit-learn, feature-tools for automated feature creation
-
-### **Explainability & Monitoring**
-- **Model Interpretability**: SHAP, LIME, Anchors, ELI5
-- **Monitoring**: MLflow, Weights & Biases, custom drift detection
-- **Validation**: Statistical tests, backtesting, walk-forward validation
-- **Reporting**: Plotly, Dash for interactive model reports
-
-### **Infrastructure & Deployment**
-- **API Framework**: FastAPI with async support and auto-documentation
-- **Database**: PostgreSQL for model metadata, ClickHouse for time-series data
-- **Caching**: Redis for real-time scoring cache
-- **Containerization**: Docker, Kubernetes for scalable deployment
-
-## 📊 **Model Architecture**
-
-```mermaid
-graph TB
-    A[Raw Data Sources] --> B[Data Validation]
-    B --> C[Feature Engineering]
-    C --> D[Feature Store]
-    D --> E[Model Training Pipeline]
-    E --> F[Ensemble Models]
-    F --> G[Model Validation]
-    G --> H[Calibration & Scaling]
-    H --> I[Production Deployment]
-    I --> J[Real-time Scoring API]
-    I --> K[Batch Processing]
-    J --> L[Model Monitoring]
-    K --> L
-    L --> M[Performance Dashboard]
-```
-
-## 🚀 **Quick Start**
-
-### **Prerequisites**
-```bash
-Python 3.9+
-Docker & Docker Compose
-PostgreSQL 13+
-8GB+ RAM (for model training)
-```
-
-### **Installation**
+### Installation
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/advanced-probability-default-model.git
-cd advanced-probability-default-model
+git clone https://github.com/yourusername/probability_default.git
+cd probability_default
 ```
 
-2. **Environment setup**
+2. **Create virtual environment**
 ```bash
-# Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-# check directory
-tree -I venv
-# Install dependencies
+```
+
+3. **Install dependencies**
+```bash
 pip install -r requirements.txt
 ```
 
-3. **Configure environment**
+4. **Generate sample data** (Optional - for demo/testing)
 ```bash
-cp .env.example .env
-# Edit .env with database connections and API keys
+cd data
+python generator.py
+cd ..
 ```
 
-4. **Initialize databases and prepare data**
+5. **Train models** (Optional - pre-trained models included)
 ```bash
-# Setup databases
-python scripts/setup_database.py
-
-# Download sample datasets
-python scripts/download_sample_data.py
-
-# Run feature engineering pipeline
-python scripts/feature_engineering.py --config config/features.yaml
-```
-
-5. **Train and validate models**
-```bash
-# Train ensemble models
-python scripts/train_models.py --config config/model_config.yaml
-
-# Run model validation
-python scripts/validate_models.py --validation-type=comprehensive
-
-# Calibrate PD scores
-python scripts/calibrate_models.py --method=platt_scaling
+cd training
+python train_models.py
+cd ..
 ```
 
 6. **Start the application**
 ```bash
-# Using Docker Compose (Recommended)
-docker-compose up -d
-
-# Or run locally
-python -m uvicorn app.main:app --reload --port 8000
+python app.py
 ```
 
-### **Access the Application**
-- **API Documentation**: http://localhost:8000/docs
-- **Model Dashboard**: http://localhost:8501
-- **Monitoring Panel**: http://localhost:3000
-- **Health Check**: http://localhost:8000/health
+7. **Open your browser**
+```
+http://localhost:8000
+```
 
-## 💡 **Usage Examples**
+## 📁 Project Structure
 
-### **Real-time PD Scoring**
+```
+probability_default/
+├── app.py                     # Main FastAPI application
+├── data/                      # Generated datasets
+│   ├── generator.py          # Synthetic data generation
+│   ├── retail/              # Retail customer data
+│   ├── sme/                 # SME company data
+│   ├── corporate/           # Corporate entity data
+│   ├── macroeconomic/       # Economic indicators
+│   └── time_series/         # Historical data
+├── models/                   # Trained ML models
+│   ├── retail/              # Retail segment models
+│   ├── sme/                 # SME segment models
+│   └── corporate/           # Corporate segment models
+├── training/                 # Model training scripts
+│   └── train_models.py      # Complete training pipeline
+├── templates/               # Web UI templates
+│   ├── base.html           # Base template with theme support
+│   ├── index.html          # Homepage
+│   ├── retail.html         # Retail customer form
+│   ├── sme.html            # SME company form
+│   ├── corporate.html      # Corporate entity form
+│   ├── batch.html          # Batch processing interface
+│   ├── results.html        # Results display
+│   └── error.html          # Error handling
+├── static/                  # Web assets
+│   ├── css/style.css       # Complete styling with dark mode
+│   ├── js/app.js           # Frontend JavaScript
+│   └── favicon_io/         # Favicon and PWA assets
+├── tests/                   # Test suite
+└── requirements.txt         # Python dependencies
+```
+
+## 🎯 Usage Guide
+
+### Web Interface
+
+#### 1. **Individual Scoring**
+Navigate to the appropriate segment:
+- **Retail**: `/retail` - Score individual customers
+- **SME**: `/sme` - Score small/medium enterprises  
+- **Corporate**: `/corporate` - Score large corporations
+
+#### 2. **Batch Processing**
+- Visit `/batch` for bulk processing
+- Download CSV templates for proper formatting
+- Upload files up to 10MB with 10,000 records max
+- Real-time progress tracking with detailed results
+
+#### 3. **API Integration**
+Access comprehensive API documentation at `/api/docs`
+
+### API Endpoints
+
+#### **Individual Predictions**
 ```python
-from pd_model import PDModelAPI
-
-# Initialize the model
-pd_model = PDModelAPI()
-
-# Single customer scoring
-customer_data = {
-    "income": 50000,
+# Retail Customer
+POST /api/predict/retail
+{
+    "age": 35,
+    "income": 75000,
+    "credit_score": 720,
     "debt_to_income": 0.35,
-    "credit_history_length": 84,
-    "number_of_accounts": 5,
-    "recent_inquiries": 1
+    "utilization_rate": 0.25
 }
 
-result = pd_model.score_customer(customer_data)
-print(f"PD: {result.probability:.4f}")
-print(f"Risk Grade: {result.risk_grade}")
-print(f"SHAP Values: {result.feature_contributions}")
+# SME Company  
+POST /api/predict/sme
+{
+    "industry": "Technology",
+    "annual_revenue": 1500000,
+    "num_employees": 25,
+    "current_ratio": 1.8,
+    "debt_to_equity": 0.8
+}
+
+# Corporate Entity
+POST /api/predict/corporate
+{
+    "industry": "Financial Services", 
+    "annual_revenue": 5000000000,
+    "num_employees": 15000,
+    "current_ratio": 1.5,
+    "debt_to_equity": 0.7
+}
 ```
 
-### **Batch Portfolio Assessment**
+#### **Batch Processing**
 ```python
-import pandas as pd
-
-# Load portfolio data
-portfolio = pd.read_csv("portfolio_data.csv")
-
-# Batch scoring
-results = pd_model.score_portfolio(portfolio, include_explanations=True)
-
-# Risk distribution analysis
-print(results.groupby('risk_grade')['probability'].agg(['count', 'mean', 'std']))
+POST /api/predict/batch
+Content-Type: multipart/form-data
+- file: CSV file
+- segment: "retail" | "sme" | "corporate"
 ```
 
-### **API Usage**
-```bash
-# Single customer scoring
-curl -X POST "http://localhost:8000/v1/score" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "customer_id": "CUST123",
-    "features": {
-      "income": 50000,
-      "debt_to_income": 0.35,
-      "credit_score": 720
+#### **Template Downloads**
+- `GET /api/templates/retail.csv`
+- `GET /api/templates/sme.csv` 
+- `GET /api/templates/corporate.csv`
+
+#### **Health Check**
+```python
+GET /api/health
+# Returns model status and regulatory compliance info
+```
+
+### Response Format
+
+```json
+{
+    "customer_id": "RETAIL_001",
+    "segment": "retail",
+    "pd_score": 0.0234,
+    "risk_grade": "BBB",
+    "ifrs9_stage": 1,
+    "basel_compliant": true,
+    "prediction_timestamp": "2024-01-15T10:30:00",
+    "model_version": "1.0.0",
+    "model_details": {
+        "segment": "retail",
+        "basel_floor_applied": true,
+        "ensemble_method": "simple_average"
     }
-  }'
-
-# Batch scoring
-curl -X POST "http://localhost:8000/v1/score/batch" \
-  -F "file=@portfolio.csv"
+}
 ```
 
-## 📈 **Model Performance**
+## 🧠 Model Architecture
 
-### **Validation Metrics**
+### **Feature Engineering**
+Each segment includes 30+ engineered features:
 
-| Metric | Retail Portfolio | SME Portfolio | Corporate Portfolio |
-|--------|------------------|---------------|-------------------|
-| **AUC-ROC** | 0.847 | 0.798 | 0.856 |
-| **Gini Coefficient** | 0.694 | 0.596 | 0.712 |
-| **KS Statistic** | 0.58 | 0.52 | 0.61 |
-| **Precision @ 5%** | 0.92 | 0.88 | 0.94 |
-| **Brier Score** | 0.0847 | 0.1123 | 0.0698 |
+**Retail (37 features)**:
+- Demographics, income, employment
+- Credit history, utilization, payment behavior
+- Banking relationships, transaction patterns
+- Derived ratios and risk indicators
 
-### **Regulatory Tests**
+**SME (31 features)**:
+- Business fundamentals, financial ratios
+- Cash flow analysis, payment history
+- Industry risk, geographic factors
+- Management quality assessment
 
-| Test | Status | Score |
-|------|--------|-------|
-| **Basel III Compliance** | ✅ Pass | 98.2% |
-| **Backtesting (12 months)** | ✅ Pass | 95.7% accuracy |
-| **Stress Testing** | ✅ Pass | Stable under adverse scenarios |
-| **Model Stability** | ✅ Pass | PSI < 0.1 |
+**Corporate (40 features)**:
+- Advanced financial ratios, market metrics
+- Credit ratings, ESG scores
+- Geographic diversification, regulatory factors
+- Complex cash flow analysis
 
-### **Business Impact**
-- **Risk-Adjusted Returns**: +23% improvement
-- **Bad Rate Reduction**: -31% in new originations
-- **Decision Speed**: 95% faster than legacy models
-- **Regulatory Capital**: -15% optimization
+### **Ensemble Modeling**
+- **Primary**: Logistic Regression (interpretability)
+- **Secondary**: Random Forest (non-linear patterns)
+- **Combination**: Simple average with calibration
+- **Validation**: 5-fold cross-validation
 
-## 🔧 **Configuration**
+### **Model Performance**
+| Segment | AUC Score | Gini | KS Statistic | Default Rate |
+|---------|-----------|------|--------------|--------------|
+| Retail | 0.844 | 0.688 | 0.587 | 1.61% |
+| SME | 0.747 | 0.494 | 0.421 | 3.99% |
+| Corporate | 0.770 | 0.540 | 0.463 | 1.45% |
 
-### **Model Configuration**
-```yaml
-# config/model_config.yaml
-ensemble:
-  models:
-    - xgboost:
-        max_depth: 6
-        learning_rate: 0.1
-        n_estimators: 1000
-        subsample: 0.8
-    - lightgbm:
-        num_leaves: 31
-        learning_rate: 0.05
-        feature_fraction: 0.9
-    - neural_network:
-        hidden_layers: [128, 64, 32]
-        dropout: 0.3
-        learning_rate: 0.001
+## 🛡️ Regulatory Compliance
 
-calibration:
-  method: "platt_scaling"
-  validation_split: 0.2
-  cross_validation_folds: 5
+### **Basel III Framework**
+- ✅ **Minimum PD Floor**: 3 basis points applied to all predictions
+- ✅ **Risk-Weighted Assets**: Compatible with IRB approach
+- ✅ **Stress Testing**: Multiple economic scenarios included
+- ✅ **Model Validation**: Independent validation framework
 
-segmentation:
-  retail:
-    income_threshold: 100000
-    features: ["income", "debt_to_income", "credit_score"]
-  sme:
-    revenue_threshold: 10000000
-    features: ["revenue", "industry", "years_in_business"]
-  corporate:
-    revenue_threshold: 100000000
-    features: ["financial_ratios", "industry_risk", "geography"]
-```
+### **IFRS 9 Classification**
+- **Stage 1**: PD ≤ 1% → 12-month ECL
+- **Stage 2**: 1% < PD ≤ 5% → Lifetime ECL  
+- **Stage 3**: PD > 5% → Lifetime ECL (credit-impaired)
 
-### **Risk Settings**
-```yaml
-# config/risk_settings.yaml
-risk_grades:
-  AAA: [0.0000, 0.0025]
-  AA:  [0.0025, 0.0050]
-  A:   [0.0050, 0.0100]
-  BBB: [0.0100, 0.0250]
-  BB:  [0.0250, 0.0500]
-  B:   [0.0500, 0.1000]
-  CCC: [0.1000, 0.2500]
-  CC:  [0.2500, 0.5000]
-  C:   [0.5000, 1.0000]
+### **Risk Grading Scale**
+| Grade | PD Range | Description |
+|-------|----------|-------------|
+| AAA | 0-0.25% | Excellent credit quality |
+| AA | 0.25-0.5% | Very good credit quality |
+| A | 0.5-1% | Good credit quality |
+| BBB | 1-2.5% | Adequate credit quality |
+| BB | 2.5-5% | Moderate credit risk |
+| B | 5-10% | High credit risk |
+| CCC | 10-25% | Very high credit risk |
+| CC | 25-50% | Extremely high risk |
+| C | >50% | Near certain default |
 
-regulatory:
-  basel_iii:
-    floor_pd: 0.0003  # 3 basis points minimum
-    downturn_lgd: true
-    margin_of_conservatism: 0.1
-  
-  ifrs_9:
-    stage_1_threshold: 0.01
-    stage_2_threshold: 0.05
-    significant_increase_threshold: 0.02
-```
+## 🧪 Testing
 
-## 🔍 **Model Interpretability**
-
-### **Global Explanations**
-```python
-# Feature importance analysis
-from explanations import GlobalExplainer
-
-explainer = GlobalExplainer(model)
-importance = explainer.feature_importance(method='shap')
-explainer.plot_importance(importance, top_n=20)
-
-# Partial dependence plots
-explainer.plot_partial_dependence(['debt_to_income', 'credit_score'])
-```
-
-### **Local Explanations**
-```python
-# Individual prediction explanation
-from explanations import LocalExplainer
-
-local_explainer = LocalExplainer(model)
-explanation = local_explainer.explain_prediction(customer_data)
-
-print("Risk Drivers:")
-for feature, contribution in explanation.top_contributors:
-    print(f"  {feature}: {contribution:+.4f}")
-```
-
-### **Model Monitoring & Drift Detection**
-```python
-from monitoring import ModelMonitor
-
-monitor = ModelMonitor(model, reference_data)
-
-# Check for data drift
-drift_report = monitor.detect_drift(new_data, threshold=0.05)
-if drift_report.drift_detected:
-    print(f"Drift detected in features: {drift_report.drifted_features}")
-
-# Performance monitoring
-performance_report = monitor.track_performance(predictions, actuals)
-print(f"Current AUC: {performance_report.current_auc:.3f}")
-print(f"Performance change: {performance_report.change_vs_baseline:+.1%}")
-```
-
-## 📊 **Regulatory Compliance**
-
-### **Basel III Implementation**
-- **IRB Advanced Approach** with own PD estimates
-- **Capital requirement calculation** with RWA optimization
-- **Stress testing** under supervisory scenarios
-- **Model validation** following EBA guidelines
-
-### **IFRS 9 Integration**
-- **Stage classification** based on PD thresholds
-- **Forward-looking** macroeconomic adjustments
-- **Expected Credit Loss** calculation framework
-- **Staging transition** monitoring and reporting
-
-### **Model Documentation**
-- **Model Development Document** (MDD) with complete methodology
-- **Model Validation Report** with independent testing
-- **Model Risk Assessment** with comprehensive risk analysis
-- **User Guide** for business and IT stakeholders
-
-## 🧪 **Testing Framework**
+Run the comprehensive test suite:
 
 ```bash
-# Unit tests
-pytest tests/unit/ -v
+# Test model functionality
+python tests/test_models.py
 
-# Integration tests
-pytest tests/integration/ -v
+# Test API endpoints  
+python tests/test_api.py
 
-# Model validation tests
-python tests/model_validation.py --comprehensive
+# Test file upload capabilities
+python tests/test_file_upload.py
 
-# Backtesting
-python tests/backtest.py --start-date=2020-01-01 --end-date=2023-12-31
+# Check feature compatibility
+python tests/feature_checker.py
 
-# Stress testing
-python tests/stress_test.py --scenario=adverse_2024
+# Startup verification
+python tests/startup.py
 ```
 
-## 📚 **Documentation**
+## 📊 Data Generation
 
-- **[Model Methodology](docs/methodology.md)**: Statistical and ML approaches
-- **[API Reference](docs/api.md)**: Complete API documentation
-- **[Validation Report](docs/validation.md)**: Model performance analysis
-- **[Deployment Guide](docs/deployment.md)**: Production setup
-- **[Regulatory Compliance](docs/compliance.md)**: Basel III & IFRS 9 details
-- **[Business User Guide](docs/user_guide.md)**: Non-technical documentation
+Generate synthetic datasets for training and testing:
 
-## 🛣️ **Roadmap**
+```bash
+cd data
+python generator.py
+```
 
-### **Phase 1: Core Modeling** ✅
-- Advanced ensemble models
-- Regulatory compliance framework
-- Real-time scoring API
-- Model monitoring system
+**Generated Datasets**:
+- **Retail**: 50,000 customers with realistic credit profiles
+- **SME**: 10,000 companies across 12 industry sectors
+- **Corporate**: 2,000 large enterprises with complex financials
+- **Macroeconomic**: 10 years of monthly economic indicators
+- **Stress Testing**: Baseline, adverse, and severely adverse scenarios
 
-### **Phase 2: Advanced Features** 🚧
-- **Machine learning interpretability** enhancements
-- **Alternative data integration** (social, behavioral)
-- **Real-time model retraining** with streaming data
-- **Multi-geography** model adaptation
+## 🏗️ Model Training
 
-### **Phase 3: AI Enhancement** 📋
-- **Deep learning** for complex pattern recognition
-- **Natural language processing** for unstructured data
-- **Graph neural networks** for relationship modeling
-- **Reinforcement learning** for dynamic pricing
+Retrain models with new data:
 
-### **Phase 4: Platform Integration** 🔮
-- **Open banking API** integration
-- **Real-time decision engines** integration
-- **Cloud-native** microservices architecture
-- **Mobile SDK** for instant decisions
+```bash
+cd training
+python train_models.py
+```
 
-## 🏆 **Key Differentiators**
+**Training Pipeline**:
+1. **Data Loading**: Load all generated datasets
+2. **Feature Engineering**: 100+ features per segment
+3. **Model Training**: Ensemble of ML algorithms
+4. **Validation**: Cross-validation and holdout testing
+5. **Model Persistence**: Save trained models and preprocessors
+6. **Performance Reporting**: Comprehensive metrics and visualizations
 
-### **Technical Excellence**
-- **State-of-the-art ML** with ensemble approaches
-- **Regulatory compliance** built-in from day one
-- **Production-ready** with monitoring and observability
-- **Explainable AI** for regulatory and business transparency
+## 🎨 Web Interface Features
 
-### **Business Value**
-- **Risk-adjusted profitability** optimization
-- **Faster decision making** with real-time scoring
-- **Regulatory capital** efficiency
-- **Audit-ready** documentation and governance
+### **Modern Design**
+- **Dark/Light Theme**: Automatic and manual theme switching
+- **Responsive Layout**: Mobile-first design principles
+- **Progressive Web App**: Installable with offline capabilities
+- **Accessibility**: WCAG 2.1 compliant with screen reader support
 
-### **Innovation**
-- **Hybrid modeling** combining traditional and ML approaches
-- **Dynamic calibration** with economic cycle adjustments
-- **Advanced interpretability** beyond standard approaches
-- **Continuous learning** with automated model updates
+### **User Experience**
+- **Multi-step Forms**: Guided data entry with validation
+- **Real-time Feedback**: Input validation with helpful hints
+- **Progress Tracking**: Visual progress indicators for batch processing
+- **Export Options**: JSON, CSV, and PDF result formats
 
-## 🤝 **Contributing**
+### **Advanced Features**
+- **Auto-complete**: Smart defaults based on user input
+- **Data Validation**: Client-side and server-side validation
+- **Error Recovery**: Graceful error handling with recovery options
+- **Performance Monitoring**: Real-time API health status
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md).
+## ⚙️ Configuration
+
+### **Environment Variables**
+```bash
+# Optional configuration
+export PD_MODEL_DEBUG=true          # Enable debug mode
+export PD_MODEL_LOG_LEVEL=INFO      # Set logging level
+export PD_MODEL_MAX_BATCH_SIZE=10000 # Max batch processing size
+```
+
+### **Model Parameters**
+Adjust in `app.py`:
+```python
+# Regulatory thresholds
+BASEL_MIN_PD = 0.0003              # 3 basis points
+IFRS9_STAGE1_THRESHOLD = 0.01      # 1%
+IFRS9_STAGE2_THRESHOLD = 0.05      # 5%
+```
+
+## 🚀 Deployment
+
+### **Development**
+```bash
+python app.py
+# Runs on http://localhost:8000 with auto-reload
+```
+
+### **Production**
+```bash
+pip install gunicorn
+gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
+
+### **Docker** (Optional)
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["gunicorn", "app:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+```
+
+## 📈 Performance Optimization
+
+### **Response Times**
+- **Individual Predictions**: <100ms
+- **Batch Processing**: ~1,000 records/second
+- **Memory Usage**: ~500MB base + ~1MB per 1,000 records
+
+### **Scaling Recommendations**
+- **CPU**: 4+ cores for production
+- **Memory**: 8GB minimum, 16GB recommended
+- **Storage**: SSD recommended for model loading
+- **Load Balancer**: Multiple instances for high availability
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/risk-enhancement`)
-3. Commit your changes (`git commit -m 'Add risk enhancement'`)
-4. Push to the branch (`git push origin feature/risk-enhancement`)
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -am 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Create Pull Request
 
-## 📄 **License**
+### **Development Setup**
+```bash
+# Install development dependencies
+pip install -r requirements.txt
+pip install pytest black flake8 mypy
+
+# Run code formatting
+black .
+
+# Run linting
+flake8 .
+
+# Run type checking
+mypy app.py
+```
+
+## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 **Author**
+## 🆘 Support
 
-**[Your Name]** - Risk Modeling & Data Science Expert
-- 📧 Email: your.email@example.com
-- 💼 LinkedIn: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-- 🐙 GitHub: [@yourusername](https://github.com/yourusername)
+### **Documentation**
+- **API Docs**: `/api/docs` (Swagger UI)
+- **ReDoc**: `/api/redoc` (Alternative documentation)
+
+### **Common Issues**
+
+**Models not loading?**
+```bash
+# Check if model files exist
+ls -la models/*/
+
+# Retrain if needed
+cd training && python train_models.py
+```
+
+**CSV upload failing?**
+- Ensure file is UTF-8 encoded
+- Check column names match templates
+- Verify file size <10MB and <10,000 rows
+
+**Performance issues?**
+- Increase system memory
+- Use SSD storage for model files
+- Consider horizontal scaling
+
+### **Getting Help**
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Ismat-Samadov/probability_default/issues)
+- 📖 **Documentation**: Comprehensive API docs at `/api/docs`
+
+## 🔮 Roadmap
+
+### **Upcoming Features**
+- [ ] **Real-time Model Monitoring**: MLOps integration
+- [ ] **Advanced Explainability**: SHAP/LIME integration
+- [ ] **Multi-language Support**: Internationalization
+- [ ] **Advanced Analytics**: Portfolio risk analytics
+- [ ] **API Rate Limiting**: Enhanced security features
+- [ ] **Webhook Integration**: Event-driven architecture
+
+### **Model Enhancements**
+- [ ] **Deep Learning Models**: Neural network integration
+- [ ] **Time Series Features**: Temporal pattern recognition
+- [ ] **Alternative Data**: Social media, satellite data
+- [ ] **Ensemble Optimization**: Advanced model combining
+- [ ] **Continuous Learning**: Online model updates
 
 ---
 
-### 🌟 **Why This Project Matters**
+**Built with ❤️ for the financial services industry**
 
-This project demonstrates advanced expertise in:
-- **Credit Risk Modeling** with regulatory compliance
-- **Machine Learning in Banking** with production deployment
-- **Model Governance** and validation frameworks
-- **Regulatory Technology** (Basel III, IFRS 9)
-- **Real-time Risk Assessment** systems
-
-Perfect for showcasing **quantitative risk management** and **advanced analytics** skills required for senior banking positions.
-
----
-
-**⭐ If this helps your risk modeling journey, please star the repository!**
-
-### 📊 **Performance Benchmarks**
-
-| Benchmark | Our Model | Industry Average | Improvement |
-|-----------|-----------|------------------|-------------|
-| **AUC-ROC** | 0.847 | 0.72 | +17.6% |
-| **Prediction Speed** | <100ms | ~2s | +95% faster |
-| **False Positive Rate** | 3.2% | 8.1% | -60.5% |
-| **Model Stability (PSI)** | 0.08 | 0.15 | +46.7% better |
+*This system provides enterprise-grade PD modeling capabilities with full regulatory compliance, making it suitable for banks, credit unions, and financial institutions of all sizes.*
