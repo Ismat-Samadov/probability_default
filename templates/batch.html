@@ -7,7 +7,7 @@
     <div class="col-xl-10 mx-auto">
         <!-- Header Card -->
         <div class="card shadow-lg border-0 mb-4">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-info">
                 <div class="row align-items-center">
                     <div class="col">
                         <h4 class="mb-1 fw-bold">
@@ -47,7 +47,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-user fa-3x text-primary mb-3"></i>
                                 <h6 class="card-title">Retail Banking</h6>
-                                <p class="small text-muted mb-3">Individual customers and consumers</p>
+                                <p class="small mb-3">Individual customers and consumers</p>
                                 <a href="/api/templates/retail.csv" class="btn btn-primary btn-sm w-100 mb-2">
                                     <i class="fas fa-download me-1"></i>Download Template
                                 </a>
@@ -62,7 +62,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-building fa-3x text-success mb-3"></i>
                                 <h6 class="card-title">SME Banking</h6>
-                                <p class="small text-muted mb-3">Small & medium enterprises</p>
+                                <p class="small mb-3">Small & medium enterprises</p>
                                 <a href="/api/templates/sme.csv" class="btn btn-success btn-sm w-100 mb-2">
                                     <i class="fas fa-download me-1"></i>Download Template
                                 </a>
@@ -77,7 +77,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-city fa-3x text-warning mb-3"></i>
                                 <h6 class="card-title">Corporate Banking</h6>
-                                <p class="small text-muted mb-3">Large corporations and enterprises</p>
+                                <p class="small mb-3">Large corporations and enterprises</p>
                                 <a href="/api/templates/corporate.csv" class="btn btn-warning btn-sm w-100 mb-2">
                                     <i class="fas fa-download me-1"></i>Download Template
                                 </a>
@@ -110,7 +110,7 @@
                                             <div class="text-center p-3">
                                                 <i class="fas fa-user fa-2x mb-2"></i>
                                                 <h6 class="mb-1">Retail Banking</h6>
-                                                <small class="text-muted">Individual consumers</small>
+                                                <small>Individual consumers</small>
                                                 <div class="mt-2">
                                                     <span class="badge bg-primary-subtle text-primary-emphasis">Most Flexible</span>
                                                 </div>
@@ -125,7 +125,7 @@
                                             <div class="text-center p-3">
                                                 <i class="fas fa-building fa-2x mb-2"></i>
                                                 <h6 class="mb-1">SME Banking</h6>
-                                                <small class="text-muted">Small & medium enterprises</small>
+                                                <small>Small & medium enterprises</small>
                                                 <div class="mt-2">
                                                     <span class="badge bg-success-subtle text-success-emphasis">Auto-Fill Missing</span>
                                                 </div>
@@ -140,7 +140,7 @@
                                             <div class="text-center p-3">
                                                 <i class="fas fa-city fa-2x mb-2"></i>
                                                 <h6 class="mb-1">Corporate Banking</h6>
-                                                <small class="text-muted">Large corporations</small>
+                                                <small>Large corporations</small>
                                                 <div class="mt-2">
                                                     <span class="badge bg-warning-subtle text-warning-emphasis">Smart Defaults</span>
                                                 </div>
@@ -162,7 +162,7 @@
                                     <div class="upload-content">
                                         <i class="fas fa-cloud-upload-alt fa-4x text-info mb-3"></i>
                                         <h5 class="mb-3">Drop your CSV file here or click to browse</h5>
-                                        <p class="text-muted mb-3">
+                                        <p class="mb-3">
                                             <strong>File Requirements:</strong><br>
                                             Maximum size: <span class="badge bg-info-subtle text-info-emphasis">10MB</span> | 
                                             Format: <span class="badge bg-info-subtle text-info-emphasis">CSV only</span> |
@@ -208,7 +208,7 @@
                                     </div>
                                     
                                     <!-- File Content Preview -->
-                                    <div class="card border-0 bg-light" id="file-preview">
+                                    <div class="card border-0" id="file-preview" style="background-color: var(--background-secondary);">
                                         <div class="card-header bg-transparent border-0">
                                             <h6 class="mb-0">
                                                 <i class="fas fa-eye me-2"></i>File Preview (First 5 rows)
@@ -253,14 +253,14 @@
                                                 <input class="form-check-input" type="radio" name="processing_mode" id="mode-standard" value="standard" checked>
                                                 <label class="form-check-label" for="mode-standard">
                                                     <strong>Standard Processing</strong><br>
-                                                    <small class="text-muted">Full feature engineering with all validations</small>
+                                                    <small>Full feature engineering with all validations</small>
                                                 </label>
                                             </div>
                                             <div class="form-check mt-2">
                                                 <input class="form-check-input" type="radio" name="processing_mode" id="mode-fast" value="fast">
                                                 <label class="form-check-label" for="mode-fast">
                                                     <strong>Fast Processing</strong><br>
-                                                    <small class="text-muted">Optimized for speed with smart defaults</small>
+                                                    <small>Optimized for speed with smart defaults</small>
                                                 </label>
                                             </div>
                                         </div>
@@ -315,24 +315,24 @@
                                     <div class="row g-3 text-center">
                                         <div class="col-md-3">
                                             <div class="fw-bold text-primary fs-4" id="total-records">0</div>
-                                            <small class="text-muted">Total Records</small>
+                                            <small>Total Records</small>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="fw-bold text-success fs-4" id="processed-records">0</div>
-                                            <small class="text-muted">Successfully Processed</small>
+                                            <small>Successfully Processed</small>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="fw-bold text-danger fs-4" id="failed-records">0</div>
-                                            <small class="text-muted">Failed</small>
+                                            <small>Failed</small>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="fw-bold text-info fs-4" id="processing-time">00:00</div>
-                                            <small class="text-muted">Time Elapsed</small>
+                                            <small>Time Elapsed</small>
                                         </div>
                                     </div>
                                     <div class="mt-3">
                                         <div id="progress-text" class="text-center">
-                                            <small class="text-muted">Ready to start processing...</small>
+                                            <small>Ready to start processing...</small>
                                         </div>
                                     </div>
                                 </div>
@@ -572,6 +572,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeBatchForm();
     setupFileUpload();
     setupFormValidation();
+    
+    // Theme change handler
+    window.addEventListener('themeChanged', function(e) {
+        updateThemeSpecificContent(e.detail.theme);
+    });
 });
 
 function initializeBatchForm() {
@@ -603,8 +608,8 @@ function setupFileUpload() {
     ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, () => {
             uploadArea.classList.add('drag-over');
-            uploadArea.style.borderColor = 'var(--bs-info)';
-            uploadArea.style.backgroundColor = 'rgba(13, 202, 240, 0.1)';
+            uploadArea.style.borderColor = 'var(--info-color)';
+            uploadArea.style.backgroundColor = 'rgba(8, 145, 178, 0.1)';
         }, false);
     });
     
@@ -819,7 +824,7 @@ function validateDataStructure(headers, rowCount) {
                 <div class="alert alert-warning border-0">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <strong>Missing columns will be auto-filled:</strong> ${missingColumns.join(', ')}
-                    <br><small class="text-muted">The system will automatically provide default values for missing columns.</small>
+                    <br><small>The system will automatically provide default values for missing columns.</small>
                 </div>
             `;
         } else {
@@ -843,7 +848,7 @@ function validateDataStructure(headers, rowCount) {
                 <div class="alert alert-info border-0">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Optional columns detected:</strong> ${presentOptionalColumns.join(', ')}
-                    <br><small class="text-muted">These will enhance prediction accuracy.</small>
+                    <br><small>These will enhance prediction accuracy.</small>
                 </div>
             `;
         }
@@ -854,7 +859,6 @@ function validateDataStructure(headers, rowCount) {
 }
 
 function getRequiredColumns(segment) {
-    // Updated based on the actual requirements from the fixed app.py
     const requiredColumns = {
         retail: ['age', 'income', 'credit_score', 'debt_to_income', 'utilization_rate'],
         sme: ['industry', 'annual_revenue', 'num_employees', 'current_ratio', 'debt_to_equity'],
@@ -865,7 +869,6 @@ function getRequiredColumns(segment) {
 }
 
 function getOptionalColumns(segment) {
-    // Optional columns that will be auto-filled if missing
     const optionalColumns = {
         retail: ['employment_status', 'employment_tenure', 'years_at_address', 'num_accounts', 'monthly_transactions'],
         sme: ['profit_margin', 'years_in_business', 'payment_delays_12m', 'days_past_due', 'credit_utilization', 'interest_coverage'],
@@ -1013,7 +1016,7 @@ function completeProcessing(data) {
     document.getElementById('progress-text').innerHTML = `
         <i class="fas fa-check-circle text-success me-2"></i>
         <strong>Processing completed!</strong> ${successful.toLocaleString()} successful (${successRate}%), ${failed.toLocaleString()} failed.
-        <br><small class="text-muted">Results are being prepared for download...</small>
+        <br><small>Results are being prepared for download...</small>
     `;
     
     // Show summary if available
@@ -1182,28 +1185,46 @@ function getNotificationIcon(type) {
     }
 }
 
+function updateThemeSpecificContent(theme) {
+    // Update upload area styling based on theme
+    const uploadArea = document.getElementById('upload-area');
+    if (uploadArea) {
+        // Reset any inline styles that might conflict with theme
+        uploadArea.style.borderColor = '';
+        uploadArea.style.backgroundColor = '';
+    }
+    
+    // Update any other theme-specific content
+    const dynamicElements = document.querySelectorAll('[data-theme-component]');
+    dynamicElements.forEach(element => {
+        element.setAttribute('data-current-theme', theme);
+    });
+}
+
 // Add CSS for enhanced styling
 const style = document.createElement('style');
 style.textContent = `
     .segment-option.selected .btn {
         transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-lg);
     }
     
     .upload-area {
         transition: all 0.3s ease;
         cursor: pointer;
+        background-color: var(--surface-alt) !important;
+        border-color: var(--border-color) !important;
     }
     
     .upload-area:hover {
-        border-color: var(--bs-info) !important;
-        background-color: rgba(13, 202, 240, 0.05) !important;
+        border-color: var(--info-color) !important;
+        background-color: rgba(8, 145, 178, 0.05) !important;
     }
     
     .upload-area.drag-over {
         transform: scale(1.02);
-        border-color: var(--bs-success) !important;
-        background-color: rgba(25, 135, 84, 0.1) !important;
+        border-color: var(--success-color) !important;
+        background-color: rgba(22, 163, 74, 0.1) !important;
     }
     
     .progress-bar {
@@ -1212,7 +1233,7 @@ style.textContent = `
     
     .btn-check:checked + .btn {
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow-lg);
     }
     
     .alert {
@@ -1226,19 +1247,19 @@ style.textContent = `
     }
     
     .alert-success {
-        border-left-color: var(--bs-success);
+        border-left-color: var(--success-color);
     }
     
     .alert-warning {
-        border-left-color: var(--bs-warning);
+        border-left-color: var(--warning-color);
     }
     
     .alert-danger {
-        border-left-color: var(--bs-danger);
+        border-left-color: var(--danger-color);
     }
     
     .alert-info {
-        border-left-color: var(--bs-info);
+        border-left-color: var(--info-color);
     }
     
     .card {
@@ -1247,16 +1268,35 @@ style.textContent = `
     
     .card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-lg);
     }
     
     .accordion-button {
         transition: all 0.2s ease;
+        background-color: var(--background-secondary) !important;
+        color: var(--text-primary) !important;
     }
     
     .accordion-button:not(.collapsed) {
-        background-color: rgba(13, 202, 240, 0.1);
-        color: var(--bs-info);
+        background-color: var(--primary-color) !important;
+        color: var(--text-on-primary) !important;
+    }
+    
+    .accordion-body {
+        background-color: var(--surface-color) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .table-dark {
+        background-color: var(--surface-alt) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .table-dark th,
+    .table-dark td {
+        background-color: var(--surface-alt) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
     }
 `;
 document.head.appendChild(style);

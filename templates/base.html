@@ -68,6 +68,16 @@
         html[data-theme="light"] {
             color-scheme: light;
         }
+
+        /* Ensure smooth theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+        }
+
+        /* Prevent layout shift during theme change */
+        .theme-transition-active * {
+            transition: all 0.3s ease !important;
+        }
     </style>
 </head>
 <body>
@@ -164,14 +174,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
             integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     
-    <!-- Theme handling script (must be inline for immediate execution) -->
+    <!-- Enhanced Theme handling script -->
     <script>
-        // Theme management
+        // Enhanced Theme Manager with better error handling and smooth transitions
         class ThemeManager {
             constructor() {
                 this.html = document.documentElement;
+                this.body = document.body;
                 this.themeToggle = null;
                 this.themeIcon = null;
+                this.isTransitioning = false;
                 this.init();
             }
 
@@ -181,7 +193,7 @@
                 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 const initialTheme = storedTheme || systemTheme;
                 
-                this.setTheme(initialTheme);
+                this.setTheme(initialTheme, false); // No animation on initial load
                 
                 // Wait for DOM to be ready
                 if (document.readyState === 'loading') {
@@ -193,7 +205,14 @@
                 // Listen for system theme changes
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
                     if (!localStorage.getItem('theme')) {
-                        this.setTheme(e.matches ? 'dark' : 'light');
+                        this.setTheme(e.matches ? 'dark' : 'light', true);
+                    }
+                });
+
+                // Listen for storage changes (multi-tab support)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'theme' && e.newValue) {
+                        this.setTheme(e.newValue, true);
                     }
                 });
             }
@@ -203,34 +222,70 @@
                 this.themeIcon = document.getElementById('themeIcon');
                 
                 if (this.themeToggle && this.themeIcon) {
-                    this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                    this.themeToggle.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.toggleTheme();
+                    });
                     this.updateIcon();
                 }
             }
 
-            setTheme(theme) {
+            setTheme(theme, animate = true) {
+                if (this.isTransitioning) return;
+                
+                const validThemes = ['light', 'dark'];
+                if (!validThemes.includes(theme)) {
+                    console.warn(`Invalid theme: ${theme}. Using 'light' as fallback.`);
+                    theme = 'light';
+                }
+
+                if (animate) {
+                    this.isTransitioning = true;
+                    this.body.classList.add('theme-transition-active');
+                }
+
+                // Set the theme
                 this.html.setAttribute('data-theme', theme);
                 this.html.style.colorScheme = theme;
                 
-                // Force Bootstrap components to respect the theme
-                document.body.className = document.body.className.replace(/\b(theme-light|theme-dark)\b/g, '');
-                document.body.classList.add(`theme-${theme}`);
+                // Update body class for additional styling hooks
+                this.body.classList.remove('theme-light', 'theme-dark');
+                this.body.classList.add(`theme-${theme}`);
+                
+                // Update meta theme-color for mobile browsers
+                this.updateMetaThemeColor(theme);
                 
                 if (this.themeIcon) {
                     this.updateIcon();
                 }
+
+                // Dispatch theme change event
+                window.dispatchEvent(new CustomEvent('themeChanged', { 
+                    detail: { theme, animated: animate } 
+                }));
+
+                // Clean up transition state
+                if (animate) {
+                    setTimeout(() => {
+                        this.body.classList.remove('theme-transition-active');
+                        this.isTransitioning = false;
+                    }, 300);
+                }
             }
 
             toggleTheme() {
+                if (this.isTransitioning) return;
+                
                 const currentTheme = this.html.getAttribute('data-theme');
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                 
-                this.setTheme(newTheme);
+                this.setTheme(newTheme, true);
                 localStorage.setItem('theme', newTheme);
-                this.updateIcon();
                 
-                // Dispatch custom event for other components
-                window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+                // Add a subtle haptic feedback for mobile devices
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
             }
 
             updateIcon() {
@@ -240,6 +295,7 @@
                 
                 // Add transition effect
                 this.themeIcon.style.transform = 'scale(0)';
+                this.themeIcon.style.opacity = '0';
                 
                 setTimeout(() => {
                     if (currentTheme === 'dark') {
@@ -251,17 +307,88 @@
                         this.themeToggle.setAttribute('aria-label', 'Switch to dark mode');
                         this.themeToggle.setAttribute('title', 'Switch to dark mode');
                     }
+                    
+                    // Restore icon with animation
                     this.themeIcon.style.transform = 'scale(1)';
+                    this.themeIcon.style.opacity = '1';
                 }, 150);
+            }
+
+            updateMetaThemeColor(theme) {
+                let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+                if (!themeColorMeta) {
+                    themeColorMeta = document.createElement('meta');
+                    themeColorMeta.name = 'theme-color';
+                    document.head.appendChild(themeColorMeta);
+                }
+                
+                const themeColors = {
+                    light: '#2563eb',
+                    dark: '#1e293b'
+                };
+                
+                themeColorMeta.content = themeColors[theme] || themeColors.light;
             }
 
             getCurrentTheme() {
                 return this.html.getAttribute('data-theme');
             }
+
+            // Method to force refresh theme (useful for debugging)
+            refreshTheme() {
+                const currentTheme = this.getCurrentTheme();
+                this.setTheme(currentTheme, false);
+            }
+
+            // Method to reset to system preference
+            resetToSystemTheme() {
+                localStorage.removeItem('theme');
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                this.setTheme(systemTheme, true);
+            }
         }
 
-        // Initialize theme manager immediately
+        // Initialize theme manager immediately to prevent flashing
         window.themeManager = new ThemeManager();
+
+        // Enhanced accessibility and keyboard support
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Shift + D to toggle theme
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+                e.preventDefault();
+                window.themeManager.toggleTheme();
+            }
+            
+            // Ctrl/Cmd + Shift + R to reset to system theme
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
+                e.preventDefault();
+                window.themeManager.resetToSystemTheme();
+            }
+        });
+
+        // Additional theme utilities
+        window.ThemeUtils = {
+            // Get current theme
+            getTheme: () => window.themeManager.getCurrentTheme(),
+            
+            // Set specific theme
+            setTheme: (theme) => {
+                window.themeManager.setTheme(theme, true);
+                localStorage.setItem('theme', theme);
+            },
+            
+            // Toggle theme
+            toggle: () => window.themeManager.toggleTheme(),
+            
+            // Reset to system preference
+            resetToSystem: () => window.themeManager.resetToSystemTheme(),
+            
+            // Check if dark mode
+            isDark: () => window.themeManager.getCurrentTheme() === 'dark',
+            
+            // Check if light mode
+            isLight: () => window.themeManager.getCurrentTheme() === 'light'
+        };
     </script>
     
     <!-- Custom JavaScript -->
@@ -276,10 +403,12 @@
             // Remove loading state
             document.body.classList.add('loaded');
             
-            // Initialize tooltips
+            // Initialize tooltips with theme-aware styling
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    customClass: 'theme-tooltip'
+                });
             });
             
             // Auto-close mobile menu when clicking on a link
@@ -311,7 +440,7 @@
                 });
             });
             
-            // Add keyboard navigation support
+            // Enhanced keyboard navigation
             document.addEventListener('keydown', function(e) {
                 // Escape key closes modals and dropdowns
                 if (e.key === 'Escape') {
@@ -323,20 +452,35 @@
                         });
                         bsCollapse.hide();
                     }
-                }
-                
-                // Ctrl/Cmd + Shift + D to toggle theme
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
-                    e.preventDefault();
-                    window.themeManager.toggleTheme();
+                    
+                    // Close any open modals
+                    const openModals = document.querySelectorAll('.modal.show');
+                    openModals.forEach(modal => {
+                        const modalInstance = bootstrap.Modal.getInstance(modal);
+                        if (modalInstance) modalInstance.hide();
+                    });
                 }
             });
             
-            // Check API health status
+            // Check API health status with better error handling
             checkAPIHealth();
             
             // Initialize enhanced form features
             initializeFormFeatures();
+            
+            // Setup theme change listeners for dynamic content
+            window.addEventListener('themeChanged', function(e) {
+                // Update any dynamic content that needs theme-specific styling
+                updateDynamicThemeContent(e.detail.theme);
+                
+                // Refresh tooltips with new theme
+                tooltipList.forEach(tooltip => tooltip.dispose());
+                tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        customClass: 'theme-tooltip'
+                    });
+                });
+            });
         });
         
         async function checkAPIHealth() {
@@ -344,24 +488,98 @@
             if (!statusElement) return;
             
             try {
-                const response = await fetch('/api/health');
+                const response = await fetch('/api/health', {
+                    timeout: 5000,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.status === 'healthy') {
                     statusElement.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>API Online';
-                    statusElement.className = 'badge bg-success text-white';
+                    statusElement.className = 'badge bg-success text-white api-status';
                 } else {
                     statusElement.innerHTML = '<i class="fas fa-exclamation-triangle text-warning me-1"></i>API Issues';
-                    statusElement.className = 'badge bg-warning text-dark';
+                    statusElement.className = 'badge bg-warning text-dark api-status';
                 }
             } catch (error) {
+                console.warn('API health check failed:', error);
                 statusElement.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i>API Offline';
-                statusElement.className = 'badge bg-danger text-white';
+                statusElement.className = 'badge bg-danger text-white api-status';
+            }
+        }
+        
+        function updateDynamicThemeContent(theme) {
+            // Update any charts or dynamic visualizations
+            const charts = document.querySelectorAll('.chart-container');
+            charts.forEach(chart => {
+                // Update chart colors based on theme
+                if (chart.dataset.chartInstance) {
+                    updateChartTheme(chart.dataset.chartInstance, theme);
+                }
+            });
+            
+            // Update any code syntax highlighting
+            const codeBlocks = document.querySelectorAll('pre code');
+            codeBlocks.forEach(block => {
+                block.className = block.className.replace(/(theme-\w+)/g, `theme-${theme}`);
+            });
+            
+            // Update any custom components that need theme awareness
+            const customComponents = document.querySelectorAll('[data-theme-component]');
+            customComponents.forEach(component => {
+                component.setAttribute('data-current-theme', theme);
+                // Dispatch event for custom components to handle theme changes
+                component.dispatchEvent(new CustomEvent('themeUpdate', { detail: { theme } }));
+            });
+        }
+        
+        function updateChartTheme(chartInstance, theme) {
+            // This would be implemented based on the charting library being used
+            // For example, with Chart.js:
+            if (chartInstance && chartInstance.options) {
+                const colors = {
+                    light: {
+                        text: '#1e293b',
+                        grid: '#e2e8f0',
+                        background: '#ffffff'
+                    },
+                    dark: {
+                        text: '#f8fafc',
+                        grid: '#475569',
+                        background: '#1e293b'
+                    }
+                };
+                
+                const themeColors = colors[theme] || colors.light;
+                
+                if (chartInstance.options.scales) {
+                    Object.keys(chartInstance.options.scales).forEach(scale => {
+                        if (chartInstance.options.scales[scale].ticks) {
+                            chartInstance.options.scales[scale].ticks.color = themeColors.text;
+                        }
+                        if (chartInstance.options.scales[scale].grid) {
+                            chartInstance.options.scales[scale].grid.color = themeColors.grid;
+                        }
+                    });
+                }
+                
+                if (chartInstance.options.plugins && chartInstance.options.plugins.legend) {
+                    chartInstance.options.plugins.legend.labels.color = themeColors.text;
+                }
+                
+                chartInstance.update();
             }
         }
         
         function initializeFormFeatures() {
-            // Enhanced form validation and UX
+            // Enhanced form validation and UX with theme support
             const forms = document.querySelectorAll('form');
             forms.forEach(form => {
                 // Add loading states
@@ -383,7 +601,7 @@
                     }
                 });
                 
-                // Real-time validation
+                // Real-time validation with theme-aware styling
                 const inputs = form.querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
                     input.addEventListener('blur', function() {
@@ -503,17 +721,40 @@
             });
         }
         
-        // Global error handler
+        // Enhanced global error handler
         window.addEventListener('error', function(e) {
             console.error('Global error:', e.error);
             // In production, send to error tracking service
+            if (window.gtag) {
+                gtag('event', 'exception', {
+                    description: e.error.toString(),
+                    fatal: false
+                });
+            }
         });
         
         // Unhandled promise rejection handler
         window.addEventListener('unhandledrejection', function(e) {
             console.error('Unhandled promise rejection:', e.reason);
             // In production, send to error tracking service
+            if (window.gtag) {
+                gtag('event', 'exception', {
+                    description: 'Unhandled Promise: ' + e.reason,
+                    fatal: false
+                });
+            }
         });
+
+        // Expose theme utilities globally for debugging
+        if (typeof window !== 'undefined') {
+            window.debugTheme = {
+                current: () => window.themeManager.getCurrentTheme(),
+                toggle: () => window.themeManager.toggleTheme(),
+                set: (theme) => window.themeManager.setTheme(theme, true),
+                refresh: () => window.themeManager.refreshTheme(),
+                reset: () => window.themeManager.resetToSystemTheme()
+            };
+        }
     </script>
     
     <!-- Schema.org structured data for SEO -->
