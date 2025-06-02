@@ -77,7 +77,7 @@ No installation needed! Try all features including:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/probability_default.git
+git clone https://github.com/Ismat-Samadov/probability_default.git
 cd probability_default
 ```
 
