@@ -7,7 +7,7 @@
     <div class="col-xl-8 mx-auto">
         <!-- Header Card -->
         <div class="card shadow-lg border-0 mb-4">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header" style="background: var(--gradient-primary); color: var(--text-on-primary);">
                 <div class="row align-items-center">
                     <div class="col">
                         <h4 class="mb-1 fw-bold">
@@ -17,10 +17,10 @@
                     </div>
                     <div class="col-auto d-none d-md-block">
                         <div class="d-flex gap-2">
-                            <span class="badge bg-light text-dark">
+                            <span class="badge" style="background-color: var(--surface-color); color: var(--text-primary);">
                                 <i class="fas fa-chart-line me-1"></i>AUC: 0.844
                             </span>
-                            <span class="badge bg-light text-dark">
+                            <span class="badge" style="background-color: var(--surface-color); color: var(--text-primary);">
                                 <i class="fas fa-clock me-1"></i>&lt;100ms
                             </span>
                         </div>
@@ -30,29 +30,29 @@
             
             <!-- Progress Indicator -->
             <div class="card-body p-0">
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-primary" id="formProgress" style="width: 20%;"></div>
+                <div class="progress" style="height: 4px; background-color: var(--background-secondary);">
+                    <div class="progress-bar" id="formProgress" style="width: 20%; background: var(--gradient-primary);"></div>
                 </div>
             </div>
         </div>
 
         <!-- Main Form Card -->
         <div class="card shadow border-0">
-            <div class="card-body p-4">
+            <div class="card-body p-4" style="background: var(--surface-color); color: var(--text-primary);">
                 <form action="/predict/retail" method="POST" id="retailForm" novalidate>
                     <!-- Step 1: Personal Information -->
                     <div class="form-step active" id="step1">
                         <div class="step-header mb-4">
-                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                            <h5 class="step-title border-bottom pb-2 mb-3" style="color: var(--primary-color);">
                                 <i class="fas fa-id-card me-2"></i>Personal Information
-                                <span class="badge bg-primary ms-2">Step 1 of 4</span>
+                                <span class="badge" style="background: var(--gradient-primary); color: var(--text-on-primary); margin-left: 0.5rem;">Step 1 of 4</span>
                             </h5>
                         </div>
                         
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="age" class="form-label">
-                                    <i class="fas fa-birthday-cake me-1 text-muted"></i>Age *
+                                    <i class="fas fa-birthday-cake me-1" style="color: var(--text-muted);"></i>Age *
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="age" name="age" 
                                        min="18" max="100" value="35" required>
@@ -61,7 +61,7 @@
                             
                             <div class="col-md-6">
                                 <label for="employment_status" class="form-label">
-                                    <i class="fas fa-briefcase me-1 text-muted"></i>Employment Status *
+                                    <i class="fas fa-briefcase me-1" style="color: var(--text-muted);"></i>Employment Status *
                                 </label>
                                 <select class="form-select form-select-lg" id="employment_status" name="employment_status" required>
                                     <option value="Full-time" selected>Full-time Employment</option>
@@ -74,7 +74,7 @@
                             
                             <div class="col-md-6">
                                 <label for="employment_tenure" class="form-label">
-                                    <i class="fas fa-clock me-1 text-muted"></i>Employment Tenure (years)
+                                    <i class="fas fa-clock me-1" style="color: var(--text-muted);"></i>Employment Tenure (years)
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="employment_tenure" 
                                        name="employment_tenure" min="0" max="50" step="0.1" value="3.0">
@@ -83,7 +83,7 @@
                             
                             <div class="col-md-6">
                                 <label for="years_at_address" class="form-label">
-                                    <i class="fas fa-home me-1 text-muted"></i>Years at Current Address
+                                    <i class="fas fa-home me-1" style="color: var(--text-muted);"></i>Years at Current Address
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="years_at_address" 
                                        name="years_at_address" min="0" max="50" step="0.1" value="2.0">
@@ -101,16 +101,16 @@
                     <!-- Step 2: Financial Information -->
                     <div class="form-step" id="step2">
                         <div class="step-header mb-4">
-                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                            <h5 class="step-title border-bottom pb-2 mb-3" style="color: var(--primary-color);">
                                 <i class="fas fa-dollar-sign me-2"></i>Financial Information
-                                <span class="badge bg-primary ms-2">Step 2 of 4</span>
+                                <span class="badge" style="background: var(--gradient-primary); color: var(--text-on-primary); margin-left: 0.5rem;">Step 2 of 4</span>
                             </h5>
                         </div>
                         
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="income" class="form-label">
-                                    <i class="fas fa-money-bill-wave me-1 text-muted"></i>Annual Income ($) *
+                                    <i class="fas fa-money-bill-wave me-1" style="color: var(--text-muted);"></i>Annual Income ($) *
                                 </label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text">$</span>
@@ -123,7 +123,7 @@
                             
                             <div class="col-md-6">
                                 <label for="credit_score" class="form-label">
-                                    <i class="fas fa-chart-line me-1 text-muted"></i>Credit Score *
+                                    <i class="fas fa-chart-line me-1" style="color: var(--text-muted);"></i>Credit Score *
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="credit_score" name="credit_score" 
                                        min="300" max="850" value="720" required>
@@ -133,7 +133,7 @@
                             
                             <div class="col-md-6">
                                 <label for="debt_to_income" class="form-label">
-                                    <i class="fas fa-calculator me-1 text-muted"></i>Debt-to-Income Ratio *
+                                    <i class="fas fa-calculator me-1" style="color: var(--text-muted);"></i>Debt-to-Income Ratio *
                                 </label>
                                 <div class="input-group input-group-lg">
                                     <input type="number" class="form-control" id="debt_to_income" name="debt_to_income" 
@@ -146,7 +146,7 @@
                             
                             <div class="col-md-6">
                                 <label for="utilization_rate" class="form-label">
-                                    <i class="fas fa-credit-card me-1 text-muted"></i>Credit Utilization Rate *
+                                    <i class="fas fa-credit-card me-1" style="color: var(--text-muted);"></i>Credit Utilization Rate *
                                 </label>
                                 <div class="input-group input-group-lg">
                                     <input type="number" class="form-control" id="utilization_rate" name="utilization_rate" 
@@ -171,16 +171,16 @@
                     <!-- Step 3: Credit Information -->
                     <div class="form-step" id="step3">
                         <div class="step-header mb-4">
-                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                            <h5 class="step-title border-bottom pb-2 mb-3" style="color: var(--primary-color);">
                                 <i class="fas fa-credit-card me-2"></i>Credit Information
-                                <span class="badge bg-primary ms-2">Step 3 of 4</span>
+                                <span class="badge" style="background: var(--gradient-primary); color: var(--text-on-primary); margin-left: 0.5rem;">Step 3 of 4</span>
                             </h5>
                         </div>
                         
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="num_accounts" class="form-label">
-                                    <i class="fas fa-list me-1 text-muted"></i>Number of Credit Accounts
+                                    <i class="fas fa-list me-1" style="color: var(--text-muted);"></i>Number of Credit Accounts
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="num_accounts" 
                                        name="num_accounts" min="0" max="30" value="5">
@@ -189,7 +189,7 @@
                             
                             <div class="col-md-6">
                                 <label for="monthly_transactions" class="form-label">
-                                    <i class="fas fa-exchange-alt me-1 text-muted"></i>Monthly Transactions
+                                    <i class="fas fa-exchange-alt me-1" style="color: var(--text-muted);"></i>Monthly Transactions
                                 </label>
                                 <input type="number" class="form-control form-control-lg" id="monthly_transactions" 
                                        name="monthly_transactions" min="1" max="200" value="45">
@@ -210,13 +210,13 @@
                     <!-- Step 4: Review & Submit -->
                     <div class="form-step" id="step4">
                         <div class="step-header mb-4">
-                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                            <h5 class="step-title border-bottom pb-2 mb-3" style="color: var(--primary-color);">
                                 <i class="fas fa-check-circle me-2"></i>Review & Submit
-                                <span class="badge bg-primary ms-2">Step 4 of 4</span>
+                                <span class="badge" style="background: var(--gradient-primary); color: var(--text-on-primary); margin-left: 0.5rem;">Step 4 of 4</span>
                             </h5>
                         </div>
                         
-                        <div class="alert alert-info border-0" role="alert">
+                        <div class="alert border-0" style="background-color: rgba(8, 145, 178, 0.1); color: var(--info-dark); border-left: 4px solid var(--info-color);" role="alert">
                             <div class="d-flex">
                                 <i class="fas fa-info-circle me-3 mt-1"></i>
                                 <div>
@@ -227,9 +227,9 @@
                         </div>
                         
                         <!-- Review Summary -->
-                        <div class="card bg-light border-0 mb-4">
+                        <div class="card border-0 mb-4" style="background: var(--background-secondary);">
                             <div class="card-body">
-                                <h6 class="card-title">
+                                <h6 class="card-title" style="color: var(--text-primary);">
                                     <i class="fas fa-user me-2"></i>Customer Summary
                                 </h6>
                                 <div class="row g-3" id="reviewSummary">
@@ -239,13 +239,13 @@
                         </div>
                         
                         <!-- Risk Assessment Preview -->
-                        <div class="card border-warning bg-warning-subtle mb-4">
+                        <div class="card border-0 mb-4" style="background-color: rgba(217, 119, 6, 0.1); border-left: 4px solid var(--warning-color);">
                             <div class="card-body">
-                                <h6 class="card-title text-warning-emphasis">
+                                <h6 class="card-title" style="color: var(--warning-dark);">
                                     <i class="fas fa-shield-alt me-2"></i>Risk Assessment Notes
                                 </h6>
                                 <div id="riskPreview">
-                                    <p class="mb-0 small">Based on the provided information, this assessment will be conducted using our Basel III compliant model with IFRS 9 staging.</p>
+                                    <p class="mb-0 small" style="color: var(--text-secondary);">Based on the provided information, this assessment will be conducted using our Basel III compliant model with IFRS 9 staging.</p>
                                 </div>
                             </div>
                         </div>
@@ -269,14 +269,14 @@
         </div>
 
         <!-- Help & Information Card -->
-        <div class="card mt-4 border-info bg-info-subtle">
+        <div class="card mt-4 border-info" style="background-color: rgba(8, 145, 178, 0.1);">
             <div class="card-body">
-                <h6 class="card-title text-info-emphasis">
+                <h6 class="card-title" style="color: var(--info-dark);">
                     <i class="fas fa-lightbulb me-2"></i>About Retail PD Scoring
                 </h6>
                 <div class="row g-4">
                     <div class="col-md-8">
-                        <p class="card-text small mb-3">
+                        <p class="card-text small mb-3" style="color: var(--text-secondary);">
                             Our retail PD model uses advanced machine learning to assess individual customer default risk. 
                             The model analyzes 37+ risk factors including credit history, financial ratios, behavioral patterns, 
                             and macroeconomic conditions.
@@ -285,36 +285,36 @@
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-check text-success me-2"></i>
-                                    <small><strong>PD Score:</strong> 12-month default probability</small>
+                                    <small style="color: var(--text-secondary);"><strong>PD Score:</strong> 12-month default probability</small>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-check text-success me-2"></i>
-                                    <small><strong>Risk Grade:</strong> AAA to C rating</small>
+                                    <small style="color: var(--text-secondary);"><strong>Risk Grade:</strong> AAA to C rating</small>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-check text-success me-2"></i>
-                                    <small><strong>IFRS 9 Stage:</strong> Regulatory staging</small>
+                                    <small style="color: var(--text-secondary);"><strong>IFRS 9 Stage:</strong> Regulatory staging</small>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-check text-success me-2"></i>
-                                    <small><strong>Basel III:</strong> Minimum floor compliance</small>
+                                    <small style="color: var(--text-secondary);"><strong>Basel III:</strong> Minimum floor compliance</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="bg-white rounded p-3 text-center">
-                            <div class="fw-bold text-primary fs-4">0.844</div>
-                            <small class="text-muted">Model AUC Score</small>
-                            <hr class="my-2">
-                            <div class="fw-bold text-success fs-5">1.61%</div>
-                            <small class="text-muted">Portfolio Default Rate</small>
+                        <div class="rounded p-3 text-center" style="background: var(--surface-color);">
+                            <div class="fw-bold fs-4" style="color: var(--primary-color);">0.844</div>
+                            <small style="color: var(--text-muted);">Model AUC Score</small>
+                            <hr style="border-color: var(--border-color);" class="my-2">
+                            <div class="fw-bold fs-5" style="color: var(--success-color);">1.61%</div>
+                            <small style="color: var(--text-muted);">Portfolio Default Rate</small>
                         </div>
                     </div>
                 </div>
@@ -324,11 +324,11 @@
         <!-- Quick Actions -->
         <div class="row g-3 mt-3">
             <div class="col-md-6">
-                <div class="card border-0 bg-light h-100">
+                <div class="card border-0 h-100" style="background: var(--background-secondary);">
                     <div class="card-body text-center">
-                        <i class="fas fa-upload fa-2x text-primary mb-2"></i>
-                        <h6>Batch Processing</h6>
-                        <p class="small text-muted mb-3">Process multiple customers at once</p>
+                        <i class="fas fa-upload fa-2x mb-2" style="color: var(--primary-color);"></i>
+                        <h6 style="color: var(--text-primary);">Batch Processing</h6>
+                        <p class="small mb-3" style="color: var(--text-muted);">Process multiple customers at once</p>
                         <a href="/batch" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-external-link-alt me-1"></i>Go to Batch
                         </a>
@@ -336,11 +336,11 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 bg-light h-100">
+                <div class="card border-0 h-100" style="background: var(--background-secondary);">
                     <div class="card-body text-center">
-                        <i class="fas fa-code fa-2x text-info mb-2"></i>
-                        <h6>API Integration</h6>
-                        <p class="small text-muted mb-3">Integrate with your systems</p>
+                        <i class="fas fa-code fa-2x mb-2" style="color: var(--info-color);"></i>
+                        <h6 style="color: var(--text-primary);">API Integration</h6>
+                        <p class="small mb-3" style="color: var(--text-muted);">Integrate with your systems</p>
                         <a href="/api/docs" target="_blank" class="btn btn-outline-info btn-sm">
                             <i class="fas fa-external-link-alt me-1"></i>View API Docs
                         </a>
@@ -350,6 +350,190 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Enhanced theme-aware styling for retail form */
+.step-title {
+    border-bottom: 1px solid var(--border-color) !important;
+    position: relative;
+}
+
+.step-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 1px;
+}
+
+.form-step {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+.form-control-lg, .form-select-lg {
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+}
+
+.step-header {
+    position: relative;
+}
+
+.input-group-text {
+    background-color: var(--background-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.form-label {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.form-text {
+    color: var(--text-muted) !important;
+}
+
+/* Helper styling */
+.income-helper,
+.credit-score-helper,
+.debt-helper,
+.utilization-helper {
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .col-xl-8 {
+        padding: 0 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .step-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .badge {
+        display: block;
+        margin-top: 0.25rem;
+        margin-left: 0 !important;
+    }
+    
+    .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .input-group-text {
+        min-width: auto;
+        padding: 0.375rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .d-flex.justify-content-between .btn:first-child {
+        order: 2;
+    }
+    
+    .d-flex.justify-content-between .d-flex {
+        order: 1;
+    }
+}
+
+/* Enhanced form interactivity */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25) !important;
+}
+
+/* Smooth transitions for all elements */
+.card,
+.form-control,
+.form-select,
+.btn,
+.input-group-text,
+.alert {
+    transition: all var(--transition-normal);
+}
+
+/* Review summary styling */
+#reviewSummary .col-md-6,
+#reviewSummary .col-lg-4 {
+    margin-bottom: 0.5rem;
+}
+
+#reviewSummary .d-flex {
+    color: var(--text-primary);
+}
+
+#reviewSummary strong {
+    color: var(--text-muted);
+}
+
+/* Risk preview styling */
+#riskPreview {
+    color: var(--text-secondary);
+}
+
+#riskPreview .d-flex {
+    align-items: center;
+}
+
+#riskPreview strong {
+    color: var(--text-primary);
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -685,8 +869,8 @@ function updateReviewSummary() {
             html += `
                 <div class="col-md-6 col-lg-4">
                     <div class="d-flex justify-content-between">
-                        <strong class="text-muted">${key}:</strong>
-                        <span>${value}</span>
+                        <strong style="color: var(--text-muted);">${key}:</strong>
+                        <span style="color: var(--text-primary);">${value}</span>
                     </div>
                 </div>
             `;
@@ -724,8 +908,8 @@ function updateRiskPreview(formData) {
         <div class="d-flex align-items-center">
             <i class="fas fa-${riskIcon} text-${riskColor} me-2"></i>
             <div>
-                <strong>Preliminary Risk Assessment: ${riskLevel}</strong>
-                <p class="mb-0 small">This is a preliminary assessment. Final PD score will be calculated using our comprehensive model with 37+ risk factors.</p>
+                <strong style="color: var(--text-primary);">Preliminary Risk Assessment: ${riskLevel}</strong>
+                <p class="mb-0 small" style="color: var(--text-secondary);">This is a preliminary assessment. Final PD score will be calculated using our comprehensive model with 37+ risk factors.</p>
             </div>
         </div>
     `;
@@ -775,61 +959,20 @@ document.getElementById('retailForm').addEventListener('submit', function(e) {
     document.getElementById('formProgress').style.width = '100%';
 });
 
-// Add CSS for step transitions
-const style = document.createElement('style');
-style.textContent = `
-    .form-step {
-        display: none;
-        animation: fadeIn 0.3s ease-in-out;
-    }
+// Theme change handler
+window.addEventListener('themeChanged', function(e) {
+    // Update any theme-specific dynamic content
+    const helpers = document.querySelectorAll('[id$="-helper"]');
+    helpers.forEach(helper => {
+        // Refresh helper styling for new theme
+        const currentHTML = helper.innerHTML;
+        if (currentHTML) {
+            helper.innerHTML = currentHTML; // Trigger CSS update
+        }
+    });
     
-    .form-step.active {
-        display: block;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .progress-bar {
-        transition: width 0.5s ease-in-out;
-    }
-    
-    .form-control-lg, .form-select-lg {
-        font-size: 1.1rem;
-        padding: 0.75rem 1rem;
-    }
-    
-    .step-header {
-        position: relative;
-    }
-    
-    .step-header::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: var(--bs-primary);
-        border-radius: 2px;
-    }
-    
-    .input-group-text {
-        background: var(--bs-light);
-        border-color: var(--bs-border-color);
-    }
-    
-    .card {
-        transition: all 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-`;
-document.head.appendChild(style);
+    // Update review summary colors
+    updateReviewSummary();
+});
 </script>
 {% endblock %}

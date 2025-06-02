@@ -5,19 +5,19 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
-        <div class="card shadow">
-            <div class="card-header bg-warning text-dark">
+        <div class="card shadow-lg border-0">
+            <div class="card-header" style="background: var(--gradient-warning); color: var(--text-on-warning);">
                 <h4 class="mb-0">
                     <i class="fas fa-city me-2"></i>Corporate Entity PD Scoring
                 </h4>
-                <small>Enter corporate financial data for enterprise-level risk assessment</small>
+                <small class="opacity-75">Enter corporate financial data for enterprise-level risk assessment</small>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="background: var(--surface-color); color: var(--text-primary);">
                 <form action="/predict/corporate" method="POST" id="corporateForm">
                     <div class="row g-3">
                         <!-- Company Information -->
                         <div class="col-12">
-                            <h6 class="text-warning border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--warning-color);">
                                 <i class="fas fa-building me-2"></i>Company Information
                             </h6>
                         </div>
@@ -43,21 +43,24 @@
                         
                         <div class="col-md-6">
                             <label for="annual_revenue" class="form-label">Annual Revenue ($) *</label>
-                            <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
-                                   min="50000000" max="500000000000" value="1000000000" step="1000000" required>
-                            <small class="form-text text-muted">Annual revenue in USD (minimum $50M)</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
+                                       min="50000000" max="500000000000" value="1000000000" step="1000000" required>
+                            </div>
+                            <small class="form-text">Annual revenue in USD (minimum $50M)</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="num_employees" class="form-label">Number of Employees *</label>
                             <input type="number" class="form-control" id="num_employees" name="num_employees" 
                                    min="500" max="500000" value="5000" required>
-                            <small class="form-text text-muted">Total number of employees</small>
+                            <small class="form-text">Total number of employees</small>
                         </div>
 
                         <!-- Financial Ratios -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-warning border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--warning-color);">
                                 <i class="fas fa-chart-line me-2"></i>Financial Ratios
                             </h6>
                         </div>
@@ -66,33 +69,36 @@
                             <label for="current_ratio" class="form-label">Current Ratio *</label>
                             <input type="number" class="form-control" id="current_ratio" name="current_ratio" 
                                    min="0.5" max="5" step="0.1" value="1.5" required>
-                            <small class="form-text text-muted">Current Assets / Current Liabilities</small>
+                            <small class="form-text">Current Assets / Current Liabilities</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="debt_to_equity" class="form-label">Debt-to-Equity Ratio *</label>
                             <input type="number" class="form-control" id="debt_to_equity" name="debt_to_equity" 
                                    min="0" max="3" step="0.1" value="0.8" required>
-                            <small class="form-text text-muted">Total Debt / Total Equity</small>
+                            <small class="form-text">Total Debt / Total Equity</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="times_interest_earned" class="form-label">Interest Coverage Ratio *</label>
                             <input type="number" class="form-control" id="times_interest_earned" name="times_interest_earned" 
                                    min="0.5" max="50" step="0.1" value="8.0" required>
-                            <small class="form-text text-muted">EBIT / Interest Expense</small>
+                            <small class="form-text">EBIT / Interest Expense</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="roa" class="form-label">Return on Assets (ROA) *</label>
-                            <input type="number" class="form-control" id="roa" name="roa" 
-                                   min="-0.5" max="0.5" step="0.01" value="0.08" required>
-                            <small class="form-text text-muted">Net Income / Total Assets (e.g., 0.08 = 8%)</small>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="roa" name="roa" 
+                                       min="-0.5" max="0.5" step="0.01" value="0.08" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="form-text">Net Income / Total Assets (e.g., 0.08 = 8%)</small>
                         </div>
 
                         <!-- Credit Information -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-warning border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--warning-color);">
                                 <i class="fas fa-star me-2"></i>Credit Information
                             </h6>
                         </div>
@@ -131,23 +137,29 @@
 
                         <!-- Cash Flow Information -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-warning border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--warning-color);">
                                 <i class="fas fa-money-bill-wave me-2"></i>Cash Flow Information
                             </h6>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="operating_cash_flow" class="form-label">Operating Cash Flow ($) *</label>
-                            <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
-                                   min="1000000" max="100000000000" value="150000000" step="1000000" required>
-                            <small class="form-text text-muted">Annual operating cash flow</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
+                                       min="1000000" max="100000000000" value="150000000" step="1000000" required>
+                            </div>
+                            <small class="form-text">Annual operating cash flow</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="free_cash_flow" class="form-label">Free Cash Flow ($) *</label>
-                            <input type="number" class="form-control" id="free_cash_flow" name="free_cash_flow" 
-                                   min="0" max="100000000000" value="100000000" step="1000000" required>
-                            <small class="form-text text-muted">Operating cash flow - Capital expenditures</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="free_cash_flow" name="free_cash_flow" 
+                                       min="0" max="100000000000" value="100000000" step="1000000" required>
+                            </div>
+                            <small class="form-text">Operating cash flow - Capital expenditures</small>
                         </div>
 
                         <!-- Submit Button -->
@@ -168,15 +180,15 @@
 
         <!-- Corporate Information Card -->
         <div class="card mt-4 border-warning">
-            <div class="card-body">
-                <h6 class="card-title text-warning">
+            <div class="card-body" style="background: var(--surface-color);">
+                <h6 class="card-title" style="color: var(--warning-color);">
                     <i class="fas fa-info-circle me-2"></i>About Corporate PD Scoring
                 </h6>
-                <p class="card-text small">
+                <p class="card-text small" style="color: var(--text-secondary);">
                     Our corporate PD model evaluates large enterprises using sophisticated financial analysis and market indicators. 
                     The model incorporates 40+ risk factors including:
                 </p>
-                <ul class="small mb-0">
+                <ul class="small mb-0" style="color: var(--text-secondary);">
                     <li><strong>Industry Analysis:</strong> Sector-specific risk assessment and benchmarking</li>
                     <li><strong>Financial Strength:</strong> Liquidity, leverage, and profitability ratios</li>
                     <li><strong>Credit Quality:</strong> External ratings and market position assessment</li>
@@ -187,6 +199,129 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Theme-aware styling for Corporate form */
+.section-header {
+    border-bottom: 1px solid var(--border-color) !important;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--warning-color);
+    border-radius: 1px;
+}
+
+.form-label {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.form-text {
+    color: var(--text-muted) !important;
+}
+
+.input-group-text {
+    background-color: var(--background-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.card-header h4,
+.card-header small {
+    color: var(--text-on-warning) !important;
+}
+
+.card-title {
+    color: var(--warning-color) !important;
+}
+
+.card-text {
+    color: var(--text-secondary) !important;
+}
+
+/* Real-time validation helpers */
+.ratio-helper,
+.industry-helper {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .col-lg-8 {
+        padding: 0 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .section-header {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .input-group-text {
+        min-width: auto;
+        padding: 0.375rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn.me-md-2 {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    .btn-lg {
+        width: 100%;
+    }
+    
+    .d-md-flex {
+        display: block !important;
+    }
+}
+
+/* Enhanced form interactivity */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--warning-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.25) !important;
+}
+
+/* Smooth transitions */
+.card,
+.form-control,
+.form-select,
+.btn,
+.input-group-text {
+    transition: all var(--transition-normal);
+}
+
+/* Credit rating colors */
+.form-select[name="credit_rating"] {
+    background-image: linear-gradient(45deg, transparent 40%, rgba(217, 119, 6, 0.1) 50%, transparent 60%);
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -203,6 +338,16 @@ function resetForm() {
     document.getElementById('roa').value = '0.08';
     document.getElementById('operating_cash_flow').value = '150000000';
     document.getElementById('free_cash_flow').value = '100000000';
+    
+    // Clear all validation states
+    document.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+        el.classList.remove('is-valid', 'is-invalid');
+    });
+    
+    // Remove all helper elements
+    document.querySelectorAll('.ratio-helper, .industry-helper').forEach(el => {
+        el.remove();
+    });
 }
 
 // Form validation and UX improvements
@@ -215,30 +360,36 @@ document.getElementById('corporateForm').addEventListener('submit', function(e) 
 // Real-time ratio validation
 document.getElementById('debt_to_equity').addEventListener('input', function() {
     const ratio = parseFloat(this.value);
-    const helper = this.parentElement.querySelector('.ratio-helper') || document.createElement('div');
-    helper.className = 'ratio-helper mt-1 small';
+    let helper = this.parentElement.querySelector('.ratio-helper');
     
-    if (ratio > 2.0) {
-        helper.className += ' text-danger';
-        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>High leverage - may indicate higher risk';
-    } else if (ratio > 1.0) {
-        helper.className += ' text-warning';
-        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Moderate leverage level';
-    } else {
-        helper.className += ' text-success';
-        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Conservative leverage level';
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'ratio-helper';
+        this.parentElement.appendChild(helper);
     }
     
-    if (!this.parentElement.querySelector('.ratio-helper')) {
-        this.parentElement.appendChild(helper);
+    if (ratio > 2.0) {
+        helper.className = 'ratio-helper text-danger';
+        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>High leverage - may indicate higher risk';
+    } else if (ratio > 1.0) {
+        helper.className = 'ratio-helper text-warning';
+        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Moderate leverage level';
+    } else {
+        helper.className = 'ratio-helper text-success';
+        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Conservative leverage level';
     }
 });
 
 // Industry-specific guidance
 document.getElementById('industry').addEventListener('change', function() {
     const industry = this.value;
-    const helper = this.parentElement.querySelector('.industry-helper') || document.createElement('div');
-    helper.className = 'industry-helper mt-1 small text-info';
+    let helper = this.parentElement.querySelector('.industry-helper');
+    
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'industry-helper text-info';
+        this.parentElement.appendChild(helper);
+    }
     
     let guidance = '';
     switch(industry) {
@@ -262,10 +413,107 @@ document.getElementById('industry').addEventListener('change', function() {
     }
     
     helper.innerHTML = guidance;
+});
+
+// ROA helper
+document.getElementById('roa').addEventListener('input', function() {
+    const roa = parseFloat(this.value);
+    const percentage = (roa * 100).toFixed(1);
     
-    if (!this.parentElement.querySelector('.industry-helper')) {
+    let helper = this.parentElement.parentElement.querySelector('.roa-helper');
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'roa-helper';
+        this.parentElement.parentElement.appendChild(helper);
+    }
+    
+    let colorClass = 'text-success';
+    let icon = 'fas fa-trending-up';
+    let message = 'Strong asset efficiency';
+    
+    if (roa < 0) {
+        colorClass = 'text-danger';
+        icon = 'fas fa-trending-down';
+        message = 'Negative returns - losses on assets';
+    } else if (roa < 0.05) {
+        colorClass = 'text-warning';
+        icon = 'fas fa-minus';
+        message = 'Below average asset efficiency';
+    }
+    
+    helper.className = `roa-helper ${colorClass}`;
+    helper.innerHTML = `<i class="${icon} me-1"></i>${percentage}% - ${message}`;
+});
+
+// Credit rating change handler
+document.getElementById('credit_rating').addEventListener('change', function() {
+    const rating = this.value;
+    let helper = this.parentElement.querySelector('.rating-helper');
+    
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'rating-helper';
         this.parentElement.appendChild(helper);
     }
+    
+    let colorClass = 'text-success';
+    let message = 'Investment grade rating';
+    
+    if (['BB+', 'BB', 'BB-', 'B+', 'B', 'B-'].includes(rating)) {
+        colorClass = 'text-warning';
+        message = 'Speculative grade rating - higher risk';
+    } else if (['AAA', 'AA+', 'AA', 'AA-'].includes(rating)) {
+        colorClass = 'text-success';
+        message = 'Premium credit quality';
+    }
+    
+    helper.className = `rating-helper ${colorClass}`;
+    helper.innerHTML = `<i class="fas fa-star me-1"></i>${message}`;
+});
+
+// Cash flow margin calculator
+document.addEventListener('DOMContentLoaded', function() {
+    const operatingCashFlow = document.getElementById('operating_cash_flow');
+    const freeCashFlow = document.getElementById('free_cash_flow');
+    const revenue = document.getElementById('annual_revenue');
+    
+    function updateCashFlowMargins() {
+        const ocf = parseFloat(operatingCashFlow.value) || 0;
+        const fcf = parseFloat(freeCashFlow.value) || 0;
+        const rev = parseFloat(revenue.value) || 0;
+        
+        if (rev > 0) {
+            const ocfMargin = ((ocf / rev) * 100).toFixed(1);
+            const fcfMargin = ((fcf / rev) * 100).toFixed(1);
+            
+            let helper = operatingCashFlow.parentElement.parentElement.querySelector('.cashflow-helper');
+            if (!helper) {
+                helper = document.createElement('div');
+                helper.className = 'cashflow-helper text-info';
+                operatingCashFlow.parentElement.parentElement.appendChild(helper);
+            }
+            
+            helper.innerHTML = `
+                <i class="fas fa-calculator me-1"></i>
+                OCF Margin: ${ocfMargin}% | FCF Margin: ${fcfMargin}%
+            `;
+        }
+    }
+    
+    [operatingCashFlow, freeCashFlow, revenue].forEach(input => {
+        input.addEventListener('input', updateCashFlowMargins);
+    });
+});
+
+// Theme change handler
+window.addEventListener('themeChanged', function(e) {
+    // Update any theme-specific dynamic content
+    const helpers = document.querySelectorAll('.ratio-helper, .industry-helper, .roa-helper, .rating-helper, .cashflow-helper');
+    helpers.forEach(helper => {
+        // Refresh helper styling for new theme
+        const currentClass = helper.className;
+        helper.className = currentClass; // Trigger CSS update
+    });
 });
 </script>
 {% endblock %}

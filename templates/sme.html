@@ -5,19 +5,19 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white">
+        <div class="card shadow-lg border-0">
+            <div class="card-header" style="background: var(--gradient-success); color: var(--text-on-success);">
                 <h4 class="mb-0">
                     <i class="fas fa-building me-2"></i>SME Company PD Scoring
                 </h4>
-                <small>Enter SME business data for comprehensive risk assessment</small>
+                <small class="opacity-75">Enter SME business data for comprehensive risk assessment</small>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="background: var(--surface-color); color: var(--text-primary);">
                 <form action="/predict/sme" method="POST" id="smeForm">
                     <div class="row g-3">
                         <!-- Company Information -->
                         <div class="col-12">
-                            <h6 class="text-success border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--success-color);">
                                 <i class="fas fa-building me-2"></i>Company Information
                             </h6>
                         </div>
@@ -45,33 +45,36 @@
                             <label for="years_in_business" class="form-label">Years in Business *</label>
                             <input type="number" class="form-control" id="years_in_business" name="years_in_business" 
                                    min="0.5" max="50" step="0.1" value="8.0" required>
-                            <small class="form-text text-muted">Years since company establishment</small>
+                            <small class="form-text">Years since company establishment</small>
                         </div>
 
                         <!-- Business Metrics -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-success border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--success-color);">
                                 <i class="fas fa-chart-bar me-2"></i>Business Metrics
                             </h6>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="annual_revenue" class="form-label">Annual Revenue ($) *</label>
-                            <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
-                                   min="100000" max="25000000" value="1500000" step="10000" required>
-                            <small class="form-text text-muted">Annual revenue in USD</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="annual_revenue" name="annual_revenue" 
+                                       min="100000" max="25000000" value="1500000" step="10000" required>
+                            </div>
+                            <small class="form-text">Annual revenue in USD</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="num_employees" class="form-label">Number of Employees *</label>
                             <input type="number" class="form-control" id="num_employees" name="num_employees" 
                                    min="1" max="500" value="20" required>
-                            <small class="form-text text-muted">Total number of employees</small>
+                            <small class="form-text">Total number of employees</small>
                         </div>
 
                         <!-- Financial Ratios -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-success border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--success-color);">
                                 <i class="fas fa-calculator me-2"></i>Financial Ratios
                             </h6>
                         </div>
@@ -80,68 +83,77 @@
                             <label for="current_ratio" class="form-label">Current Ratio *</label>
                             <input type="number" class="form-control" id="current_ratio" name="current_ratio" 
                                    min="0.5" max="5" step="0.1" value="1.6" required>
-                            <small class="form-text text-muted">Current Assets / Current Liabilities</small>
+                            <small class="form-text">Current Assets / Current Liabilities</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="debt_to_equity" class="form-label">Debt-to-Equity Ratio *</label>
                             <input type="number" class="form-control" id="debt_to_equity" name="debt_to_equity" 
                                    min="0.1" max="3" step="0.1" value="1.2" required>
-                            <small class="form-text text-muted">Total Debt / Total Equity</small>
+                            <small class="form-text">Total Debt / Total Equity</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="interest_coverage" class="form-label">Interest Coverage Ratio *</label>
                             <input type="number" class="form-control" id="interest_coverage" name="interest_coverage" 
                                    min="0.5" max="20" step="0.1" value="5.0" required>
-                            <small class="form-text text-muted">EBIT / Interest Expense</small>
+                            <small class="form-text">EBIT / Interest Expense</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="profit_margin" class="form-label">Profit Margin *</label>
                             <input type="number" class="form-control" id="profit_margin" name="profit_margin" 
                                    min="-0.2" max="0.3" step="0.01" value="0.08" required>
-                            <small class="form-text text-muted">Net Profit / Revenue (e.g., 0.08 = 8%)</small>
+                            <small class="form-text">Net Profit / Revenue (e.g., 0.08 = 8%)</small>
                         </div>
 
                         <!-- Cash Flow Information -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-success border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--success-color);">
                                 <i class="fas fa-money-bill-wave me-2"></i>Cash Flow & Credit
                             </h6>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="operating_cash_flow" class="form-label">Operating Cash Flow ($) *</label>
-                            <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
-                                   min="0" max="5000000" value="150000" step="1000" required>
-                            <small class="form-text text-muted">Annual operating cash flow</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="operating_cash_flow" name="operating_cash_flow" 
+                                       min="0" max="5000000" value="150000" step="1000" required>
+                            </div>
+                            <small class="form-text">Annual operating cash flow</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="working_capital" class="form-label">Working Capital ($) *</label>
-                            <input type="number" class="form-control" id="working_capital" name="working_capital" 
-                                   min="0" max="2000000" value="200000" step="1000" required>
-                            <small class="form-text text-muted">Current Assets - Current Liabilities</small>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="working_capital" name="working_capital" 
+                                       min="0" max="2000000" value="200000" step="1000" required>
+                            </div>
+                            <small class="form-text">Current Assets - Current Liabilities</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="credit_utilization" class="form-label">Credit Utilization Rate *</label>
-                            <input type="number" class="form-control" id="credit_utilization" name="credit_utilization" 
-                                   min="0" max="1" step="0.01" value="0.35" required>
-                            <small class="form-text text-muted">Used credit / total credit available (e.g., 0.35 = 35%)</small>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="credit_utilization" name="credit_utilization" 
+                                       min="0" max="1" step="0.01" value="0.35" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="form-text">Used credit / total credit available (e.g., 0.35 = 35%)</small>
                         </div>
                         
                         <div class="col-md-6">
                             <label for="payment_delays_12m" class="form-label">Payment Delays (12 months) *</label>
                             <input type="number" class="form-control" id="payment_delays_12m" name="payment_delays_12m" 
                                    min="0" max="12" value="1" required>
-                            <small class="form-text text-muted">Number of payment delays in past 12 months</small>
+                            <small class="form-text">Number of payment delays in past 12 months</small>
                         </div>
 
                         <!-- Risk Factors -->
                         <div class="col-12 mt-4">
-                            <h6 class="text-success border-bottom pb-2">
+                            <h6 class="section-header border-bottom pb-2" style="color: var(--success-color);">
                                 <i class="fas fa-shield-alt me-2"></i>Risk Assessment
                             </h6>
                         </div>
@@ -168,7 +180,7 @@
                             <label for="management_quality" class="form-label">Management Quality Score *</label>
                             <input type="number" class="form-control" id="management_quality" name="management_quality" 
                                    min="1" max="10" step="0.1" value="7.0" required>
-                            <small class="form-text text-muted">Management quality assessment (1-10 scale)</small>
+                            <small class="form-text">Management quality assessment (1-10 scale)</small>
                         </div>
                         
                         <div class="col-md-6">
@@ -200,15 +212,15 @@
 
         <!-- SME Information Card -->
         <div class="card mt-4 border-success">
-            <div class="card-body">
-                <h6 class="card-title text-success">
+            <div class="card-body" style="background: var(--surface-color);">
+                <h6 class="card-title" style="color: var(--success-color);">
                     <i class="fas fa-info-circle me-2"></i>About SME PD Scoring
                 </h6>
-                <p class="card-text small">
+                <p class="card-text small" style="color: var(--text-secondary);">
                     Our SME PD model evaluates small and medium enterprises using comprehensive business and financial analysis. 
                     The model considers 31+ risk factors including:
                 </p>
-                <ul class="small mb-0">
+                <ul class="small mb-0" style="color: var(--text-secondary);">
                     <li><strong>Business Fundamentals:</strong> Industry sector, company age, and scale metrics</li>
                     <li><strong>Financial Health:</strong> Liquidity, leverage, and profitability ratios</li>
                     <li><strong>Cash Flow Analysis:</strong> Operating cash flow and working capital management</li>
@@ -219,6 +231,124 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Theme-aware styling for SME form */
+.section-header {
+    border-bottom: 1px solid var(--border-color) !important;
+    margin-bottom: 1rem;
+}
+
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--success-color);
+    border-radius: 1px;
+}
+
+.form-label {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.form-text {
+    color: var(--text-muted) !important;
+}
+
+.input-group-text {
+    background-color: var(--background-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.card-header h4,
+.card-header small {
+    color: var(--text-on-success) !important;
+}
+
+.card-title {
+    color: var(--success-color) !important;
+}
+
+.card-text {
+    color: var(--text-secondary) !important;
+}
+
+/* Real-time validation helpers */
+.margin-helper,
+.utilization-helper,
+.revenue-helper {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .col-lg-8 {
+        padding: 0 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .section-header {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .input-group-text {
+        min-width: auto;
+        padding: 0.375rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn.me-md-2 {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    .btn-lg {
+        width: 100%;
+    }
+    
+    .d-md-flex {
+        display: block !important;
+    }
+}
+
+/* Enhanced form interactivity */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--success-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25) !important;
+}
+
+/* Smooth transitions */
+.card,
+.form-control,
+.form-select,
+.btn,
+.input-group-text {
+    transition: all var(--transition-normal);
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -238,6 +368,16 @@ function resetForm() {
     document.getElementById('credit_utilization').value = '0.35';
     document.getElementById('payment_delays_12m').value = '1';
     document.getElementById('management_quality').value = '7.0';
+    
+    // Clear all validation states
+    document.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+        el.classList.remove('is-valid', 'is-invalid');
+    });
+    
+    // Remove all helper elements
+    document.querySelectorAll('.margin-helper, .utilization-helper, .revenue-helper').forEach(el => {
+        el.remove();
+    });
 }
 
 // Form validation and UX improvements
@@ -250,22 +390,23 @@ document.getElementById('smeForm').addEventListener('submit', function(e) {
 // Real-time validation helpers
 document.getElementById('profit_margin').addEventListener('input', function() {
     const margin = parseFloat(this.value);
-    const helper = this.parentElement.querySelector('.margin-helper') || document.createElement('div');
-    helper.className = 'margin-helper mt-1 small';
+    let helper = this.parentElement.querySelector('.margin-helper');
     
-    if (margin < 0) {
-        helper.className += ' text-danger';
-        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Negative profit margin indicates losses';
-    } else if (margin < 0.05) {
-        helper.className += ' text-warning';
-        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Low profit margin - monitor closely';
-    } else {
-        helper.className += ' text-success';
-        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Healthy profit margin';
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'margin-helper';
+        this.parentElement.appendChild(helper);
     }
     
-    if (!this.parentElement.querySelector('.margin-helper')) {
-        this.parentElement.appendChild(helper);
+    if (margin < 0) {
+        helper.className = 'margin-helper text-danger';
+        helper.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Negative profit margin indicates losses';
+    } else if (margin < 0.05) {
+        helper.className = 'margin-helper text-warning';
+        helper.innerHTML = '<i class="fas fa-info-circle me-1"></i>Low profit margin - monitor closely';
+    } else {
+        helper.className = 'margin-helper text-success';
+        helper.innerHTML = '<i class="fas fa-check-circle me-1"></i>Healthy profit margin';
     }
 });
 
@@ -274,11 +415,11 @@ document.getElementById('credit_utilization').addEventListener('input', function
     const utilization = parseFloat(this.value);
     const percentage = (utilization * 100).toFixed(1);
     
-    let helperElement = this.parentElement.querySelector('.utilization-helper');
-    if (!helperElement) {
-        helperElement = document.createElement('div');
-        helperElement.className = 'utilization-helper mt-1 small';
-        this.parentElement.appendChild(helperElement);
+    let helper = this.parentElement.parentElement.querySelector('.utilization-helper');
+    if (!helper) {
+        helper = document.createElement('div');
+        helper.className = 'utilization-helper';
+        this.parentElement.parentElement.appendChild(helper);
     }
     
     let colorClass = 'text-success';
@@ -296,11 +437,46 @@ document.getElementById('credit_utilization').addEventListener('input', function
         message = 'High utilization - increased risk';
     }
     
-    helperElement.className = `utilization-helper mt-1 small ${colorClass}`;
-    helperElement.innerHTML = `
-        <i class="${icon} me-1"></i>
-        ${percentage}% - ${message}
-    `;
+    helper.className = `utilization-helper ${colorClass}`;
+    helper.innerHTML = `<i class="${icon} me-1"></i>${percentage}% - ${message}`;
+});
+
+// Revenue per employee helper
+document.addEventListener('DOMContentLoaded', function() {
+    const revenueInput = document.getElementById('annual_revenue');
+    const employeeInput = document.getElementById('num_employees');
+    
+    function updateRevenuePerEmployee() {
+        const revenue = parseFloat(revenueInput.value) || 0;
+        const employees = parseFloat(employeeInput.value) || 0;
+        
+        if (revenue > 0 && employees > 0) {
+            const revenuePerEmployee = revenue / employees;
+            let helper = employeeInput.parentElement.querySelector('.revenue-helper');
+            
+            if (!helper) {
+                helper = document.createElement('div');
+                helper.className = 'revenue-helper text-info';
+                employeeInput.parentElement.appendChild(helper);
+            }
+            
+            helper.innerHTML = `<i class="fas fa-calculator me-1"></i>Revenue per employee: $${revenuePerEmployee.toLocaleString()}`;
+        }
+    }
+    
+    revenueInput.addEventListener('input', updateRevenuePerEmployee);
+    employeeInput.addEventListener('input', updateRevenuePerEmployee);
+});
+
+// Theme change handler
+window.addEventListener('themeChanged', function(e) {
+    // Update any theme-specific dynamic content
+    const helpers = document.querySelectorAll('.margin-helper, .utilization-helper, .revenue-helper');
+    helpers.forEach(helper => {
+        // Refresh helper styling for new theme
+        const currentClass = helper.className;
+        helper.className = currentClass; // Trigger CSS update
+    });
 });
 </script>
 {% endblock %}

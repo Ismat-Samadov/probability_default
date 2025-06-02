@@ -5,20 +5,20 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
-        <div class="card border-danger">
-            <div class="card-header bg-danger text-white">
+        <div class="card border-danger shadow-lg">
+            <div class="card-header" style="background: var(--gradient-danger); color: var(--text-on-danger); border-bottom: 1px solid var(--danger-color);">
                 <h4 class="mb-0">
                     <i class="fas fa-exclamation-triangle me-2"></i>Processing Error
                 </h4>
             </div>
-            <div class="card-body">
-                <div class="alert alert-danger">
+            <div class="card-body" style="background: var(--surface-color); color: var(--text-primary);">
+                <div class="alert border-0" style="background-color: rgba(220, 38, 38, 0.1); color: var(--danger-dark); border-left: 4px solid var(--danger-color);">
                     <h5><i class="fas fa-times-circle me-2"></i>Error Details</h5>
                     <p class="mb-0">{{ error }}</p>
                 </div>
                 
-                <h6>Possible Solutions:</h6>
-                <ul>
+                <h6 style="color: var(--text-primary);">Possible Solutions:</h6>
+                <ul style="color: var(--text-secondary);">
                     <li>Check that all required fields are filled correctly</li>
                     <li>Verify that numerical values are within valid ranges</li>
                     <li>Ensure the model service is running properly</li>
@@ -38,11 +38,11 @@
         
         <!-- Support Information -->
         <div class="card mt-4 border-info">
-            <div class="card-body">
-                <h6 class="card-title text-info">
+            <div class="card-body" style="background: var(--surface-color); color: var(--text-primary);">
+                <h6 class="card-title" style="color: var(--info-color);">
                     <i class="fas fa-life-ring me-2"></i>Need Help?
                 </h6>
-                <p class="card-text">
+                <p class="card-text" style="color: var(--text-secondary);">
                     If the error persists, please check the API documentation or contact support.
                 </p>
                 <a href="/api/docs" target="_blank" class="btn btn-outline-info btn-sm">
@@ -52,4 +52,59 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Additional theme-aware styling for error page */
+.alert {
+    transition: all var(--transition-normal);
+}
+
+.card {
+    transition: all var(--transition-normal);
+}
+
+.btn {
+    transition: all var(--transition-fast);
+}
+
+/* Ensure proper contrast in both themes */
+.card-header h4 {
+    color: var(--text-on-danger) !important;
+}
+
+.card-body h6,
+.card-body .card-title {
+    color: var(--text-primary) !important;
+}
+
+.card-body p,
+.card-body .card-text {
+    color: var(--text-secondary) !important;
+}
+
+.card-body ul li {
+    color: var(--text-secondary) !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .col-lg-8 {
+        padding: 0 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    .btn.me-2 {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
 {% endblock %}
